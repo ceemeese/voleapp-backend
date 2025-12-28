@@ -1,0 +1,19 @@
+# Build
+bin/
+obj/
+
+# Visual Studio
+*.user
+*.suo
+*.vscode/
+
+# Paquetes
+*.nupkg
+packages/
+
+# Logs
+*.log
+
+# Configuración local
+appsettings.Development.json
+secrets.json
