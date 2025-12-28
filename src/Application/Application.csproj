@@ -6,8 +6,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.0.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstractions\Behaviors\" />
+    <Folder Include="Abstractions\Data\" />
+    <Folder Include="Abstractions\Interfaces\" />
+    <Folder Include="Mappings\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\net8.0\Application.deps.json" />
+    <Content Include="bin\Debug\net8.0\Application.dll" />
+    <Content Include="bin\Debug\net8.0\Application.pdb" />
+    <Content Include="bin\Debug\net8.0\Domain.dll" />
+    <Content Include="bin\Debug\net8.0\Domain.pdb" />
+    <Content Include="bin\Debug\net8.0\SharedKernel.dll" />
+    <Content Include="bin\Debug\net8.0\SharedKernel.pdb" />
   </ItemGroup>
 
   <PropertyGroup>

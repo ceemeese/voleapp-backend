@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="bin\Debug\net8.0\SharedKernel.deps.json" />
+    <Content Include="bin\Debug\net8.0\SharedKernel.dll" />
+    <Content Include="bin\Debug\net8.0\SharedKernel.pdb" />
+  </ItemGroup>
+
 </Project>

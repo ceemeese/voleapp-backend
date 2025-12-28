@@ -6,6 +6,23 @@
     <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\Migrations\" />
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\net8.0\Application.dll" />
+    <Content Include="bin\Debug\net8.0\Application.pdb" />
+    <Content Include="bin\Debug\net8.0\Domain.dll" />
+    <Content Include="bin\Debug\net8.0\Domain.pdb" />
+    <Content Include="bin\Debug\net8.0\Infrastructure.deps.json" />
+    <Content Include="bin\Debug\net8.0\Infrastructure.dll" />
+    <Content Include="bin\Debug\net8.0\Infrastructure.pdb" />
+    <Content Include="bin\Debug\net8.0\SharedKernel.dll" />
+    <Content Include="bin\Debug\net8.0\SharedKernel.pdb" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
