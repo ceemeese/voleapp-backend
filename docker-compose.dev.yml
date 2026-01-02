@@ -1,0 +1,18 @@
+﻿services:
+  db:
+    image: mysql:8.3
+    container_name: voleapp_dev_db
+    ports:
+      - "3306:3306"
+    env_file:
+      - src/Web.Api/.env.dev
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data_dev:/var/lib/mysql
+
+volumes:
+  db_data_dev:

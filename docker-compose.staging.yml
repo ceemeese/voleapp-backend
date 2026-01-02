@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mysql:8.3
+    container_name: voleapp_staging_db
+    env_file:
+      - ./src/Web.Api/.env.staging
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data_staging:/var/lib/mysql
+  
+  api:
+    build:
+      context: .
+      dockerfile: ./src/Web.Api/Dockerfile
+    container_name: voleapp_staging_api
+    depends_on:
+      - db
+    env_file:
+      - ./src/Web.Api/.env.staging
+    ports:
+      - "8081:8080"
+
+volumes:
+  db_data_staging:

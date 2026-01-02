@@ -8,14 +8,6 @@
     <Folder Include="DTOs\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="bin\Debug\net8.0\Domain.deps.json" />
-    <Content Include="bin\Debug\net8.0\Domain.dll" />
-    <Content Include="bin\Debug\net8.0\Domain.pdb" />
-    <Content Include="bin\Debug\net8.0\SharedKernel.dll" />
-    <Content Include="bin\Debug\net8.0\SharedKernel.pdb" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

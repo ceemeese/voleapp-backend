@@ -12,15 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\net8.0\Application.dll" />
-    <Content Include="bin\Debug\net8.0\Application.pdb" />
-    <Content Include="bin\Debug\net8.0\Domain.dll" />
-    <Content Include="bin\Debug\net8.0\Domain.pdb" />
-    <Content Include="bin\Debug\net8.0\Infrastructure.deps.json" />
-    <Content Include="bin\Debug\net8.0\Infrastructure.dll" />
-    <Content Include="bin\Debug\net8.0\Infrastructure.pdb" />
-    <Content Include="bin\Debug\net8.0\SharedKernel.dll" />
-    <Content Include="bin\Debug\net8.0\SharedKernel.pdb" />
+    <PackageReference Include="AspNetCore.HealthChecks.MySql" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.2" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

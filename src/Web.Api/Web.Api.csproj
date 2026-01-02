@@ -7,14 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
     <PackageReference Include="MediatR" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
@@ -22,36 +26,5 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="bin\Debug\net8.0\Application.dll" />
-    <Content Include="bin\Debug\net8.0\Application.pdb" />
-    <Content Include="bin\Debug\net8.0\appsettings.Development.json" />
-    <Content Include="bin\Debug\net8.0\appsettings.json" />
-    <Content Include="bin\Debug\net8.0\Domain.dll" />
-    <Content Include="bin\Debug\net8.0\Domain.pdb" />
-    <Content Include="bin\Debug\net8.0\FluentValidation.dll" />
-    <Content Include="bin\Debug\net8.0\MediatR.Contracts.dll" />
-    <Content Include="bin\Debug\net8.0\MediatR.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll" />
-    <Content Include="bin\Debug\net8.0\Microsoft.OpenApi.dll" />
-    <Content Include="bin\Debug\net8.0\SharedKernel.dll" />
-    <Content Include="bin\Debug\net8.0\SharedKernel.pdb" />
-    <Content Include="bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll" />
-    <Content Include="bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll" />
-    <Content Include="bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll" />
-    <Content Include="bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll" />
-    <Content Include="bin\Debug\net8.0\Web.Api" />
-    <Content Include="bin\Debug\net8.0\Web.Api.deps.json" />
-    <Content Include="bin\Debug\net8.0\Web.Api.dll" />
-    <Content Include="bin\Debug\net8.0\Web.Api.pdb" />
-    <Content Include="bin\Debug\net8.0\Web.Api.runtimeconfig.json" />
-  </ItemGroup>
-
+  
 </Project>

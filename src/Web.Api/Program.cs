@@ -1,9 +1,14 @@
 using Application;
+using HealthChecks.UI.Client;
 using Infrastructure;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Web.Api;
 using Web.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Console.WriteLine($"ENTORNO ACTUAL: {builder.Environment.EnvironmentName}");
+Console.WriteLine($"CADENA ENCONTRADA: {builder.Configuration.GetConnectionString("DefaultConnection")}");
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -12,7 +17,7 @@ builder.Services.AddSwaggerGenWithAuth();
 builder.Services
     .AddApplication()
     .AddPresentation()
-    .AddInfrastructure();
+    .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -22,6 +27,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
 }
 
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.ApplyMigrations();
 app.UseHttpsRedirection();
 
 app.Run();
