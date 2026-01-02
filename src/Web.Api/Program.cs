@@ -2,6 +2,7 @@ using Application;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 using Web.Api;
 using Web.Api.Extensions;
 
@@ -9,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine($"ENTORNO ACTUAL: {builder.Environment.EnvironmentName}");
 Console.WriteLine($"CADENA ENCONTRADA: {builder.Configuration.GetConnectionString("DefaultConnection")}");
+
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,6 +35,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
+app.UseSerilogRequestLogging();
 app.ApplyMigrations();
 app.UseHttpsRedirection();
 

@@ -11,18 +11,46 @@ services:
       retries: 10
     volumes:
       - db_data_production:/var/lib/mysql
+    networks:
+      - voleapp-network-production
+        
+              
+  seq:
+    image: datalust/seq:2024.3
+    container_name: voleapp_production_seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "8082:80"
+      - "5341:5341"
+    volumes:
+      - seq_data_production:/data
+    networks:
+      - voleapp-network-production
+  
   
   api:
+    container_name: voleapp_production_api
     build:
       context: .
       dockerfile: ./src/Web.Api/Dockerfile
-    container_name: voleapp_production_api
-    depends_on:
-      - db
-    env_file:
-      - ./src/Web.Api/.env.production
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    env_file:
+      - ./src/Web.Api/.env.production
+    networks:
+      - voleapp-network-production
+
+
+networks:
+  voleapp-network-production:
+    driver: bridge
 
 volumes:
   db_data_production:
+  seq_data_production:
