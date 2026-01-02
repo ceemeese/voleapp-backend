@@ -1,6 +1,7 @@
 using Application;
 using HealthChecks.UI.Client;
 using Infrastructure;
+using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using Web.Api;

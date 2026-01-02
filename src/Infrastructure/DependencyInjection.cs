@@ -51,14 +51,4 @@ public static class DependencyInjection
         return services;
     }
     
-    public static void ApplyMigrations(this IHost app)
-    {
-        var scopeFactory = app.Services.GetService<IServiceScopeFactory>();
-        using (var scope = scopeFactory?.CreateScope())
-        {
-            var dbContext = scope?.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            dbContext?.Database.Migrate();
-        }
-    }
-        
 }
