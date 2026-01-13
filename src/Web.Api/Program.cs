@@ -37,6 +37,9 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 });
 
 app.UseSerilogRequestLogging();
+
+app.UseExceptionHandler();
+
 app.ApplyMigrations();
 app.UseHttpsRedirection();
 
