@@ -65,11 +65,11 @@ public class CustomResults
                 _ => StatusCodes.Status500InternalServerError,
             };
 
-        static Dictionary<string, object?>? GetErrors(Result result)
+        static Dictionary<string, object?> GetErrors(Result result)
         {
             if (result.Error is not ValidationError validationError)
             {
-                return null;
+                return new Dictionary<string, object?>();
             }
 
             return new Dictionary<string, object?>

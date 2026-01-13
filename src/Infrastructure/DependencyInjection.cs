@@ -3,7 +3,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Scrutor;
 
 namespace Infrastructure;
 
@@ -34,6 +34,15 @@ public static class DependencyInjection
     {
         services
             .AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+        
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(ApplicationDbContext).Assembly)
+            .AddClasses(
+                filter => filter.Where(x => x.Name.EndsWith("Repository")),
+                publicOnly: false)
+            .UsingRegistrationStrategy(RegistrationStrategy.Throw)
+            .AsMatchingInterface()
+            .WithScopedLifetime());
         return services;
     }
 

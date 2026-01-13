@@ -28,14 +28,11 @@ public class Result
     
     public static Result<TValue> Failure<TValue>(Error error) => 
         new(default, false, error);
-    
-    public static Result<TValue> ValidationFailure<TValue>(Error error) =>
-        new(default, false, error);
 }
 
 public class Result<TValue> : Result
 {
-    private readonly TValue _value;
+    private readonly TValue? _value;
 
     public Result(TValue? value, bool isSuccess, Error error) : base(isSuccess, error)
     {
@@ -46,5 +43,8 @@ public class Result<TValue> : Result
     public TValue Value => IsSuccess 
         ? _value!
         : throw new InvalidOperationException("The value of a failure result can't be accessed");
+    
+    public static Result<TValue> ValidationFailure(Error error) =>
+        new(default, false, error);
 }
 

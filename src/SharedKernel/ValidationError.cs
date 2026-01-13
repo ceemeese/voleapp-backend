@@ -9,7 +9,7 @@ public sealed record ValidationError : Error
     
     public Error[] Errors { get; }
 
-    //De los resultados de validacion, sólo me quedo con los errores para construir el objeto ValidationError
+    //De los resultados de validacion, sólo me quedo con los errores para construir el objeto ValidationError. Para validaciones de handler/domain
     public static ValidationError FromFailures(IEnumerable<Result> results) =>
         new(results.Where(r => r.IsFailure).Select(r => r.Error).ToArray());
 }
