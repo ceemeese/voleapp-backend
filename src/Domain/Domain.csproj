@@ -5,7 +5,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Club\" />
     <Folder Include="DTOs\" />
+    <Folder Include="User\" />
   </ItemGroup>
 
   <PropertyGroup>
