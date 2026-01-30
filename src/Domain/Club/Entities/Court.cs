@@ -12,6 +12,7 @@ public sealed class Court : Entity<int>
         Type = type;
         BasePrice = basePrice;
         IsActive = isActive;
+        CreatedAt = DateTime.UtcNow;
     }
     
     private Court()
@@ -23,9 +24,10 @@ public sealed class Court : Entity<int>
     public CourtType Type { get; private set; }
     public decimal BasePrice { get; private set; }
     public bool IsActive { get; private set; }
-    private readonly List<CourtEvent> _courtsEvents = new();
-    //expression bodied members =>
-    public IReadOnlyCollection<CourtEvent> CourtsEvent => _courtsEvents.AsReadOnly();
+    public DateTime CreatedAt { get; private set; }
+    private readonly List<CourtEvent> _courtEvents = new();
+    //expression bodied members => devolucion de propiedad de solo lectura(private readonly)
+    public IReadOnlyCollection<CourtEvent> CourtEvents => _courtEvents.AsReadOnly();
     
     
     //evento anadir eventopista

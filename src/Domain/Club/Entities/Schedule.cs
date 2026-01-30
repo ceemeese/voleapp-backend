@@ -1,4 +1,3 @@
-using Domain.Club.Enum;
 using DayOfWeek = Domain.Club.Enum.DayOfWeek;
 
 namespace Domain.Club.Entities;

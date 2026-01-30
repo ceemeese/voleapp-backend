@@ -10,7 +10,7 @@ public class CourtEvent : Entity<int>
         EndTime = endTime;
         EventName = eventName;
         Description = description;
-        CreatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
     }
 
     private CourtEvent()

@@ -6,12 +6,14 @@ namespace Domain.Club;
 
 public sealed class Club : AggregateRoot<Guid>
 {
-    public Club(Guid id, string name, Address address, string phoneNumber, string email) : base(id)
+    public Club(Guid id, string name, string cif, Address address, string phoneNumber, string email) : base(id)
     {
         Name = name;
+        Cif = cif;
         Address = address;
         PhoneNumber = phoneNumber;
         Email = email;
+        IsActive = true;
         CreatedAt = DateTime.UtcNow;
     }
 
@@ -21,9 +23,11 @@ public sealed class Club : AggregateRoot<Guid>
     
     
     public string Name { get; private set; }
+    public string Cif { get; private set; }
     public Address Address { get; private set; }
     public string PhoneNumber { get; private set; }
     public string Email { get; private set; }
+    public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     
     private readonly List<ClubMember> _members = new();
