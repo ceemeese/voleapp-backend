@@ -40,6 +40,9 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.ApplyMigrations();
 app.UseHttpsRedirection();
 
