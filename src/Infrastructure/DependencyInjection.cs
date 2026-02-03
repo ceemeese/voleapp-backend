@@ -1,4 +1,5 @@
 using Domain.Interfaces;
+using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,8 +25,13 @@ public static class DependencyInjection
 
         services
             .AddDbContext<ApplicationDbContext>(options => options
-            .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-        );
+                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+            );
+
+        services
+            .AddDbContext<AuthDbContext>(options => options
+                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+            );
 
         return services;
     }
