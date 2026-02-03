@@ -4,6 +4,7 @@ using Domain.Club;
 using Domain.Club.Entities;
 using Domain.Reservation;
 using Domain.User;
+using Infrastructure.Persistence.Configurations;
 
 namespace Infrastructure.Persistence;
 
@@ -13,7 +14,13 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        modelBuilder.ApplyConfiguration(new ClubConfiguration());
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new ClubMemberConfiguration());
+        modelBuilder.ApplyConfiguration(new CourtConfiguration());
+        modelBuilder.ApplyConfiguration(new ScheduleConfiguration());
+        modelBuilder.ApplyConfiguration(new CourtEventConfiguration());
+        modelBuilder.ApplyConfiguration(new ReservationConfiguration());
         base.OnModelCreating(modelBuilder);
     }
     
