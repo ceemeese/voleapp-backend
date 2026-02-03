@@ -52,5 +52,19 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         
         //filtro de consulta global, siempre uso activos
         builder.HasQueryFilter(u => u.IsActive);
+
+        var superadminId = Guid.Parse("7c9e66ab-7839-47e2-9383-718693c04200");
+            
+        builder.HasData(new User
+            (
+                superadminId,
+                "00000000A",
+                "SuperAdmin",
+                "Superadmin",
+                "superadmin",
+                "superadminadmin@voleapp.es",
+                "000000000"
+            )
+        );
     }
 }
