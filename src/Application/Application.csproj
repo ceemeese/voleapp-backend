@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="Abstractions\Data\" />
+    <Folder Include="Abstractions\DTO\Response\" />
     <Folder Include="Mappings\" />
     <Folder Include="Services\" />
   </ItemGroup>
