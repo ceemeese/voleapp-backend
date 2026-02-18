@@ -7,7 +7,7 @@ using SharedKernel;
 namespace Infrastructure.Identity;
 
 internal sealed class IdentityService(
-        RoleManager<IdentityRole> _roleManager,
+        RoleManager<IdentityRole<Guid>> _roleManager,
         UserManager<AuthUser> _userManager,
         SignInManager<AuthUser> _signInManager
     ) : IIdentityService
@@ -21,6 +21,7 @@ internal sealed class IdentityService(
         };
         
         var result = await _userManager.CreateAsync(user, password);
+        
         return result.ToApplicationResult(user.Id);
     }
 
@@ -45,6 +46,7 @@ internal sealed class IdentityService(
         {
             return Result.Failure(IdentityErrors.NotFound(userId));
         }
+        
         user.UserName = username;
         user.Email = email;
         
@@ -79,6 +81,31 @@ internal sealed class IdentityService(
         
         var result = await _userManager.IsInRoleAsync(user, role);
         return Result.Success(result);
+    }
+
+    public async Task<Result> UpdateUserStatusAsync(Guid userId, bool isActive)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return Result.Failure(IdentityErrors.NotFound(userId));
+        }
+
+        if (!isActive)
+        {
+            await _userManager.SetLockoutEnabledAsync(user, true);
+            var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+            return result.Succeeded
+                ? Result.Success()
+                : Result.Failure(IdentityErrors.UpdateFailed);
+        }
+        else
+        {
+            var result = await _userManager.SetLockoutEndDateAsync(user, null);
+            return result.Succeeded
+                ? Result.Success()
+                : Result.Failure(IdentityErrors.UpdateFailed);
+        }
     }
 
     /*public async Task SetRefreshTokenAsync(Guid userId, string refreshToken)

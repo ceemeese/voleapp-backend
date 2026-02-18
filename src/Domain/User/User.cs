@@ -15,6 +15,7 @@ public sealed class User : AggregateRoot<Guid>
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
     }
+    
     private User()
     {
     }
@@ -27,4 +28,18 @@ public sealed class User : AggregateRoot<Guid>
     public string PhoneNumber { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    
+    
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+
+
+    public void UpdateProfile(string username, string phoneNumber, string email)
+    {
+        Username = username;
+        PhoneNumber = phoneNumber;
+        Email = email;
+    }
 }

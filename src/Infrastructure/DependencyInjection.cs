@@ -1,10 +1,11 @@
 using System.Text;
 using Application.Abstractions.Interfaces;
-using Domain.Interfaces;
 using Infrastructure.Authentication;
 using Infrastructure.Identity;
+using Infrastructure.Identity.Models;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,8 @@ public static class DependencyInjection
             .AddPersistenceInternal()
             .AddHealthChecks(configuration)
             .AddAuthenticationInternal(configuration)
-            .AddAuthorizationInternal();
+            .AddAuthorizationInternal()
+            .AddIdentityInternal();
 
     
     
@@ -81,7 +83,7 @@ public static class DependencyInjection
                 options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)),
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
                     ClockSkew = TimeSpan.Zero,
@@ -98,6 +100,28 @@ public static class DependencyInjection
     {
         services.AddAuthorization();
         
+        return services;
+    }
+
+
+    private static IServiceCollection AddIdentityInternal(this IServiceCollection services)
+    {
+            services.AddIdentityCore<AuthUser>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddSignInManager()
+            .AddEntityFrameworkStores<AuthDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.AddScoped<IIdentityService, IdentityService>();
+
         return services;
     }
     

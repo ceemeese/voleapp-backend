@@ -9,5 +9,6 @@ public interface IIdentityService
     Task<Result> UpdateUserProfileAsync(Guid userId, string oldUserName, string username, string email);
     Task<Result> UpdateUserPasswordAsync(Guid userId, string oldPassword, string newPassword);
     Task<Result<bool>> IsInRoleAsync(Guid userId, string role);
+    Task<Result> UpdateUserStatusAsync(Guid userId, bool isActive);
     //Task SetRefreshTokenAsync(Guid userId, string refreshToken);
 }

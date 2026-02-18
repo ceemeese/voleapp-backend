@@ -1,4 +1,4 @@
-using Domain.Interfaces;
+using Application.Abstractions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Domain.Club;
 using Domain.Club.Entities;

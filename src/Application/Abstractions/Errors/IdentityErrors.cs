@@ -14,7 +14,7 @@ public static class IdentityErrors
     
     public static readonly Error UserNameNotUnique = Error.Conflict(
         "IdentityUser.UserNameNotUnique",
-        "El nobre de usuario ya existe");
+        "El nombre de usuario ya existe");
 
     public static readonly Error RegistrationFailed = Error.Problem(
         "RegistrationFailed",
@@ -27,4 +27,9 @@ public static class IdentityErrors
     public static readonly Error CannotUpdateSuperAdmin = Error.Failure(
         "IdentityUser.CannotUpdateSuperAdmin",
         "No se permite modificar el perfil de superadmin principal");
+
+    public static readonly Error UpdateFailed = Error.Failure(
+        "IdentityUser.UpdateFailed",
+        "Ha ocurrido un error al actualizar los datos de seguridad en Identity");
+
 }

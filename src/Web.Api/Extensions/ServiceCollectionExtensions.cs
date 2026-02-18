@@ -6,7 +6,7 @@ internal static class ServiceCollectionExtensions
 {
     internal static IServiceCollection AddSwaggerGenWithAuth(this IServiceCollection services)
     {
-        services.AddSwaggerGen(opt =>
+        /*services.AddSwaggerGen(opt =>
         {
             opt.SwaggerDoc("v1", new OpenApiInfo{Title = "VoleApp API", Version = "v1"});
             opt.CustomSchemaIds(id => id.FullName!.Replace("+", "-"));
@@ -38,7 +38,7 @@ internal static class ServiceCollectionExtensions
                 }
             };
             opt.AddSecurityRequirement(securityRequirement);
-        });
+        });*/
         
         return services;
     }
