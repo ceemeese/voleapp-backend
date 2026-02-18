@@ -20,15 +20,15 @@ public static class IdentityErrors
         "RegistrationFailed",
         "No se pudo completar el registro del usuario");
 
-    public static readonly Error InvalidCredentials = Error.Failure(
+    public static readonly Error InvalidCredentials = Error.Problem(
         "InvalidCredentials",
         "Usuario o contraseña incorrectos");
     
-    public static readonly Error CannotUpdateSuperAdmin = Error.Failure(
+    public static readonly Error CannotUpdateSuperAdmin = Error.Problem(
         "IdentityUser.CannotUpdateSuperAdmin",
         "No se permite modificar el perfil de superadmin principal");
 
-    public static readonly Error UpdateFailed = Error.Failure(
+    public static readonly Error UpdateFailed = Error.Problem(
         "IdentityUser.UpdateFailed",
         "Ha ocurrido un error al actualizar los datos de seguridad en Identity");
 

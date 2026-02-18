@@ -4,5 +4,5 @@ namespace Application.Abstractions.Interfaces;
 
 public interface ITokenProvider
 {
-    string Create(User user, IList<string> roles);
+    string Create(Guid userId, string email, string role);
 }

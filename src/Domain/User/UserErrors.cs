@@ -20,6 +20,10 @@ public static class UserErrors
         "User.NotFoundByEmail",
     "No se ha encontrado ningún usuario con ese email");
     
+    public static readonly Error NotFoundByUsername = Error.NotFound(
+        "User.NotFoundByUsername",
+        "No se ha encontrado ningún usuario con ese nombre de usuario");
+    
     public static readonly Error DniDuplicated = Error.Conflict(
         "User.DniDuplicated",
         "El dni ya está registrado");

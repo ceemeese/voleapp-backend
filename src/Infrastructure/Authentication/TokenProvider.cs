@@ -10,7 +10,7 @@ namespace Infrastructure.Authentication;
 
 internal sealed class TokenProvider(IConfiguration configuration) : ITokenProvider
 {
-    public string Create(User user, IList<string> roles)
+    public string Create(Guid userId, string email, string role)
     {
         string secretKey = configuration["Jwt:Secret"];
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -19,14 +19,11 @@ internal sealed class TokenProvider(IConfiguration configuration) : ITokenProvid
         
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, email),
         };
         
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+        claims.Add(new Claim(ClaimTypes.Role, role));
         
         var tokenDescriptor = new SecurityTokenDescriptor
         {

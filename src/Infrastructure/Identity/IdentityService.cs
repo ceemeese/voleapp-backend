@@ -1,5 +1,7 @@
+using Application.Abstractions.DTO;
 using Application.Abstractions.Errors;
 using Application.Abstractions.Interfaces;
+using Domain.Roles;
 using Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using SharedKernel;
@@ -21,17 +23,37 @@ internal sealed class IdentityService(
         };
         
         var result = await _userManager.CreateAsync(user, password);
+        if (!result.Succeeded)
+        {
+            return result.ToApplicationResult(user.Id);
+        }
         
-        return result.ToApplicationResult(user.Id);
+        var roleResult = await _userManager.AddToRoleAsync(user, Role.User.Name);
+        
+        return roleResult.ToApplicationResult(user.Id);
     }
 
-    public async Task<Result<bool>> LoginAsync(string username, string password)
+    
+    public async Task<Result<LoginIdentity>> LoginAsync(string loginInput, string password)
     {
-        var result = await _signInManager.PasswordSignInAsync(username, password, false, false);
+        var user = await _userManager.FindByEmailAsync(loginInput)
+            ?? await _userManager.FindByNameAsync(loginInput);
 
-        return result.Succeeded
-            ? Result.Success(true)
-            : Result.Failure<bool>(IdentityErrors.InvalidCredentials);
+        if (user is null)
+        {
+            return Result.Failure<LoginIdentity>(IdentityErrors.InvalidCredentials);
+        }
+        
+        var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+
+        if (!result.Succeeded)
+        {
+            return result.ToApplicationResult(user.Id, user.Email!, string.Empty);
+        }
+        
+        var resultRoles = await _userManager.GetRolesAsync(user);
+        var role = resultRoles.FirstOrDefault() ?? Role.User.Name;
+        return result.ToApplicationResult(user.Id, user.Email!, role);
     }
 
     public async Task<Result> UpdateUserProfileAsync(Guid userId, string oldUserName, string username, string email)
@@ -51,7 +73,7 @@ internal sealed class IdentityService(
         user.Email = email;
         
         var result = await _userManager.UpdateAsync(user);
-        return result.ToApplicationResult();
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed);
     }
 
     public async Task<Result> UpdateUserPasswordAsync(Guid userId, string oldPassword, string newPassword)
@@ -68,19 +90,57 @@ internal sealed class IdentityService(
         }
         
         var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
-        return result.ToApplicationResult();
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed);
+    }
+
+
+    public async Task<Result> SetRoleAsync(IRole role, Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return Result.Failure(IdentityErrors.NotFound(userId));
+        }
+
+        if (user.UserName == "superadmin")
+        {
+            return Result.Failure(IdentityErrors.CannotUpdateSuperAdmin);
+        }
+        
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Any())
+        {
+            await _userManager.RemoveFromRolesAsync(user, roles);
+        }
+        
+        var result = await _userManager.AddToRoleAsync(user, role.Name);
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed);
+    }
+
+    public async Task<Result<string?>> GetRolesAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return Result.Failure<string?>(IdentityErrors.NotFound(userId));
+        }
+        
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault();
+
+        return Result.Success(role);
     }
 
     public async Task<Result<bool>> IsInRoleAsync(Guid userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null)
+        if (user is null)
         {
             return Result.Failure<bool>(IdentityErrors.NotFound(userId));
         }
         
-        var result = await _userManager.IsInRoleAsync(user, role);
-        return Result.Success(result);
+        var isInRole = await _userManager.IsInRoleAsync(user, role);
+        return Result.Success(isInRole);
     }
 
     public async Task<Result> UpdateUserStatusAsync(Guid userId, bool isActive)
@@ -91,26 +151,35 @@ internal sealed class IdentityService(
             return Result.Failure(IdentityErrors.NotFound(userId));
         }
 
+        IdentityResult result;
+        
         if (!isActive)
         {
+            //bloqueo
             await _userManager.SetLockoutEnabledAsync(user, true);
-            var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
-            return result.Succeeded
-                ? Result.Success()
-                : Result.Failure(IdentityErrors.UpdateFailed);
+            result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
         }
         else
         {
-            var result = await _userManager.SetLockoutEndDateAsync(user, null);
-            return result.Succeeded
-                ? Result.Success()
-                : Result.Failure(IdentityErrors.UpdateFailed);
+            //desbloqueo
+            result = await _userManager.SetLockoutEndDateAsync(user, null);
         }
+        
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed); 
     }
 
-    /*public async Task SetRefreshTokenAsync(Guid userId, string refreshToken)
+    public async Task<Result> SetRefreshTokenAsync(Guid userId, string refreshToken)
     {
-        
-    }*/
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return Result.Failure(IdentityErrors.NotFound(userId));
+        }
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
+        var result = await _userManager.UpdateAsync(user);
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed);
+    }
     
 }

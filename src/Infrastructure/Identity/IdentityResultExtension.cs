@@ -1,5 +1,7 @@
+using Application.Abstractions.DTO;
 using Application.Abstractions.Errors;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using SharedKernel;
 
 namespace Infrastructure.Identity;
@@ -15,7 +17,7 @@ internal static class IdentityResultExtension
         
         var error = result.Errors.FirstOrDefault();
 
-        return error!.Code switch
+        return error?.Code switch
         {
             "DuplicateUserName" =>
                 Result.Failure<Guid>(IdentityErrors.UserNameNotUnique),
@@ -25,7 +27,7 @@ internal static class IdentityResultExtension
         };
     }
     
-    public static Result ToApplicationResult(this IdentityResult result)
+    public static Result ToApplicationResult(this IdentityResult result, Error? defaultError = null)
     {
         if (result.Succeeded)
         {
@@ -37,10 +39,20 @@ internal static class IdentityResultExtension
         return error!.Code switch
         {
             "DuplicateUserName" =>
-                Result.Failure<Guid>(IdentityErrors.UserNameNotUnique),
+                Result.Failure(IdentityErrors.UserNameNotUnique),
             "DuplicateEmail" =>
-                Result.Failure<Guid>(IdentityErrors.EmailNotUnique),
-            _ => Result.Failure<Guid>(IdentityErrors.RegistrationFailed)
+                Result.Failure(IdentityErrors.EmailNotUnique),
+            _ => Result.Failure(defaultError ?? IdentityErrors.RegistrationFailed)
         };
+    }
+
+    public static Result<LoginIdentity> ToApplicationResult(this SignInResult result, Guid userId, string email, string role)
+    {
+        if (result.Succeeded)
+        {
+            return Result.Success(new LoginIdentity(userId, email, role));
+        }
+        
+        return Result.Failure<LoginIdentity>(IdentityErrors.InvalidCredentials);
     }
 }

@@ -32,6 +32,13 @@ internal sealed class UserRepository : IUserRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
     
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken)
+    {
+        return await _context.Users
+            .Where(u => u.Username == username)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+    
     public async Task<bool> ExistByDniAsync(string dni, CancellationToken cancellationToken)
     {
         return await _context.Users
