@@ -7,6 +7,10 @@ public static class IdentityErrors
     public static Error NotFound(Guid userId) => Error.NotFound(
         "IdentityUser.NotFound",
         $"Usuario con Id = '{userId}' no fue encontrado");
+    
+    public static readonly Error NotFoundByEmail = Error.NotFound(
+        "IdentityUser.NotFoundByEmail",
+        "Usuario no encontrado");
 
     public static readonly Error EmailNotUnique = Error.Conflict(
         "IdentityUser.EmailNotUnique",

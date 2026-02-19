@@ -1,6 +1,5 @@
 using Application.Abstractions.Errors;
 using Application.Abstractions.Interfaces;
-using AutoMapper;
 using Domain.User;
 using MediatR;
 using SharedKernel;

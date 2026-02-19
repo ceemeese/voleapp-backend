@@ -199,4 +199,49 @@ internal sealed class IdentityService(
 
         return Result.Success(new UserIdentity(user.Id, user.Email!, role!));
     }
+
+    public async Task<Result<ForgotPasswordIdentity>> ForgotPasswordAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            return Result.Failure<ForgotPasswordIdentity>(IdentityErrors.NotFoundByEmail);
+        }
+        
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        if (string.IsNullOrEmpty(token))
+        {
+            return Result.Failure<ForgotPasswordIdentity>(IdentityErrors.UpdateFailed);
+        }
+
+        return Result.Success(new ForgotPasswordIdentity(token, user.Email!));
+    }
+
+    public async Task<Result> ResetPasswordAsync(string email, string token, string newPassword)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            return Result.Failure(IdentityErrors.NotFoundByEmail);
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+        
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed);
+    }
+    
+    public async Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return Result.Failure(IdentityErrors.NotFound(userId));
+        }
+        
+        var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        
+        return result.ToApplicationResult(IdentityErrors.UpdateFailed);
+    }
 }

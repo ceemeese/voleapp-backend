@@ -1,4 +1,7 @@
+using Application.Users.Commands.ChangePassword;
+using Application.Users.Commands.Forgot;
 using Application.Users.Commands.Login;
+using Application.Users.Commands.Reset;
 using Application.Users.Queries.GetToken;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +42,51 @@ public class AuthsController : ControllerBase
 
     return authResult.IsSuccess 
       ? Ok(authResult.Value) 
+      : CustomResults.Problem(authResult);
+  }
+  
+  [AllowAnonymous]
+  [HttpPost("/ForgotPassword")]
+  public async Task<IActionResult> Reset([FromBody] ForgotPasswordRequest request)
+  {
+    var command = new ForgotPasswordUser(
+      request.Email
+    );
+    var authResult = await _mediator.Send(command);
+
+    return authResult.IsSuccess 
+      ? Ok(authResult.Value) 
+      : CustomResults.Problem(authResult);
+  }
+  
+  [AllowAnonymous]
+  [HttpPost("/ResetPassword")]
+  public async Task<IActionResult> Reset([FromBody] ResetPasswordRequest request)
+  {
+    var command = new ResetPasswordUser(
+      request.Email,
+      request.Token,
+      request.NewPassword
+    );
+    var authResult = await _mediator.Send(command);
+
+    return authResult.IsSuccess 
+      ? Ok() 
+      : CustomResults.Problem(authResult);
+  }
+  
+  [AllowAnonymous]
+  [HttpPost("/ChangePassword")]
+  public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, Guid id)
+  {
+    var command = new ChangeUserPassword(
+      request.OldPassword,
+      request.NewPassword
+    );
+    var authResult = await _mediator.Send(command);
+
+    return authResult.IsSuccess 
+      ? Ok() 
       : CustomResults.Problem(authResult);
   }
 }

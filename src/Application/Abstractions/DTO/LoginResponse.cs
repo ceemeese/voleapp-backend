@@ -1,6 +1,6 @@
 namespace Application.Abstractions.DTO;
 
-public record LoginResponse(
+public sealed record LoginResponse(
     string Token,
     Guid RefreshToken
     );

@@ -1,6 +1,6 @@
 namespace Application.Abstractions.DTO;
 
-public record UserResponse(
+public sealed record UserResponse(
     Guid Id,
     string Dni,
     string Name,
