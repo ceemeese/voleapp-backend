@@ -45,14 +45,4 @@ internal static class IdentityResultExtension
             _ => Result.Failure(defaultError ?? IdentityErrors.RegistrationFailed)
         };
     }
-
-    public static Result<LoginIdentity> ToApplicationResult(this SignInResult result, Guid userId, string email, string role)
-    {
-        if (result.Succeeded)
-        {
-            return Result.Success(new LoginIdentity(userId, email, role));
-        }
-        
-        return Result.Failure<LoginIdentity>(IdentityErrors.InvalidCredentials);
-    }
 }

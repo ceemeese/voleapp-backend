@@ -2,8 +2,10 @@ using Application.Abstractions.DTO;
 using Application.Abstractions.Errors;
 using Application.Abstractions.Interfaces;
 using Domain.Roles;
+using Domain.User;
 using Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel;
 
 namespace Infrastructure.Identity;
@@ -34,26 +36,20 @@ internal sealed class IdentityService(
     }
 
     
-    public async Task<Result<LoginIdentity>> LoginAsync(string loginInput, string password)
+    public async Task<Result<UserIdentity>> LoginAsync(string loginInput, string password)
     {
         var user = await _userManager.FindByEmailAsync(loginInput)
             ?? await _userManager.FindByNameAsync(loginInput);
 
-        if (user is null)
+        if (user is null || !await _userManager.CheckPasswordAsync(user, password))
         {
-            return Result.Failure<LoginIdentity>(IdentityErrors.InvalidCredentials);
-        }
-        
-        var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-
-        if (!result.Succeeded)
-        {
-            return result.ToApplicationResult(user.Id, user.Email!, string.Empty);
+            return Result.Failure<UserIdentity>(IdentityErrors.InvalidCredentials);
         }
         
         var resultRoles = await _userManager.GetRolesAsync(user);
         var role = resultRoles.FirstOrDefault() ?? Role.User.Name;
-        return result.ToApplicationResult(user.Id, user.Email!, role);
+        
+        return Result.Success(new UserIdentity(user.Id, user.Email!, role));
     }
 
     public async Task<Result> UpdateUserProfileAsync(Guid userId, string oldUserName, string username, string email)
@@ -178,8 +174,29 @@ internal sealed class IdentityService(
 
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
+        
         var result = await _userManager.UpdateAsync(user);
         return result.ToApplicationResult(IdentityErrors.UpdateFailed);
     }
-    
+
+    public async Task<Result<UserIdentity>> ValidateRefreshToken(string refreshToken)
+    {
+        var user = await _userManager.Users
+            .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+        if (user is null)
+        {
+            return Result.Failure<UserIdentity>(IdentityErrors.InvalidToken);
+        }
+
+        if (user.RefreshTokenExpires < DateTime.UtcNow)
+        {
+            return Result.Failure<UserIdentity>(IdentityErrors.SessionExpired);
+        }
+        
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? Role.User.Name;
+
+        return Result.Success(new UserIdentity(user.Id, user.Email!, role!));
+    }
 }

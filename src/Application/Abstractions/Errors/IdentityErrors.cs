@@ -31,5 +31,12 @@ public static class IdentityErrors
     public static readonly Error UpdateFailed = Error.Problem(
         "IdentityUser.UpdateFailed",
         "Ha ocurrido un error al actualizar los datos de seguridad en Identity");
-
+    
+    public static readonly Error SessionExpired = Error.Problem(
+        "IdentityUser.SessionExpired",
+        "La sessión del usuario ha expirado");
+    
+    public static readonly Error InvalidToken = Error.Problem(
+        "IdentityUser.InvalidToken",
+        "El refresh token no pertenece a ningún usuario");
 }

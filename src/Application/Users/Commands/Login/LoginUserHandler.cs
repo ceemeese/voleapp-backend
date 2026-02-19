@@ -31,14 +31,12 @@ internal sealed class LoginUserHandler : IRequestHandler<LoginUser, Result<Login
         var authUser = identityResult.Value;
         
         var token = _tokenProvider.Create(authUser.UserId, authUser.Email, authUser.Role);
-        
         var refreshToken = Guid.NewGuid();
         
-        var identityResultRefresh = await _identity.SetRefreshTokenAsync(authUser.UserId, refreshToken.ToString());
-
-        if (identityResultRefresh.IsFailure)
+        var identityRefreshResult = await _identity.SetRefreshTokenAsync(authUser.UserId, refreshToken.ToString());
+        if (identityRefreshResult.IsFailure)
         {
-            return Result.Failure<LoginResponse>(identityResultRefresh.Error);
+            return Result.Failure<LoginResponse>(identityRefreshResult.Error);
         }
         
         return Result.Success(new LoginResponse(token, refreshToken));
