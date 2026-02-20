@@ -3,7 +3,7 @@ using SharedKernel;
 
 namespace Web.Api.Infrastructure;
 
-public class CustomResults
+public static class CustomResults
 {
     public static ActionResult Problem(Result result)
     {
