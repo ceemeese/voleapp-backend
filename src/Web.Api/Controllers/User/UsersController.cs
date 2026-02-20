@@ -5,11 +5,11 @@ using Application.Users.Queries.GetAll;
 using Application.Users.Queries.GetByEmail;
 using Application.Users.Queries.GetById;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Controllers.User;
 using Web.Api.Infrastructure;
 
-namespace Web.Api.Controllers;
+namespace Web.Api.Controllers.User;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
         _mediator = mediator;
     }
 
-    
+    [AuthorizeSuperAdmin]
     [HttpGet]
     public async Task<IActionResult>GetAll()
     {
@@ -34,7 +34,7 @@ public class UsersController : ControllerBase
             : CustomResults.Problem(userResult);
     }
     
-    
+    [Authorize]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult>GetById(Guid id)
     {
@@ -45,7 +45,7 @@ public class UsersController : ControllerBase
             : CustomResults.Problem(userResult);
     }
     
-    
+    [AuthorizeAdmins]
     [HttpGet("search")]
     public async Task<IActionResult> GetByEmail([FromQuery] string email)
     {
@@ -56,7 +56,7 @@ public class UsersController : ControllerBase
             : CustomResults.Problem(userResult);
     }
     
-    
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult>Register([FromBody] RegisterUserRequest request)
     {
@@ -76,7 +76,7 @@ public class UsersController : ControllerBase
             : CustomResults.Problem(userResult);
     }
     
-    
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult>Update(Guid id, [FromBody] UpdateUserRequest request)
     {
@@ -90,18 +90,18 @@ public class UsersController : ControllerBase
         var userResult = await _mediator.Send(command);
 
         return userResult.IsSuccess 
-            ? Ok(userResult.Value) 
+            ? NoContent()
             : CustomResults.Problem(userResult);
     }
     
-    
+    [AuthorizeSuperAdmin]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult>Delete(Guid id)
     {
         var userResult = await _mediator.Send(new DeleteUser(id));
 
         return userResult.IsSuccess 
-            ? Ok() 
+            ? NoContent()
             : CustomResults.Problem(userResult);
     }
 }

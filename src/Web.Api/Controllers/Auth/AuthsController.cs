@@ -71,13 +71,13 @@ public class AuthsController : ControllerBase
     var authResult = await _mediator.Send(command);
 
     return authResult.IsSuccess 
-      ? Ok() 
+      ? NoContent()
       : CustomResults.Problem(authResult);
   }
   
-  [AllowAnonymous]
+  [Authorize]
   [HttpPost("/ChangePassword")]
-  public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, Guid id)
+  public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
   {
     var command = new ChangeUserPassword(
       request.OldPassword,
@@ -86,7 +86,7 @@ public class AuthsController : ControllerBase
     var authResult = await _mediator.Send(command);
 
     return authResult.IsSuccess 
-      ? Ok() 
+      ? NoContent()
       : CustomResults.Problem(authResult);
   }
 }

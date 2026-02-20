@@ -1,4 +1,5 @@
 using Application.Abstractions.DTO;
+using Application.Abstractions.Interfaces;
 using AutoMapper;
 using Domain.User;
 using MediatR;
@@ -10,17 +11,23 @@ internal sealed class GetAllUsersHandler : IRequestHandler<GetAllUsers, Result<L
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly IUserContext _userContext;
 
-    public GetAllUsersHandler(IUserRepository userRepository, IMapper mapper)
+    public GetAllUsersHandler(IUserRepository userRepository, IMapper mapper, IUserContext userContext)
     {
         _userRepository = userRepository;
         _mapper = mapper;
+        _userContext = userContext;
     }
     
     public async Task<Result<List<UserResponse>>> Handle(GetAllUsers request, CancellationToken cancellationToken)
     {
+        if (!_userContext.IsSuperAdmin)
+        {
+            return Result.Failure<List<UserResponse>>(UserErrors.NotAuthorized);
+        }
         var users = await _userRepository.GetAll(cancellationToken);
-        var userResponse = _mapper.Map<List<UserResponse>>(users);
-        return Result.Success(userResponse);
+        var usersMapped = _mapper.Map<List<UserResponse>>(users);
+        return Result.Success(usersMapped);
     }
 }

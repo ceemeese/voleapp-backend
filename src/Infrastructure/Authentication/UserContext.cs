@@ -23,8 +23,8 @@ internal sealed class UserContext : IUserContext
    public Guid UserId => Guid.TryParse(_httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier),
       out var userId)
       ? userId
-      : throw new UserContextUnavailableException();
+      : Guid.Empty;
 
-   public bool IsAdmin => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role) == Role.Admin.Name;
-   public bool IsSuperAdmin => _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role) == Role.SuperAdmin.Name;
+   public bool IsAdmin => _httpContextAccessor.HttpContext?.User.IsInRole(Role.Admin.Name) ?? false;
+   public bool IsSuperAdmin => _httpContextAccessor.HttpContext?.User.IsInRole(Role.SuperAdmin.Name) ?? false;
 }

@@ -1,4 +1,5 @@
 using Application.Abstractions.Errors;
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using Domain.User;
 using MediatR;
@@ -6,21 +7,30 @@ using SharedKernel;
 
 namespace Application.Users.Commands.Update;
 
-internal sealed class UpdateUserHandler : IRequestHandler<UpdateUser, Result<Unit>>
+internal sealed class UpdateUserHandler : IRequestHandler<UpdateUser, Result>
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IIdentityService _identityService;
+    private readonly IUserContext _userContext;
 
-    public UpdateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IIdentityService identityService)
+    public UpdateUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork, IIdentityService identityService, IUserContext userContext)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _identityService = identityService;
+        _userContext = userContext;
+        
     }
 
-    public async Task<Result<Unit>> Handle(UpdateUser request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateUser request, CancellationToken cancellationToken)
     {
+        
+        if (!_userContext.IsOwnerOrSuperadmin(request.Id))
+        {
+            return Result.Failure(UserErrors.NotAuthorized);
+        }
+        
         var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (user is null)
@@ -39,12 +49,12 @@ internal sealed class UpdateUserHandler : IRequestHandler<UpdateUser, Result<Uni
 
         if (identityResult.IsFailure)
         {
-            return Result.Failure<Unit>(identityResult.Error);
+            return Result.Failure(identityResult.Error);
         }
         
         user.UpdateProfile(request.Username, request.PhoneNumber, request.Email);
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success<Unit>(Unit.Value);
+        return Result.Success(Unit.Value);
     }
 }

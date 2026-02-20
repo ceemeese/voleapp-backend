@@ -11,16 +11,23 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
     private readonly IIdentityService _identityService;
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
     
-    public DeleteUserHandler(IIdentityService identityService, IUserRepository userRepository, IUnitOfWork unitOfWork)
+    public DeleteUserHandler(IIdentityService identityService, IUserRepository userRepository, IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _identityService = identityService;
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
     }
 
     public async Task<Result> Handle(DeleteUser request, CancellationToken cancellationToken)
     {
+        if (!_userContext.IsSuperAdmin)
+        {
+            return Result.Failure(UserErrors.NotAuthorized);     
+        }
+        
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user is null)
