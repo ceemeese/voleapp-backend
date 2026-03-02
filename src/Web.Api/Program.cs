@@ -31,6 +31,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerWithUi();
 }
 
+app.UseCors("CorsPolicy");
+
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
