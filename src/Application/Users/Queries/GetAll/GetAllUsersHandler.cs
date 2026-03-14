@@ -24,7 +24,7 @@ internal sealed class GetAllUsersHandler : IRequestHandler<GetAllUsers, Result<L
     {
         if (!_userContext.IsSuperAdmin)
         {
-            return Result.Failure<List<UserResponse>>(UserErrors.NotAuthorized);
+            return Result.Failure<List<UserResponse>>(UserErrors.Forbidden);
         }
         var users = await _userRepository.GetAll(cancellationToken);
         var usersMapped = _mapper.Map<List<UserResponse>>(users);

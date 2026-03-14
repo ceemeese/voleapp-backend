@@ -25,7 +25,7 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
     {
         if (!_userContext.IsSuperAdmin)
         {
-            return Result.Failure(UserErrors.NotAuthorized);     
+            return Result.Failure(UserErrors.Forbidden);     
         }
         
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);

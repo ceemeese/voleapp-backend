@@ -8,5 +8,6 @@ public sealed record UserResponse(
     string Username,
     string PhoneNumber,
     string Email,
-    bool IsActive
+    bool IsActive,
+    DateTime CreatedAt
     );

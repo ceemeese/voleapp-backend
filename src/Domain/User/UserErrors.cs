@@ -8,9 +8,13 @@ public static class UserErrors
         "User.NotFound",
         $"El usuario con id {userId} no se encontró");
     
-    public static readonly Error NotAuthorized = Error.NotFound(
+    public static readonly Error NotAuthorized = Error.Unauthorized(
         "User.NotAuthorized",
         "Usuario no autorizado");
+    
+    public static readonly Error Forbidden = Error.Forbidden(
+        "User.Forbidden",
+        "Usuario sin permisos");
 
     public static readonly Error EmailDuplicated = Error.Conflict(
         "User.EmailDuplicated",

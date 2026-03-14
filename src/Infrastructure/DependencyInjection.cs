@@ -1,16 +1,20 @@
 using System.Text;
 using Application.Abstractions.Interfaces;
+using Domain.User;
 using Infrastructure.Authentication;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Models;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scrutor;
+using SharedKernel;
 
 namespace Infrastructure;
 
@@ -87,6 +91,25 @@ public static class DependencyInjection
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
                     ClockSkew = TimeSpan.Zero,
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+                        var authError = UserErrors.NotAuthorized;
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+                        var problem = new ProblemDetails
+                        {
+                            Title = authError.Code,
+                            Detail = authError.Description,
+                            Status = StatusCodes.Status401Unauthorized,
+                            Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
+                        };
+                        await context.Response.WriteAsJsonAsync(problem);
+                    }
                 };
             });
 
