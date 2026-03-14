@@ -25,7 +25,7 @@ internal sealed class GetUserByIdHandler : IRequestHandler<GetUserById, Result<U
     {
         if (!_userContext.IsOwnerOrSuperadmin(request.UserId))
         {
-            return Result.Failure<UserResponse>(UserErrors.NotAuthorized);
+            return Result.Failure<UserResponse>(UserErrors.Forbidden);
         }
         
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);

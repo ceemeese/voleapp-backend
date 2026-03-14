@@ -28,7 +28,7 @@ internal sealed class UpdateUserHandler : IRequestHandler<UpdateUser, Result>
         
         if (!_userContext.IsOwnerOrSuperadmin(request.Id))
         {
-            return Result.Failure(UserErrors.NotAuthorized);
+            return Result.Failure(UserErrors.Forbidden);
         }
         
         var user = await _userRepository.GetByIdAsync(request.Id, cancellationToken);

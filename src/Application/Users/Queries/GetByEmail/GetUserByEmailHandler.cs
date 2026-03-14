@@ -21,7 +21,7 @@ internal sealed class GetUserByEmailHandler : IRequestHandler<GetUserByEmail, Re
     {
         if (!_userContext.IsAnyAdmin)
         {
-            return Result.Failure<UserResponse>(UserErrors.NotAuthorized);   
+            return Result.Failure<UserResponse>(UserErrors.Forbidden);   
         }
         
         var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
@@ -39,7 +39,8 @@ internal sealed class GetUserByEmailHandler : IRequestHandler<GetUserByEmail, Re
             user.Username,
             user.PhoneNumber,
             user.Email,
-            user.IsActive);
+            user.IsActive,
+            user.CreatedAt);
         
         return Result.Success(userResponse);
     }
