@@ -37,4 +37,9 @@ internal sealed class ClubRepository : IClubRepository
         return await query.ToListAsync(cancellationToken);
     }
     
+    public void Add(Club club)
+    {
+        _context.Clubs.Add(club);
+    }
+    
 }

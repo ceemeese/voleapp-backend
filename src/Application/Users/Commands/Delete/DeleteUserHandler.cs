@@ -1,4 +1,5 @@
 using Application.Abstractions.Errors;
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using Domain.User;
 using MediatR;
@@ -23,7 +24,7 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
 
     public async Task<Result> Handle(DeleteUser request, CancellationToken cancellationToken)
     {
-        if (!_userContext.IsSuperAdmin)
+        if (!_userContext.IsOnlySuperadmin())
         {
             return Result.Failure(UserErrors.Forbidden);     
         }
