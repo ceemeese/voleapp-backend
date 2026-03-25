@@ -37,6 +37,18 @@ internal sealed class ClubRepository : IClubRepository
         return await query.ToListAsync(cancellationToken);
     }
     
+    public async Task<List<Club>> GetAllSearchActive(string? name, CancellationToken cancellationToken)
+    {
+        var query = _context.Clubs.AsNoTracking().Where(c => c.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(c => c.Name.Contains(name));
+        }
+        
+        return await query.ToListAsync(cancellationToken);
+    }
+    
     public void Add(Club club)
     {
         _context.Clubs.Add(club);
