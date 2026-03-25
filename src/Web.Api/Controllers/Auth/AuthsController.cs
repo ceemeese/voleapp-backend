@@ -10,6 +10,8 @@ using Web.Api.Infrastructure;
 
 namespace Web.Api.Controllers.Auth;
 
+[Route("api/[controller]")]
+[ApiController]
 public class AuthsController : ControllerBase
 {
   private readonly IMediator _mediator;
@@ -46,7 +48,7 @@ public class AuthsController : ControllerBase
   }
   
   [AllowAnonymous]
-  [HttpPost("/ForgotPassword")]
+  [HttpPost("ForgotPassword")]
   public async Task<IActionResult> Reset([FromBody] ForgotPasswordRequest request)
   {
     var command = new ForgotPasswordUser(
@@ -60,7 +62,7 @@ public class AuthsController : ControllerBase
   }
   
   [AllowAnonymous]
-  [HttpPost("/ResetPassword")]
+  [HttpPost("ResetPassword")]
   public async Task<IActionResult> Reset([FromBody] ResetPasswordRequest request)
   {
     var command = new ResetPasswordUser(
@@ -76,7 +78,7 @@ public class AuthsController : ControllerBase
   }
   
   [Authorize]
-  [HttpPost("/ChangePassword")]
+  [HttpPost("ChangePassword")]
   public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
   {
     var command = new ChangeUserPassword(
