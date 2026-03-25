@@ -1,4 +1,5 @@
 using Application.Abstractions.DTO;
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using AutoMapper;
 using Domain.User;
@@ -22,7 +23,7 @@ internal sealed class GetAllUsersHandler : IRequestHandler<GetAllUsers, Result<L
     
     public async Task<Result<List<UserResponse>>> Handle(GetAllUsers request, CancellationToken cancellationToken)
     {
-        if (!_userContext.IsSuperAdmin)
+        if (!_userContext.IsOnlySuperadmin())
         {
             return Result.Failure<List<UserResponse>>(UserErrors.Forbidden);
         }
