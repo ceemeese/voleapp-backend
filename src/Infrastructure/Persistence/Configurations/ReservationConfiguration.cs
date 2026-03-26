@@ -1,5 +1,6 @@
 using Domain.Club;
 using Domain.Club.Entities;
+using Domain.Court;
 using Domain.Reservation;
 using Domain.User;
 using Microsoft.EntityFrameworkCore;

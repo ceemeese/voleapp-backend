@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class MigracionInicial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -77,8 +77,7 @@ namespace Infrastructure.Persistence.Migrations
                 name: "Courts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     ClubId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -167,7 +166,7 @@ namespace Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CourtId = table.Column<int>(type: "int", nullable: false),
+                    CourtId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     StartTime = table.Column<DateTime>(type: "datetime", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime", nullable: false),
                     EventName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
@@ -197,7 +196,7 @@ namespace Infrastructure.Persistence.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     ClubId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    CourtId = table.Column<int>(type: "int", nullable: false),
+                    CourtId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Date = table.Column<DateOnly>(type: "date", nullable: false),
                     StartTime = table.Column<TimeOnly>(type: "time", nullable: false),
                     EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
@@ -233,6 +232,11 @@ namespace Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Restrict);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "CreatedAt", "Dni", "Email", "IsActive", "LastName", "Name", "PhoneNumber", "Username" },
+                values: new object[] { new Guid("7c9e66ab-7839-47e2-9383-718693c04200"), new DateTime(2026, 3, 26, 14, 23, 33, 268, DateTimeKind.Utc).AddTicks(4030), "00000000A", "superadminadmin@voleapp.es", true, "Superadmin", "SuperAdmin", "000000000", "superadmin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClubMembers_ClubId_UserId",

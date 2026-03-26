@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260130120629_MigracionInicial")]
-    partial class MigracionInicial
+    [Migration("20260326142333_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -125,13 +125,43 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("ClubMembers");
                 });
 
-            modelBuilder.Entity("Domain.Club.Entities.Court", b =>
+            modelBuilder.Entity("Domain.Club.Entities.Schedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeOnly>("ClosingTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<TimeOnly>("OpeningTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.ToTable("Schedules");
+                });
+
+            modelBuilder.Entity("Domain.Court.Court", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
 
                     b.Property<decimal>("BasePrice")
                         .HasPrecision(10, 2)
@@ -166,7 +196,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("Courts");
                 });
 
-            modelBuilder.Entity("Domain.Club.Entities.CourtEvent", b =>
+            modelBuilder.Entity("Domain.Court.Entities.CourtEvent", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,8 +204,8 @@ namespace Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CourtId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CourtId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -205,38 +235,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("CourtEvents");
                 });
 
-            modelBuilder.Entity("Domain.Club.Entities.Schedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<TimeOnly>("ClosingTime")
-                        .HasColumnType("time");
-
-                    b.Property<Guid>("ClubId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("DayOfWeek")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<TimeOnly>("OpeningTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClubId");
-
-                    b.ToTable("Schedules");
-                });
-
             modelBuilder.Entity("Domain.Reservation.Reservation", b =>
                 {
                     b.Property<int>("Id")
@@ -248,8 +246,8 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ClubId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("CourtId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CourtId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -352,6 +350,20 @@ namespace Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("7c9e66ab-7839-47e2-9383-718693c04200"),
+                            CreatedAt = new DateTime(2026, 3, 26, 14, 23, 33, 268, DateTimeKind.Utc).AddTicks(4030),
+                            Dni = "00000000A",
+                            Email = "superadminadmin@voleapp.es",
+                            IsActive = true,
+                            LastName = "Superadmin",
+                            Name = "SuperAdmin",
+                            PhoneNumber = "000000000",
+                            Username = "superadmin"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Club.Club", b =>
@@ -408,29 +420,29 @@ namespace Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Club.Entities.Court", b =>
-                {
-                    b.HasOne("Domain.Club.Club", null)
-                        .WithMany("Courts")
-                        .HasForeignKey("ClubId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Club.Entities.CourtEvent", b =>
-                {
-                    b.HasOne("Domain.Club.Entities.Court", null)
-                        .WithMany("CourtEvents")
-                        .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Club.Entities.Schedule", b =>
                 {
                     b.HasOne("Domain.Club.Club", null)
                         .WithMany("Schedules")
                         .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Court.Court", b =>
+                {
+                    b.HasOne("Domain.Club.Club", null)
+                        .WithMany()
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Court.Entities.CourtEvent", b =>
+                {
+                    b.HasOne("Domain.Court.Court", null)
+                        .WithMany("CourtEvents")
+                        .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -443,7 +455,7 @@ namespace Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Club.Entities.Court", null)
+                    b.HasOne("Domain.Court.Court", null)
                         .WithMany()
                         .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -458,14 +470,12 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Club.Club", b =>
                 {
-                    b.Navigation("Courts");
-
                     b.Navigation("Members");
 
                     b.Navigation("Schedules");
                 });
 
-            modelBuilder.Entity("Domain.Club.Entities.Court", b =>
+            modelBuilder.Entity("Domain.Court.Court", b =>
                 {
                     b.Navigation("CourtEvents");
                 });

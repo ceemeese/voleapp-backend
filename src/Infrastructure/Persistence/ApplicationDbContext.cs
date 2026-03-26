@@ -2,6 +2,8 @@ using Application.Abstractions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Domain.Club;
 using Domain.Club.Entities;
+using Domain.Court;
+using Domain.Court.Entities;
 using Domain.Reservation;
 using Domain.User;
 using Infrastructure.Persistence.Configurations;

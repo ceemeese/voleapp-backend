@@ -1,9 +1,11 @@
-namespace Domain.Club.Entities;
 using Domain.Common;
+
+namespace Domain.Court.Entities;
+
 
 public class CourtEvent : Entity<int>
 {
-    internal CourtEvent(int courtId, DateTime startTime, DateTime endTime, string eventName, string? description = null)
+    internal CourtEvent(Guid courtId, DateTime startTime, DateTime endTime, string eventName, string? description = null)
     {
         CourtId = courtId;
         StartTime = startTime;
@@ -17,7 +19,7 @@ public class CourtEvent : Entity<int>
     {
     }
     
-    public int CourtId { get; private set; }
+    public Guid CourtId { get; private set; }
     public DateTime StartTime { get; private set; }
     public DateTime EndTime { get; private set; }
     public string EventName { get; private set; }
