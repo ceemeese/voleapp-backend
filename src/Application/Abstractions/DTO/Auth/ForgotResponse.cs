@@ -1,3 +1,3 @@
-namespace Application.Abstractions.DTO;
+namespace Application.Abstractions.DTO.Auth;
 
 public sealed record ForgotResponse(string Token, string Email);

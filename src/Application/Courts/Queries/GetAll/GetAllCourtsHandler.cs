@@ -1,12 +1,12 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.Court;
 using AutoMapper;
 using Domain.Court;
 using MediatR;
 using SharedKernel;
 
-namespace Application.Courts.Queries;
+namespace Application.Courts.Queries.GetAll;
 
-internal sealed class GetAllCourtsHandler : IRequestHandler<GetAllCourts, Result<List<CourtResponse>>>
+internal sealed class GetAllCourtsHandler : IRequestHandler<GetAllCourts, Result<List<CourtSummaryResponse>>>
 {
     private readonly IMapper _mapper;
     private readonly ICourtRepository _courtRepository;
@@ -17,11 +17,11 @@ internal sealed class GetAllCourtsHandler : IRequestHandler<GetAllCourts, Result
         _courtRepository = courtRepository;
     }
 
-    public async Task<Result<List<CourtResponse>>> Handle(GetAllCourts request, CancellationToken cancellationToken)
+    public async Task<Result<List<CourtSummaryResponse>>> Handle(GetAllCourts request, CancellationToken cancellationToken)
     {
         var courts = await _courtRepository.GetAll(cancellationToken);
 
-        var courtsMapped = _mapper.Map<List<CourtResponse>>(courts);
+        var courtsMapped = _mapper.Map<List<CourtSummaryResponse>>(courts);
         return Result.Success(courtsMapped);
     }
 }

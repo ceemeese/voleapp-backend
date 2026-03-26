@@ -3,6 +3,6 @@ using SharedKernel;
 
 namespace Application.Courts.Commands.Update;
 
-public sealed record UpdateCourt(Guid Id, Guid ClubId, string Name, decimal BasePrice) : IRequest<Result>
+public sealed record UpdateCourt(Guid Id, string Name, decimal BasePrice) : IRequest<Result>
 {
 }

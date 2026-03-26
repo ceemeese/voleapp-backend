@@ -28,7 +28,7 @@ internal sealed class UpdateCourtHandler : IRequestHandler<UpdateCourt, Result>
             return Result.Failure<Unit>(CourtErrors.NotFound(request.Id));
         }
         
-        var isDuplicate = await _courtRepository.ExistsByNameInClub(request.ClubId, request.Name, cancellationToken);
+        var isDuplicate = await _courtRepository.ExistsByNameInClubExcludeId(court.ClubId, request.Name, request.Id, cancellationToken);
         if (isDuplicate)
         {
             return Result.Failure<Guid>(CourtErrors.DuplicateName(request.Name));

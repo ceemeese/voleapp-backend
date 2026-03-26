@@ -1,4 +1,4 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.Auth;
 using Application.Abstractions.Interfaces;
 using Domain.User;
 using MediatR;

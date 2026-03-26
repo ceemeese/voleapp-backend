@@ -51,6 +51,16 @@ public sealed class Court : AggregateRoot<Guid>
 
         return Result.Success();
     }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+
+    public void Activate()
+    {
+        IsActive = true;
+    }
     
     public Guid ClubId { get; private set; }
     public string Name { get; private set; }

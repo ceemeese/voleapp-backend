@@ -1,4 +1,4 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.Auth;
 using Domain.Roles;
 using SharedKernel;
 
