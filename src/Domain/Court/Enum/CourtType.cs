@@ -1,4 +1,4 @@
-namespace Domain.Club.Enum;
+namespace Domain.Court.Enum;
 
 public enum CourtType
 {

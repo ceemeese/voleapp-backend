@@ -1,4 +1,5 @@
-using Domain.Club.Entities;
+using Domain.Club;
+using Domain.Court;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,8 +10,12 @@ internal sealed class CourtConfiguration : IEntityTypeConfiguration<Court>
     public void Configure(EntityTypeBuilder<Court> builder)
     {
         builder.HasKey(c => c.Id);
-        builder.Property(c => c.Id)
-            .ValueGeneratedOnAdd();
+        
+        builder.HasOne<Club>()
+            .WithMany()
+            .HasForeignKey(c => c.ClubId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(c => c.Name)
             .HasMaxLength(100)

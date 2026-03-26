@@ -1,4 +1,4 @@
-using Domain.Club.Entities;
+using Domain.Court.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

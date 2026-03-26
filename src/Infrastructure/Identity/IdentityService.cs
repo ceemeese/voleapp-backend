@@ -1,8 +1,7 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.Auth;
 using Application.Abstractions.Errors;
 using Application.Abstractions.Interfaces;
 using Domain.Roles;
-using Domain.User;
 using Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

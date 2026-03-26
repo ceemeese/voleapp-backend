@@ -5,7 +5,7 @@ namespace Domain.Reservation;
 
 public class Reservation : AggregateRoot<int>
 {
-    internal Reservation(Guid userId, Guid clubId, int courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, decimal totalPrice, string? notes = null)
+    internal Reservation(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, decimal totalPrice, string? notes = null)
     {
         UserId = userId;
         ClubId = clubId;
@@ -26,7 +26,7 @@ public class Reservation : AggregateRoot<int>
     
     public Guid UserId { get; private set; }
     public Guid ClubId { get; private set; }
-    public int CourtId { get; private set; }
+    public Guid CourtId { get; private set; }
     public DateOnly Date { get; private set; }
     public TimeOnly StartTime { get; private set; }
     public TimeOnly EndTime { get; private set; }

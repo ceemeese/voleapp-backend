@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Identity.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20260203130216_InitialIdentity")]
-    partial class InitialIdentity
+    [Migration("20260326142517_InitialIdentitySeeder")]
+    partial class InitialIdentitySeeder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,15 +100,15 @@ namespace Infrastructure.Identity.Migrations
                         {
                             Id = new Guid("7c9e66ab-7839-47e2-9383-718693c04200"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9cd76270-0080-489d-b611-a31fc92137f3",
+                            ConcurrencyStamp = "4c96213b-552a-4f71-a484-297698731dda",
                             Email = "superadmin@voleapp.es",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@VOLEAPP.ES",
                             NormalizedUserName = "SUPERADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAZesPT7peC7HEQ3nSev41zysFV3uWKUuo0FEQkzu6SC4IvxedLMoDqogPQrPr6vFg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGcBTmpi2fs/ZEkgeoinrn2dn+kIoVeyGnW03IehsGCXUnHfGaMhjGfP/bwHsuJyEA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cf4bb0a3-b9d3-4967-8023-0a94b4d5250a",
+                            SecurityStamp = "eed283a0-4f90-4e7f-9e29-53070cbe0ba5",
                             TwoFactorEnabled = false,
                             UserName = "superadmin"
                         });

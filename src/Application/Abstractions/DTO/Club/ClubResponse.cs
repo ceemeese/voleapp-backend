@@ -1,4 +1,4 @@
-namespace Application.Abstractions.DTO;
+namespace Application.Abstractions.DTO.Club;
 
 public sealed record ClubResponse(
     Guid Id,

@@ -112,7 +112,7 @@ public class ClubsController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpDelete("{id:guid}")]
+    [HttpPatch("{id:guid}/activate")]
     public async Task<IActionResult>Activate(Guid id)
     {
         var clubResult = await _mediator.Send(new ActivateClub(id));

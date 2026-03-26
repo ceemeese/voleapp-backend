@@ -62,15 +62,6 @@ internal sealed class ClubConfiguration : IEntityTypeConfiguration<Club>
             .IsRequired()
             .ValueGeneratedOnAdd();
         
-        builder.HasMany(c => c.Courts)
-            .WithOne()
-            .HasForeignKey(court => court.ClubId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        builder.Navigation(c => c.Courts)
-            .HasField("_courts")
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-        
         builder.HasMany(c => c.Schedules)
             .WithOne()
             .HasForeignKey(schedule => schedule.ClubId)

@@ -1,4 +1,4 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.Club;
 using MediatR;
 using SharedKernel;
 

@@ -49,7 +49,7 @@ public sealed class Club : AggregateRoot<Guid>
     public void Activate()
     {
         if (IsActive) return;
-        IsActive = false;
+        IsActive = true;
     }
     
     
@@ -63,9 +63,6 @@ public sealed class Club : AggregateRoot<Guid>
     
     private readonly List<ClubMember> _members = new();
     public IReadOnlyCollection<ClubMember> Members => _members.AsReadOnly();
-    
-    private readonly List<Court> _courts = new();
-    public IReadOnlyCollection<Court> Courts => _courts.AsReadOnly();
 
     private readonly List<Schedule> _schedules = new();
     public IReadOnlyCollection<Schedule> Schedules => _schedules.AsReadOnly();
