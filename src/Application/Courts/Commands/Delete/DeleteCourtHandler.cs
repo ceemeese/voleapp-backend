@@ -28,6 +28,6 @@ internal sealed class DeleteCourtHandler : IRequestHandler<DeleteCourt, Result>
         
         court.Deactivate();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Result.Success(Unit.Value);
     }
 }

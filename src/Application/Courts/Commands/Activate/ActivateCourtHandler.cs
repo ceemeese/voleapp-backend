@@ -28,6 +28,6 @@ internal sealed class ActivateCourtHandler : IRequestHandler<ActivateCourt, Resu
         
         court.Activate();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Result.Success(Unit.Value);
     }
 }
