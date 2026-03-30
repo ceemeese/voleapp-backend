@@ -5,6 +5,7 @@ using Infrastructure.Authentication;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Models;
 using Infrastructure.Persistence;
+using Infrastructure.ServiceQueries;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -145,6 +146,7 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
 
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IClubMemberQueries, ClubMemberQueries>();
 
         return services;
     }

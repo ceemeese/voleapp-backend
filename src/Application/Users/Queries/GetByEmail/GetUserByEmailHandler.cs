@@ -1,4 +1,5 @@
 using Application.Abstractions.DTO;
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using Domain.User;
 using MediatR;
@@ -24,7 +25,9 @@ internal sealed class GetUserByEmailHandler : IRequestHandler<GetUserByEmail, Re
             return Result.Failure<UserResponse>(UserErrors.Forbidden);   
         }
         
-        var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
+        var user = _userContext.IsOnlySuperadmin()
+            ? await _userRepository.GetByEmailActiveAsync(request.Email, cancellationToken)
+            : await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
         if (user is null)
         {

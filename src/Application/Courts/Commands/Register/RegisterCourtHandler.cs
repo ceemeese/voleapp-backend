@@ -1,6 +1,9 @@
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
+using Domain.Club.Entities;
 using Domain.Court;
 using Domain.Court.Enum;
+using Domain.User;
 using MediatR;
 using SharedKernel;
 
@@ -10,15 +13,34 @@ internal sealed class RegisterCourtHandler : IRequestHandler<RegisterCourt, Resu
 {
     private readonly ICourtRepository _courtRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
+    private readonly IClubMemberQueries _clubMemberQueries;
 
-    public RegisterCourtHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork)
+    public RegisterCourtHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork,  IUserContext userContext, IClubMemberQueries clubMemberQueries)
     {
         _courtRepository = courtRepository;
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
+        _clubMemberQueries = clubMemberQueries;
     }
 
     public async Task<Result<Guid>> Handle(RegisterCourt request, CancellationToken cancellationToken)
     {
+        if (!_userContext.IsAnyAdmin())
+        {
+            return Result.Failure<Guid>(UserErrors.Forbidden);
+        }
+        
+        if (!_userContext.IsOnlySuperadmin())
+        {
+            var hasPermission = await _clubMemberQueries.IsAdminInClub(request.ClubId, _userContext.UserId, cancellationToken);
+
+            if (!hasPermission)
+            {
+                return Result.Failure<Guid>(ClubMemberErrors.Forbidden);
+            }
+        }
+        
         var isDuplicate = await _courtRepository.ExistsByNameInClub(request.ClubId, request.Name, cancellationToken);
         if (isDuplicate)
         {

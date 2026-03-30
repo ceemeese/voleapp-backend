@@ -1,5 +1,5 @@
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
-using AutoMapper;
 using Domain.Club;
 using Domain.Common.ValueObjects;
 using MediatR;
@@ -11,15 +11,22 @@ internal sealed class RegisterClubHandler : IRequestHandler<RegisterClub, Result
 {
     private readonly IClubRepository _clubRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
 
-    public RegisterClubHandler(IClubRepository clubRepository, IUnitOfWork unitOfWork)
+    public RegisterClubHandler(IClubRepository clubRepository, IUnitOfWork unitOfWork,  IUserContext userContext)
     {
         _clubRepository = clubRepository;
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
     }
 
     public async Task<Result<Guid>> Handle(RegisterClub request, CancellationToken cancellationToken)
     {
+        if (!_userContext.IsOnlySuperadmin())
+        {
+            return Result.Failure<Guid>(ClubErrors.Forbidden);     
+        }
+        
         var addressResult = Address.Create(request.Street, request.City, request.ZipCode, request.Country);
         if (addressResult.IsFailure)
         {

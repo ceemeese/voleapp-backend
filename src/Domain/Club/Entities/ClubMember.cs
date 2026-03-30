@@ -1,10 +1,20 @@
 using Domain.Club.Enum;
 using Domain.Common;
+using SharedKernel;
 
 namespace Domain.Club.Entities;
 
 public sealed class ClubMember : Entity<int>
 {
+    public Guid ClubId { get; private set; }
+    public Guid UserId { get; private set; }
+    public MemberRole Role { get; private set; }
+    public string? MembershipNumber { get; private set; }
+    public DateOnly RegisteredOn { get; private set; }
+    public bool IsFavourite { get; private set; }
+    public bool IsMember { get; private set; }
+    public bool IsActive { get; private set; }
+    
     internal ClubMember(Guid clubId, Guid userId, MemberRole role)
     {
         ClubId = clubId;
@@ -20,14 +30,34 @@ public sealed class ClubMember : Entity<int>
     private ClubMember()
     {
     }
+
+    public Result UpdateMembership(MemberRole role, bool isMember, string? membershipNumber)
+    {
+        if (isMember && string.IsNullOrWhiteSpace(membershipNumber))
+        {
+            return Result.Failure(ClubMemberErrors.NotEmptymembershipNumber);
+        }
+
+        Role = role;
+        IsMember = isMember;
+        MembershipNumber = isMember ? membershipNumber : null;
+        
+        return Result.Success();
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
     
-    public Guid ClubId { get; private set; }
-    public Guid UserId { get; private set; }
-    public MemberRole Role { get; private set; }
-    public string? MembershipNumber { get; private set; }
-    public DateOnly RegisteredOn { get; private set; }
-    public bool IsFavourite { get; private set; }
-    public bool IsMember { get; private set; }
-    public bool IsActive { get; private set; }
+    public void Activate()
+    {
+        IsActive = true;
+    }
+
+    public void ToggleFavourite()
+    {
+        IsFavourite = !IsFavourite;
+    }
     
 }

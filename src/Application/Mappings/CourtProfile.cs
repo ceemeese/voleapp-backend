@@ -15,7 +15,5 @@ internal sealed class CourtProfile : Profile
         CreateMap<Court, CourtResponse>()
             .ForMember(dest => dest.CourtEvents, opt => opt.MapFrom(src => src.CourtEvents));
         CreateMap<Court, CourtSummaryResponse>();
-        
-        
     }
 }

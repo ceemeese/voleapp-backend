@@ -56,7 +56,7 @@ public class CourtsController : ControllerBase
     }
     
     
-    [AllowAnonymous]
+    [AuthorizeAdmins]
     [HttpPost("api/clubs/{clubId}/courts")]
     public async Task<IActionResult>Register(Guid clubId, [FromBody] RegisterCourtRequest request)
     {

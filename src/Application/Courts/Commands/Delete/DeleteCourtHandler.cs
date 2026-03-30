@@ -1,5 +1,8 @@
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
+using Domain.Club.Entities;
 using Domain.Court;
+using Domain.User;
 using MediatR;
 using SharedKernel;
 
@@ -9,16 +12,24 @@ internal sealed class DeleteCourtHandler : IRequestHandler<DeleteCourt, Result>
 {
     private readonly ICourtRepository _courtRepository;
     private readonly IUnitOfWork _unitOfWork;
-
-    public DeleteCourtHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork)
+    private readonly IUserContext _userContext;
+    private readonly IClubMemberQueries _clubMemberQueries;
+    
+    public DeleteCourtHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork, IUserContext userContext,  IClubMemberQueries clubMemberQueries)
     {
         _courtRepository = courtRepository;
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
+        _clubMemberQueries = clubMemberQueries;
     }
 
     public async Task<Result> Handle(DeleteCourt request, CancellationToken cancellationToken)
     {
-        // TODO: validacion si es superadmin o el propio dueno del club
+        if (!_userContext.IsAnyAdmin())
+        {
+            return Result.Failure(UserErrors.Forbidden);
+        }
+        
         var court = await _courtRepository.GetCourtById(request.CourtId, cancellationToken);
         
         if (court is null)
@@ -26,8 +37,18 @@ internal sealed class DeleteCourtHandler : IRequestHandler<DeleteCourt, Result>
             return Result.Failure(CourtErrors.NotFound(request.CourtId));    
         }
         
+        if (!_userContext.IsOnlySuperadmin())
+        {
+            var hasPermission = await _clubMemberQueries.IsAdminInClub(court.ClubId, _userContext.UserId, cancellationToken);
+
+            if (!hasPermission)
+            {
+                return Result.Failure(ClubMemberErrors.Forbidden);
+            }
+        }
+        
         court.Deactivate();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Result.Success(Unit.Value);
     }
 }

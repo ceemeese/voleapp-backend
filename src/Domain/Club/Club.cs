@@ -1,11 +1,28 @@
 using Domain.Club.Entities;
+using Domain.Club.Enum;
 using Domain.Common;
 using Domain.Common.ValueObjects;
+using SharedKernel;
 
 namespace Domain.Club;
 
 public sealed class Club : AggregateRoot<Guid>
 {
+    public string Name { get; private set; }
+    public string Cif { get; private set; }
+    public Address Address { get; private set; }
+    public string PhoneNumber { get; private set; }
+    public string Email { get; private set; }
+    public bool IsActive { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    
+    private readonly List<ClubMember> _members = new();
+    public IReadOnlyCollection<ClubMember> Members => _members.AsReadOnly();
+
+    private readonly List<Schedule> _schedules = new();
+    public IReadOnlyCollection<Schedule> Schedules => _schedules.AsReadOnly();
+    
+    
     private Club(Guid id, string name, string cif, Address address, string phoneNumber, string email) : base(id)
     {
         Name = name;
@@ -41,29 +58,93 @@ public sealed class Club : AggregateRoot<Guid>
         Email = email;
     }
     
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-    
-    public void Activate()
-    {
-        if (IsActive) return;
-        IsActive = true;
-    }
-    
-    
-    public string Name { get; private set; }
-    public string Cif { get; private set; }
-    public Address Address { get; private set; }
-    public string PhoneNumber { get; private set; }
-    public string Email { get; private set; }
-    public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    
-    private readonly List<ClubMember> _members = new();
-    public IReadOnlyCollection<ClubMember> Members => _members.AsReadOnly();
+    public void Deactivate() => IsActive = false;
+    public void Activate() => IsActive = true;
 
-    private readonly List<Schedule> _schedules = new();
-    public IReadOnlyCollection<Schedule> Schedules => _schedules.AsReadOnly();
+    
+    public Result<ClubMember> AddMember(Guid userId, MemberRole role)
+    {
+        if (_members.Any(m => m.UserId == userId))
+        {
+            return Result.Failure<ClubMember>(ClubMemberErrors.MemberDuplicated);
+        }
+
+        var newMember = new ClubMember(this.Id, userId, role);
+        _members.Add(newMember);
+        return Result.Success(newMember);
+    }
+
+    public Result UpdateMember(Guid userId, MemberRole role, bool isMember, string? membershipNumber)
+    {
+        var member = GetMember(userId);
+        if (member is null)
+        {
+            return Result.Failure(ClubMemberErrors.MemberNotFound(userId));
+        }
+
+        if (role != MemberRole.Admin && IsLastActiveAdmin(member))
+        {
+            return Result.Failure(ClubMemberErrors.MinAdmin);
+        }
+        
+        var memberResult = member.UpdateMembership(role, isMember, membershipNumber);
+        if (memberResult.IsFailure)
+        {
+            return Result.Failure(memberResult.Error);
+        }
+
+        return Result.Success();
+    }
+
+
+    public Result DeactivateMember(Guid userId)
+    {
+        var member = GetMember(userId);
+        if (member is null)
+        {
+            return Result.Failure(ClubMemberErrors.MemberNotFound(userId));
+        }
+
+        if (IsLastActiveAdmin(member))
+        {
+            return Result.Failure(ClubMemberErrors.MinAdmin);
+        }
+        
+        member.Deactivate();
+        return Result.Success();
+    }
+    
+    public Result ActivateMember(Guid userId)
+    {
+        var member = GetMember(userId);
+        if (member is null)
+        {
+            return Result.Failure(ClubMemberErrors.MemberNotFound(userId));
+        }
+        
+        member.Activate();
+        return Result.Success();
+    }
+
+    private bool IsLastActiveAdmin(ClubMember member)
+    {
+        return member.Role == MemberRole.Admin && 
+               _members.Count(m => m.Role == MemberRole.Admin && m.IsActive) <= 1;
+    }
+
+    public Result ToggleMemberFavourite(Guid userId)
+    {
+        var member = GetMember(userId);
+        if (member is null)
+        {
+            return Result.Failure(ClubMemberErrors.MemberNotFound(userId));
+        }
+
+        member.ToggleFavourite();
+        return Result.Success();
+    }
+    
+    private ClubMember? GetMember(Guid userId) => _members.FirstOrDefault(m => m.UserId == userId);
+    
+    
 }

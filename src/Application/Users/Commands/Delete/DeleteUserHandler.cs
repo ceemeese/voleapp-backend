@@ -26,19 +26,19 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
     {
         if (!_userContext.IsOnlySuperadmin())
         {
-            return Result.Failure(UserErrors.Forbidden);     
+            return Result.Failure<Unit>(UserErrors.Forbidden);     
         }
         
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user is null)
         {
-            return Result.Failure(UserErrors.NotFound(request.UserId));
+            return Result.Failure<Unit>(UserErrors.NotFound(request.UserId));
         }
         
         if (user.Username == "superadmin")
         {
-            return Result.Failure(IdentityErrors.CannotUpdateSuperAdmin);
+            return Result.Failure<Unit>(IdentityErrors.CannotUpdateSuperAdmin);
         }
         
         user.Deactivate();
@@ -47,10 +47,10 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
 
         if (identityResult.IsFailure)
         {
-            return Result.Failure(identityResult.Error);
+            return Result.Failure<Unit>(identityResult.Error);
         }
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Result.Success(Unit.Value);
     }
 }

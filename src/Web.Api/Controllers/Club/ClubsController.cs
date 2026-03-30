@@ -56,7 +56,7 @@ public class ClubsController : ControllerBase
             : CustomResults.Problem(clubResult);
     }
     
-    [AuthorizeAdmins]
+    [AuthorizeSuperAdmin]
     [HttpPost]
     public async Task<IActionResult>Register([FromBody] RegisterClubRequest request)
     {

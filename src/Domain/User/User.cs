@@ -30,10 +30,8 @@ public sealed class User : AggregateRoot<Guid>
     public DateTime CreatedAt { get; private set; }
     
     
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
+    public void Deactivate() => IsActive = false;
+    public void Activate() => IsActive = true;
 
 
     public void UpdateProfile(string username, string phoneNumber, string email)

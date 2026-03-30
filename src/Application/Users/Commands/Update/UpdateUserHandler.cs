@@ -49,7 +49,7 @@ internal sealed class UpdateUserHandler : IRequestHandler<UpdateUser, Result>
 
         if (identityResult.IsFailure)
         {
-            return Result.Failure(identityResult.Error);
+            return Result.Failure<Unit>(identityResult.Error);
         }
         
         user.UpdateProfile(request.Username, request.PhoneNumber, request.Email);

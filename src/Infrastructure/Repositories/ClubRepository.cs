@@ -24,6 +24,13 @@ internal sealed class ClubRepository : IClubRepository
             .Where(c => c.Id == clubId)
             .FirstOrDefaultAsync(cancellationToken);
     }
+    
+    public async Task<Club?> GetClubWithMembers(Guid clubId, CancellationToken cancellationToken)
+    {
+        return await _context.Clubs
+            .Include(c => c.Members)
+            .FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken);
+    }
 
     public async Task<List<Club>> GetAllSearch(string? name, CancellationToken cancellationToken)
     {
