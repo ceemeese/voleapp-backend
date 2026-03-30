@@ -1,6 +1,7 @@
 using Application.Abstractions.DTO.ClubMember;
 using Application.Abstractions.Interfaces;
 using Domain.Club.Entities;
+using Domain.Club.Enum;
 using Domain.User;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -76,5 +77,22 @@ internal sealed class ClubMemberQueries : IClubMemberQueries
             member.IsActive
         );
     }
-    
+
+    public async Task<bool> IsAdminInClub(Guid clubId, Guid userId, CancellationToken cancellationToken)
+    {
+        var rolesPermission = new[] {MemberRole.Admin, MemberRole.Owner};
+        return await _context.ClubMembers
+            .AsNoTracking()
+            .AnyAsync(c => c.ClubId == clubId && c.UserId == userId && rolesPermission.Contains(c.Role), cancellationToken);
+    }
+
+    public async Task<bool> IsManagerInOtherClubs(Guid userId, Guid currentClubId, CancellationToken cancellationToken)
+    {
+        var managementRoles = new[] {MemberRole.Admin, MemberRole.Owner, MemberRole.Coach};
+        return await _context.ClubMembers
+            .AnyAsync(m => m.UserId == userId && 
+                           m.ClubId != currentClubId &&
+                           managementRoles.Contains(m.Role) &&
+                           m.IsActive, cancellationToken);
+    }
 }

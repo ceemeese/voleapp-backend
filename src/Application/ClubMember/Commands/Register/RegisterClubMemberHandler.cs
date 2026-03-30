@@ -1,7 +1,9 @@
+using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using Domain.Club;
 using Domain.Club.Entities;
 using Domain.Club.Enum;
+using Domain.User;
 using MediatR;
 using SharedKernel;
 
@@ -11,16 +13,35 @@ internal sealed class RegisterClubMemberHandler : IRequestHandler<RegisterClubMe
 {
     private readonly IClubRepository _clubRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserContext _userContext;
+    private readonly IClubMemberQueries _clubMemberQueries;
 
-    public RegisterClubMemberHandler(IClubRepository clubRepository, IUnitOfWork unitOfWork)
+    public RegisterClubMemberHandler(IClubRepository clubRepository, IUnitOfWork unitOfWork,  IUserContext userContext,  IClubMemberQueries clubMemberQueries)
     {
         _clubRepository = clubRepository;
         _unitOfWork = unitOfWork;
+        _userContext = userContext;
+        _clubMemberQueries = clubMemberQueries;
     }
 
     public async Task<Result<int>> Handle(RegisterClubMember request, CancellationToken cancellationToken)
     {
-        var club = await _clubRepository.GetClubById(request.ClubId, cancellationToken);
+        if (!_userContext.IsAnyAdmin())
+        {
+            return Result.Failure<int>(UserErrors.Forbidden);
+        }
+
+        if (!_userContext.IsOnlySuperadmin())
+        {
+            var hasPermission = await _clubMemberQueries.IsAdminInClub(request.ClubId, _userContext.UserId, cancellationToken);
+
+            if (!hasPermission)
+            {
+                return Result.Failure<int>(ClubErrors.Forbidden);
+            }
+        }
+        
+        var club = await _clubRepository.GetClubWithMembers(request.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure<int>(ClubMemberErrors.NotFound(request.ClubId));

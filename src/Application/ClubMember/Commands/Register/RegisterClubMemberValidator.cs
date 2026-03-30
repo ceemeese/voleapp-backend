@@ -11,12 +11,12 @@ internal sealed class RegisterClubMemberValidator : AbstractValidator<RegisterCl
             .NotEmpty().WithErrorCode("ClubMember.UserRequired").WithMessage("El usuario es obligatorio");
         
         RuleFor(c => c.Role)
-            .NotEmpty().WithErrorCode("ClubMember.Role").WithMessage("El rol es obligatorio")
-            .Must(BeAValidRole).WithErrorCode("ClubMember.Role").WithMessage("El rol no es válido");
+            .NotEmpty().WithErrorCode("ClubMember.RoleRequired").WithMessage("El rol es obligatorio")
+            .Must(BeAValidRole).WithErrorCode("ClubMember.ValidRole").WithMessage("El rol no es válido");
     }
     
     private bool BeAValidRole(string type)
     {
-        return Enum.TryParse<MemberRole>(type, true, out _);
+        return Enum.TryParse<MemberRole>(type, ignoreCase:true, out _);
     }
 }

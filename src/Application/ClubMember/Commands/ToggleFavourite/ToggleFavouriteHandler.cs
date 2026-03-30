@@ -41,6 +41,6 @@ internal sealed class ToggleFavouriteHandler : IRequestHandler<ToggleFavourite, 
         }
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Result.Success(Unit.Value);
     }
 }

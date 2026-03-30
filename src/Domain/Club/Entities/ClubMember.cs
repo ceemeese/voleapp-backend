@@ -8,7 +8,6 @@ public sealed class ClubMember : Entity<int>
 {
     public Guid ClubId { get; private set; }
     public Guid UserId { get; private set; }
-    public User.User User { get; private set; } = null!;
     public MemberRole Role { get; private set; }
     public string? MembershipNumber { get; private set; }
     public DateOnly RegisteredOn { get; private set; }

@@ -15,19 +15,28 @@ internal sealed class UserRepository : IUserRepository
 
     public async Task<List<User>> GetAll(CancellationToken cancellationToken)
     {
-        return await _context.Users.ToListAsync(cancellationToken);
+        return await _context.Users.IgnoreQueryFilters().ToListAsync(cancellationToken);
     }
     
     public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken)   
     {                                      
         return await _context.Users
             .Where(u => u.Id == userId)
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<User?> GetByEmailActiveAsync(string email, CancellationToken cancellationToken)
+    {
+        return await _context.Users
+            .Where(u => u.Email == email)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+    
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await _context.Users
+            .IgnoreQueryFilters()
             .Where(u => u.Email == email)
             .FirstOrDefaultAsync(cancellationToken);
     }

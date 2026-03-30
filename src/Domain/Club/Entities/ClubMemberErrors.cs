@@ -27,4 +27,8 @@ public static class ClubMemberErrors
     public static readonly Error NotEmptymembershipNumber = Error.Validation(
         "ClubMember.NotEmptymembershipNumbe",
         "El número de socio es obligatorio");
+    
+    public static readonly Error Forbidden = Error.Forbidden(
+        "Club.Forbidden",
+        "Usuario sin permisos para este club");
 }

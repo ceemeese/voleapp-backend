@@ -24,6 +24,6 @@ internal sealed class RegisterCourtValidator : AbstractValidator<RegisterCourt>
 
     private bool BeAValidCourtType(string type)
     {
-        return Enum.TryParse<CourtType>(type, true, out _);
+        return Enum.TryParse<CourtType>(type, ignoreCase:true, out _);
     }
 }

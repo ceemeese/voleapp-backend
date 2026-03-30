@@ -1,3 +1,4 @@
+using Application.Users.Commands.Activate;
 using Application.Users.Commands.Delete;
 using Application.Users.Commands.Register;
 using Application.Users.Commands.Update;
@@ -99,6 +100,17 @@ public class UsersController : ControllerBase
     public async Task<IActionResult>Delete(Guid id)
     {
         var userResult = await _mediator.Send(new DeleteUser(id));
+
+        return userResult.IsSuccess 
+            ? NoContent()
+            : CustomResults.Problem(userResult);
+    }
+    
+    [AuthorizeSuperAdmin]
+    [HttpDelete("{id:guid}/activate")]
+    public async Task<IActionResult>Activate(Guid id)
+    {
+        var userResult = await _mediator.Send(new ActivateUser(id));
 
         return userResult.IsSuccess 
             ? NoContent()
