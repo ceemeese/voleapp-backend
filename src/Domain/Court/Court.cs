@@ -1,3 +1,4 @@
+using System.Formats.Asn1;
 using Domain.Common;
 using Domain.Court.Entities;
 using Domain.Court.Enum;
@@ -7,6 +8,17 @@ namespace Domain.Court;
 
 public sealed class Court : AggregateRoot<Guid>
 {
+    public Guid ClubId { get; private set; }
+    public string Name { get; private set; }
+    public CourtType Type { get; private set; }
+    public decimal BasePrice { get; private set; }
+    public bool IsActive { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    private readonly List<CourtEvent> _courtEvents = new();
+    //expression bodied members => devolucion de propiedad de solo lectura(private readonly)
+    public IReadOnlyCollection<CourtEvent> CourtEvents => _courtEvents.AsReadOnly();
+    
+    
     internal Court(Guid id, Guid clubId, string name, CourtType type, decimal basePrice, bool isActive)
     {
         ClubId = clubId;
@@ -20,7 +32,7 @@ public sealed class Court : AggregateRoot<Guid>
     private Court()
     {
     }
-
+    
     public static Result<Court> Create(Guid clubId, string name, CourtType type, decimal basePrice, bool isActive)
     {
         if (basePrice <= 0)
@@ -51,27 +63,78 @@ public sealed class Court : AggregateRoot<Guid>
 
         return Result.Success();
     }
-
+    
     public void Deactivate()
     {
         IsActive = false;
     }
-
+    
     public void Activate()
     {
         IsActive = true;
     }
     
-    public Guid ClubId { get; private set; }
-    public string Name { get; private set; }
-    public CourtType Type { get; private set; }
-    public decimal BasePrice { get; private set; }
-    public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    private readonly List<CourtEvent> _courtEvents = new();
-    //expression bodied members => devolucion de propiedad de solo lectura(private readonly)
-    public IReadOnlyCollection<CourtEvent> CourtEvents => _courtEvents.AsReadOnly();
     
+    public Result<CourtEvent> AddEvent(DateTime startTime, DateTime endTime, string eventName, string? description)
+    {
+        var validateEventResult =  ValidateEventConflict(null, startTime, endTime);
+        if (validateEventResult.IsFailure)
+        {
+            return Result.Failure<CourtEvent>(validateEventResult.Error);
+        }
+
+        var eventResult = CourtEvent.Create(this.Id, startTime, endTime, eventName, description);
+
+        _courtEvents.Add(eventResult.Value);
+        return Result.Success(eventResult.Value);
+    }
     
-    //evento anadir eventopista
+    public Result UpdateEvent(int eventId, DateTime startTime, DateTime endTime, string eventName, string? description)
+    {
+        var existingEvent = _courtEvents.FirstOrDefault(e => e.Id == eventId);
+        if (existingEvent is null)
+        {
+            return Result.Failure(CourtEventErrors.NotFound(eventId));
+        }
+
+        var validateEventResult =  ValidateEventConflict(eventId, startTime, endTime);
+        if (validateEventResult.IsFailure)
+        {
+            return Result.Failure(validateEventResult.Error);
+        }
+
+        var eventResult = existingEvent.Update(startTime, endTime, eventName, description);
+        if (eventResult.IsFailure)
+        {
+            return Result.Failure(eventResult.Error); 
+        }
+        
+        return Result.Success();
+    }
+
+    public Result DeleteEvent(int eventId)
+    {
+        var existingEvent = _courtEvents.FirstOrDefault(e => e.Id == eventId);
+        if (existingEvent is null)
+        {
+            return Result.Failure(CourtEventErrors.NotFound(eventId));
+        }
+        
+        _courtEvents.Remove(existingEvent);
+        return Result.Success();
+    }
+    
+    private Result ValidateEventConflict(int? updatingEventId, DateTime startTime, DateTime endTime)
+    {
+        if (!IsActive)
+            return Result.Failure(CourtErrors.NotActive);
+
+        var hasConflict = _courtEvents.Any(e => (updatingEventId == null || e.Id != updatingEventId) && e.StartTime < endTime && e.EndTime > startTime);
+        if (hasConflict)
+        {
+            return Result.Failure(CourtErrors.SlotOccupied);   
+        }
+        
+        return Result.Success();
+    }
 }

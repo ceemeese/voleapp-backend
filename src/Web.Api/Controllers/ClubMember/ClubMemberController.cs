@@ -12,6 +12,7 @@ using Web.Api.Infrastructure;
 
 namespace Web.Api.Controllers.ClubMember;
 
+[ApiController]
 public class ClubMemberController : ControllerBase
 {
     private readonly IMediator _mediator;
