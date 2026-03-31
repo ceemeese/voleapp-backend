@@ -84,6 +84,10 @@ public sealed class Court : AggregateRoot<Guid>
         }
 
         var eventResult = CourtEvent.Create(this.Id, startTime, endTime, eventName, description);
+        if (eventResult.IsFailure)
+        {
+            return Result.Failure<CourtEvent>(eventResult.Error);
+        }
 
         _courtEvents.Add(eventResult.Value);
         return Result.Success(eventResult.Value);

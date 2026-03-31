@@ -1,7 +1,9 @@
-using Application.ClubMember.Queries.GetAllMembers;
 using Application.CourtEvents.Commands.Delete;
 using Application.CourtEvents.Commands.Register;
 using Application.CourtEvents.Commands.Update;
+using Application.CourtEvents.Queries.GetAllByRange;
+using Application.CourtEvents.Queries.GetAllEventsCourtByRange;
+using Application.CourtEvents.Queries.GetEventById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Infrastructure;
@@ -16,6 +18,42 @@ public sealed class CourtEventController : ControllerBase
     public CourtEventController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+    
+    [AuthorizeAdmins]
+    [HttpGet("api/courts/{courtId:guid}/events/search")]
+    public async Task<IActionResult> GetAllEventsCourtByRange([FromRoute] Guid courtId, [FromQuery] DateTime startRange, [FromQuery] DateTime? endRange, CancellationToken cancellationToken)
+    {
+        var query = new GetCourtEventsByRange(courtId, startRange, endRange);
+        var eventResult = await _mediator.Send(query, cancellationToken);
+        
+        return eventResult.IsSuccess
+            ? Ok(eventResult.Value) 
+            : CustomResults.Problem(eventResult);
+    }
+    
+    [AuthorizeAdmins]
+    [HttpGet("api/clubs/{clubId:guid}/courts/events/search")]
+    public async Task<IActionResult> GetAllByRange([FromRoute] Guid clubId, [FromQuery] DateTime startRange, [FromQuery] DateTime? endRange, CancellationToken cancellationToken)
+    {
+        var query = new GetAllByRange(clubId, startRange, endRange);
+        var eventResult = await _mediator.Send(query, cancellationToken);
+        
+        return eventResult.IsSuccess
+            ? Ok(eventResult.Value) 
+            : CustomResults.Problem(eventResult);
+    }
+    
+    [AuthorizeAdmins]
+    [HttpGet("api/courts/{courtId:guid}/events/{eventId:int}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid courtId, [FromRoute] int eventId, CancellationToken cancellationToken)
+    {
+        var query = new GetEventById(courtId, eventId);
+        var eventResult = await _mediator.Send(query, cancellationToken);
+        
+        return eventResult.IsSuccess
+            ? Ok(eventResult.Value) 
+            : CustomResults.Problem(eventResult);
     }
     
     [AuthorizeAdmins]
