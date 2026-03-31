@@ -1,4 +1,5 @@
 using Application.Abstractions.DTO.Court;
+using Application.Abstractions.DTO.CourtEvent;
 using AutoMapper;
 using Domain.Court;
 using Domain.Court.Entities;

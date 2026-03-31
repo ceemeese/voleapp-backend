@@ -1,3 +1,5 @@
+using Application.Abstractions.DTO.CourtEvent;
+
 namespace Application.Abstractions.DTO.Court;
 
 public sealed record CourtResponse(

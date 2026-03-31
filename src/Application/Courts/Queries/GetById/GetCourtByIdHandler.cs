@@ -6,7 +6,7 @@ using SharedKernel;
 
 namespace Application.Courts.Queries.GetById;
 
-internal sealed class GetCourtByIdHandler : IRequestHandler<GetCourtById, Result<CourtResponse>>
+internal sealed class GetCourtByIdHandler : IRequestHandler<GetCourtById, Result<CourtSummaryResponse>>
 {
     private readonly ICourtRepository _courtRepository;
     private readonly IMapper _mapper;
@@ -17,15 +17,15 @@ internal sealed class GetCourtByIdHandler : IRequestHandler<GetCourtById, Result
         _mapper = mapper;
     }
 
-    public async Task<Result<CourtResponse>> Handle(GetCourtById request, CancellationToken cancellationToken)
+    public async Task<Result<CourtSummaryResponse>> Handle(GetCourtById request, CancellationToken cancellationToken)
     {
         var court = await _courtRepository.GetCourtById(request.CourtId, cancellationToken);
 
         if (court is null)
         {
-            return Result.Failure<CourtResponse>(CourtErrors.NotFound(request.CourtId));
+            return Result.Failure<CourtSummaryResponse>(CourtErrors.NotFound(request.CourtId));
         }
-        var courtMapped = _mapper.Map<CourtResponse>(court);
+        var courtMapped = _mapper.Map<CourtSummaryResponse>(court);
         return Result.Success(courtMapped);
     }
 }

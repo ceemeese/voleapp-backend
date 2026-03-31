@@ -25,6 +25,23 @@ internal sealed class CourtRepository : ICourtRepository
             .Where(c => c.Id == id)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<Court?> GetCourtWithEventsByDateRangeAsync(Guid courtId, DateTime startDate, CancellationToken cancellationToken, DateTime? endDate = null)
+    {
+        var rangeStart = startDate.Date;
+        var rangeEnd = (endDate ?? startDate).Date.AddDays(1).AddTicks(-1);
+
+        var query = _context.Courts
+            .Where(c => c.Id == courtId)
+            .Include(c => c.CourtEvents
+                .Where(e =>
+                    e.StartTime >= rangeStart &&
+                    e.EndTime <= rangeEnd 
+                )
+            );
+        
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
     
     public async Task<List<Court>> GetCourtsByClubId(Guid clubId, CancellationToken cancellationToken)
     {       

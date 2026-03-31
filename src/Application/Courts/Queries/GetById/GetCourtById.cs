@@ -4,6 +4,6 @@ using SharedKernel;
 
 namespace Application.Courts.Queries.GetById;
 
-public record GetCourtById(Guid CourtId) : IRequest<Result<CourtResponse>>
+public record GetCourtById(Guid CourtId) : IRequest<Result<CourtSummaryResponse>>
 {
 }
