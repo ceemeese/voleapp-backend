@@ -3,6 +3,7 @@ using Domain.Club.Enum;
 using Domain.Common;
 using Domain.Common.ValueObjects;
 using SharedKernel;
+using DayOfWeek = Domain.Club.Enum.DayOfWeek;
 
 namespace Domain.Club;
 
@@ -147,4 +148,59 @@ public sealed class Club : AggregateRoot<Guid>
     private ClubMember? GetMember(Guid userId) => _members.FirstOrDefault(m => m.UserId == userId);
     
     
+    public Result<Schedule> AddSchedule(DayOfWeek day, TimeOnly startTime, TimeOnly endTime)
+    {
+        if (_schedules.Any(s => s.DayOfWeek == day))
+        {
+            return Result.Failure<Schedule>(ClubErrors.ScheduleAlreadyExist);
+        }
+        
+        var scheduleResult = Schedule.Create(this.Id, day, startTime, endTime);
+        if (scheduleResult.IsFailure)
+        {
+            return Result.Failure<Schedule>(scheduleResult.Error);
+        }
+        
+        _schedules.Add(scheduleResult.Value);
+        return Result.Success(scheduleResult.Value);
+    }
+    
+    
+    public Result UpdateScheduleTime(int scheduleId, TimeOnly openingTime, TimeOnly closingTime)
+    {
+        var schedule = _schedules.FirstOrDefault(s => s.Id == scheduleId);
+        if (schedule is null)
+        {
+            return Result.Failure(ClubErrors.ScheduleNotFound(scheduleId));
+        }
+
+        var scheduleResult = schedule.UpdateHours(openingTime, closingTime);
+        if (scheduleResult.IsFailure)
+        {
+            return Result.Failure(scheduleResult.Error);
+        }
+        
+        return Result.Success();
+    }
+    
+    
+    public Result SwitchOpeningStatus(int scheduleId)
+    {
+        var schedule = _schedules.FirstOrDefault(s => s.Id == scheduleId);
+        if (schedule is null)
+        {
+            return Result.Failure(ClubErrors.ScheduleNotFound(scheduleId));
+        }
+
+        if (schedule.IsClosed)
+        {
+            schedule.MaskAsOpen();
+        }
+        else
+        {
+            schedule.MaskAsClosed();
+        }
+        
+        return Result.Success();
+    }
 }

@@ -1,3 +1,4 @@
+using SharedKernel;
 using DayOfWeek = Domain.Club.Enum.DayOfWeek;
 
 namespace Domain.Club.Entities;
@@ -24,6 +25,40 @@ public sealed class Schedule : Entity<int>
     public TimeOnly OpeningTime { get; private set; }
     public TimeOnly ClosingTime { get; private set; }
     public bool IsClosed { get; private set; }
+
+
+    public static Result<Schedule> Create(Guid clubId, DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
+    {
+        if (openingTime >= closingTime)
+        {
+            return Result.Failure<Schedule>(ScheduleErrors.InvalidHours);
+        }
+        
+        var newSchedule = new Schedule(clubId, dayOfWeek, openingTime, closingTime);
+        return Result.Success(newSchedule);
+    }
+
+    public Result<Schedule> UpdateHours(TimeOnly openingTime, TimeOnly closingTime)
+    {
+        if (openingTime >= closingTime)
+        {
+            return Result.Failure<Schedule>(ScheduleErrors.InvalidHours);
+        }
+        
+        OpeningTime = openingTime;
+        ClosingTime = closingTime;
+        IsClosed = false;
+
+        return Result.Success<Schedule>(this);
+    }
     
-    //metodo para marcar club cerrado y otro para actualizar horas
+    public void MaskAsClosed()
+    {
+        IsClosed = true;
+    }
+    
+    public void MaskAsOpen()
+    {
+        IsClosed = true;
+    }
 }

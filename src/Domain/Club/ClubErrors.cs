@@ -11,4 +11,12 @@ public static class ClubErrors
     public static readonly Error Forbidden = Error.Forbidden(
         "Club.Forbidden",
         "Usuario sin permisos");
+    
+    public static readonly Error ScheduleAlreadyExist = Error.Conflict(
+        "Club.ScheduleAlreadyExist",
+        "Ya existe un horario para ese día de la semana");
+    
+    public static Error ScheduleNotFound(int scheduleId) => Error.NotFound(
+        "Club.ScheduleNotFound",
+        $"El horario con id {scheduleId} no se encontró");
 }
