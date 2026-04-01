@@ -22,6 +22,7 @@ internal sealed class ClubRepository : IClubRepository
     {
         return await _context.Clubs
             .Where(c => c.Id == clubId)
+            .Include(c => c.Schedules)
             .FirstOrDefaultAsync(cancellationToken);
     }
     

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="Abstractions\Data\" />
+    <Folder Include="Schedules\Commands\Register\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
