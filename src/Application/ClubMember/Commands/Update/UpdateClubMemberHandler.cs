@@ -22,7 +22,6 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
     {
         _unitOfWork = unitOfWork;
         _clubRepository = clubRepository;
-        _clubRepository = clubRepository;
         _userContext = userContext;
         _clubMemberQueries = clubMemberQueries;
         _identityService = identityService;
@@ -68,8 +67,6 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
         bool isManagementRole(MemberRole? role) => role == MemberRole.Admin || role == MemberRole.Owner || role == MemberRole.Coach;
         bool needsPrivileges = isManagementRole(memberRole);
         bool hadPrivileges = isManagementRole(oldRole);
-        
-        
         
         if (needsPrivileges != hadPrivileges)
         {

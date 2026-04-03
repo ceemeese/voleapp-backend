@@ -3,6 +3,7 @@ using Application.Abstractions.Interfaces;
 using Domain.Club;
 using Domain.Club.Entities;
 using Domain.Club.Enum;
+using Domain.Roles;
 using Domain.User;
 using MediatR;
 using SharedKernel;
@@ -15,13 +16,15 @@ internal sealed class RegisterClubMemberHandler : IRequestHandler<RegisterClubMe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IClubMemberQueries _clubMemberQueries;
+    private readonly IIdentityService _identityService;
 
-    public RegisterClubMemberHandler(IClubRepository clubRepository, IUnitOfWork unitOfWork,  IUserContext userContext,  IClubMemberQueries clubMemberQueries)
+    public RegisterClubMemberHandler(IClubRepository clubRepository, IUnitOfWork unitOfWork,  IUserContext userContext,  IClubMemberQueries clubMemberQueries, IIdentityService identityService)
     {
         _clubRepository = clubRepository;
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _clubMemberQueries = clubMemberQueries;
+        _identityService = identityService;
     }
 
     public async Task<Result<int>> Handle(RegisterClubMember request, CancellationToken cancellationToken)

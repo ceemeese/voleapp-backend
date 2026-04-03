@@ -70,7 +70,7 @@ internal sealed class ClubMemberQueries : IClubMemberQueries
             user.Name,
             user.LastName,
             user.Email,
-            member.Role,
+            new RoleResponse((int)member.Role, member.Role.ToString()),
             member.IsMember,
             member.MembershipNumber,
             member.IsFavourite,

@@ -1,5 +1,3 @@
-using Domain.Club.Enum;
-
 namespace Application.Abstractions.DTO.ClubMember;
 
 public sealed record ClubMemberCompleteResponse(
@@ -7,7 +5,7 @@ public sealed record ClubMemberCompleteResponse(
     string Name,
     string LastName,
     string Email,
-    MemberRole Role,
+    RoleResponse Role,
     bool IsMember,
     string? MembershipNumber,
     bool IsFavourite,

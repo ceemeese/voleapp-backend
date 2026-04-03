@@ -1,5 +1,5 @@
 using Application.Users.Commands.Activate;
-using Application.Users.Commands.Delete;
+using Application.Users.Commands.Deactivate;
 using Application.Users.Commands.Register;
 using Application.Users.Commands.Update;
 using Application.Users.Queries.GetAll;
@@ -96,10 +96,10 @@ public class UsersController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult>Delete(Guid id)
+    [HttpPatch("{id:guid}/deactivate")]
+    public async Task<IActionResult>Deactivate(Guid id)
     {
-        var userResult = await _mediator.Send(new DeleteUser(id));
+        var userResult = await _mediator.Send(new DeactivateUser(id));
 
         return userResult.IsSuccess 
             ? NoContent()

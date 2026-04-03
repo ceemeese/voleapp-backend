@@ -1,21 +1,20 @@
 using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using Domain.Club;
-using Domain.Club.Entities;
 using Domain.User;
 using MediatR;
 using SharedKernel;
 
-namespace Application.ClubMember.Commands.Delete;
+namespace Application.ClubMember.Commands.Deactivate;
 
-internal sealed class DeleteClubMemberHandler : IRequestHandler<DeleteClubMember, Result>
+internal sealed class DeactivateClubMemberHandler : IRequestHandler<DeactivateClubMember, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IClubRepository _clubRepository;
     private readonly IUserContext _userContext;
     private readonly IClubMemberQueries _clubMemberQueries;
 
-    public DeleteClubMemberHandler(IUnitOfWork unitOfWork, IClubRepository clubRepository, IUserContext userContext,  IClubMemberQueries clubMemberQueries)
+    public DeactivateClubMemberHandler(IUnitOfWork unitOfWork, IClubRepository clubRepository, IUserContext userContext,  IClubMemberQueries clubMemberQueries)
     {
         _unitOfWork = unitOfWork;
         _clubRepository = clubRepository;
@@ -23,7 +22,7 @@ internal sealed class DeleteClubMemberHandler : IRequestHandler<DeleteClubMember
         _clubMemberQueries = clubMemberQueries;
     }
 
-    public async Task<Result> Handle(DeleteClubMember request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeactivateClubMember request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsAnyAdmin())
         {

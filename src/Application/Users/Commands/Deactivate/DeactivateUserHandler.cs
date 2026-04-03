@@ -5,16 +5,16 @@ using Domain.User;
 using MediatR;
 using SharedKernel;
 
-namespace Application.Users.Commands.Delete;
+namespace Application.Users.Commands.Deactivate;
 
-internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
+internal sealed class DeactivateUserHandler : IRequestHandler<DeactivateUser, Result>
 {
     private readonly IIdentityService _identityService;
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     
-    public DeleteUserHandler(IIdentityService identityService, IUserRepository userRepository, IUnitOfWork unitOfWork, IUserContext userContext)
+    public DeactivateUserHandler(IIdentityService identityService, IUserRepository userRepository, IUnitOfWork unitOfWork, IUserContext userContext)
     {
         _identityService = identityService;
         _userRepository = userRepository;
@@ -22,7 +22,7 @@ internal sealed class DeleteUserHandler : IRequestHandler<DeleteUser, Result>
         _userContext = userContext;
     }
 
-    public async Task<Result> Handle(DeleteUser request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeactivateUser request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsOnlySuperadmin())
         {

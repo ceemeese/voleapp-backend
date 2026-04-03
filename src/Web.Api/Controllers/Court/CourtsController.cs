@@ -1,5 +1,5 @@
 using Application.Courts.Commands.Activate;
-using Application.Courts.Commands.Delete;
+using Application.Courts.Commands.Deactivate;
 using Application.Courts.Commands.Register;
 using Application.Courts.Commands.Update;
 using Application.Courts.Queries.GetAll;
@@ -91,10 +91,10 @@ public class CourtsController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpDelete("api/courts/{id:guid}")]
-    public async Task<IActionResult>Delete(Guid id)
+    [HttpPatch("api/courts/{id:guid}/deactivate")]
+    public async Task<IActionResult>Deactivate(Guid id)
     {
-        var courtResult = await _mediator.Send(new DeleteCourt(id));
+        var courtResult = await _mediator.Send(new DeactivateCourt(id));
 
         return courtResult.IsSuccess 
             ? NoContent()

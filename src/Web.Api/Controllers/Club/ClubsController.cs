@@ -1,5 +1,5 @@
 using Application.Clubs.Commands;
-using Application.Clubs.Commands.Delete;
+using Application.Clubs.Commands.Deactivate;
 using Application.Clubs.Commands.Register;
 using Application.Clubs.Commands.Update;
 using Application.Clubs.Queries.GetAll;
@@ -101,10 +101,10 @@ public class ClubsController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult>Delete(Guid id)
+    [HttpPatch("{id:guid}/deactivate")]
+    public async Task<IActionResult>Deactivate(Guid id)
     {
-        var clubResult = await _mediator.Send(new DeleteClub(id));
+        var clubResult = await _mediator.Send(new DeactivateClub(id));
 
         return clubResult.IsSuccess 
             ? NoContent()

@@ -44,7 +44,7 @@ public sealed class ScheduleController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpPut("api/clubs/{clubId:guid}/schedules/{scheduleId:int}")]
-    public async Task<IActionResult> Register([FromRoute] Guid clubId, [FromRoute] int scheduleId, [FromBody] UpdateScheduleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update([FromRoute] Guid clubId, [FromRoute] int scheduleId, [FromBody] UpdateScheduleRequest request, CancellationToken cancellationToken)
     {
         var command = new UpdateSchedule(clubId, scheduleId, request.OpeningTime, request.ClosingTime );
         var scheduleResult = await _mediator.Send(command, cancellationToken);
@@ -55,7 +55,7 @@ public sealed class ScheduleController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpPut("api/clubs/{clubId:guid}/schedules/{scheduleId:int}/toggle")]
+    [HttpPatch("api/clubs/{clubId:guid}/schedules/{scheduleId:int}/toggle")]
     public async Task<IActionResult> ToggleSchedule([FromRoute] Guid clubId, [FromRoute] int scheduleId, CancellationToken cancellationToken)
     {
         var command = new ToggleSchedule(clubId, scheduleId);
