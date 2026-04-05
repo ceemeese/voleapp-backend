@@ -4,7 +4,7 @@ using Domain.Club;
 using MediatR;
 using SharedKernel;
 
-namespace Application.Clubs.Commands.Delete;
+namespace Application.Clubs.Commands.Deactivate;
 
 internal sealed class DeactivateClubHandler : IRequestHandler<DeactivateClub, Result>
 {
