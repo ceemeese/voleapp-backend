@@ -1,5 +1,5 @@
 using Application.ClubMember.Commands.Activate;
-using Application.ClubMember.Commands.Delete;
+using Application.ClubMember.Commands.Deactivate;
 using Application.ClubMember.Commands.Register;
 using Application.ClubMember.Commands.ToggleFavourite;
 using Application.ClubMember.Commands.Update;
@@ -85,10 +85,10 @@ public class ClubMemberController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpDelete("api/clubs/{clubId:guid}/members/{userId:guid}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid clubId, [FromRoute] Guid userId, CancellationToken cancellationToken)
+    [HttpPatch("api/clubs/{clubId:guid}/members/{userId:guid}/deactivate")]
+    public async Task<IActionResult> Deactivate([FromRoute] Guid clubId, [FromRoute] Guid userId, CancellationToken cancellationToken)
     {
-        var command = new DeleteClubMember(
+        var command = new DeactivateClubMember(
             clubId,
             userId
         );

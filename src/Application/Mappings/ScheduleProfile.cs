@@ -1,6 +1,7 @@
 using Application.Abstractions.DTO.Schedule;
 using AutoMapper;
 using Domain.Club.Entities;
+using DayOfWeek = Domain.Club.Enum.DayOfWeek;
 
 namespace Application.Mappings;
 

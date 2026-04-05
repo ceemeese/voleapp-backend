@@ -4,22 +4,22 @@ using Domain.Club;
 using MediatR;
 using SharedKernel;
 
-namespace Application.Clubs.Commands.Delete;
+namespace Application.Clubs.Commands.Deactivate;
 
-internal sealed class DeleteClubHandler : IRequestHandler<DeleteClub, Result>
+internal sealed class DeactivateClubHandler : IRequestHandler<DeactivateClub, Result>
 {
      private readonly IUnitOfWork _unitOfWork;
      private readonly IClubRepository _clubRepository;
      private readonly IUserContext _userContext;
 
-     public DeleteClubHandler(IUnitOfWork unitOfWork, IClubRepository clubRepository, IUserContext userContext)
+     public DeactivateClubHandler(IUnitOfWork unitOfWork, IClubRepository clubRepository, IUserContext userContext)
      {
           _unitOfWork = unitOfWork;
           _clubRepository = clubRepository;
           _userContext = userContext;
      }
 
-     public async Task<Result> Handle(DeleteClub request, CancellationToken cancellationToken)
+     public async Task<Result> Handle(DeactivateClub request, CancellationToken cancellationToken)
      {
           if (!_userContext.IsOnlySuperadmin())
           {

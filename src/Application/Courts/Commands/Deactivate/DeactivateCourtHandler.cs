@@ -6,16 +6,16 @@ using Domain.User;
 using MediatR;
 using SharedKernel;
 
-namespace Application.Courts.Commands.Delete;
+namespace Application.Courts.Commands.Deactivate;
 
-internal sealed class DeleteCourtHandler : IRequestHandler<DeleteCourt, Result>
+internal sealed class DeactivateCourtHandler : IRequestHandler<DeactivateCourt, Result>
 {
     private readonly ICourtRepository _courtRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserContext _userContext;
     private readonly IClubMemberQueries _clubMemberQueries;
     
-    public DeleteCourtHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork, IUserContext userContext,  IClubMemberQueries clubMemberQueries)
+    public DeactivateCourtHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork, IUserContext userContext,  IClubMemberQueries clubMemberQueries)
     {
         _courtRepository = courtRepository;
         _unitOfWork = unitOfWork;
@@ -23,7 +23,7 @@ internal sealed class DeleteCourtHandler : IRequestHandler<DeleteCourt, Result>
         _clubMemberQueries = clubMemberQueries;
     }
 
-    public async Task<Result> Handle(DeleteCourt request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(DeactivateCourt request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsAnyAdmin())
         {
