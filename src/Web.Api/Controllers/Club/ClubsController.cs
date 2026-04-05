@@ -1,7 +1,9 @@
+using Application.Abstractions.Interfaces;
 using Application.Clubs.Commands;
 using Application.Clubs.Commands.Deactivate;
 using Application.Clubs.Commands.Register;
 using Application.Clubs.Commands.Update;
+using Application.Clubs.Queries.GetAdminClubContext;
 using Application.Clubs.Queries.GetAll;
 using Application.Clubs.Queries.GetAllSearch;
 using Application.Clubs.Queries.GetById;
@@ -21,6 +23,17 @@ public class ClubsController : ControllerBase
     public ClubsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+    
+    [AuthorizeAdmins]
+    [HttpGet("admin-context")]
+    public async Task<IActionResult> GetAdminContext([FromServices] IClubContext clubContext, CancellationToken cancellationToken)
+    {
+        var clubResult = await _mediator.Send(new GetAdminClubContext(), cancellationToken);
+        
+        return clubResult.IsSuccess 
+            ? Ok(clubResult.Value) 
+            : CustomResults.Problem(clubResult);
     }
 
     [AllowAnonymous]
