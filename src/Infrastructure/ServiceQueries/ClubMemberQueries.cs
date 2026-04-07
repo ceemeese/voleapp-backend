@@ -66,6 +66,7 @@ internal sealed class ClubMemberQueries : IClubMemberQueries
     private static ClubMemberCompleteResponse MapToResponse(ClubMember member, User user)
     {
         return new ClubMemberCompleteResponse(
+            member.Id,
             member.UserId,
             user.Name,
             user.LastName,
@@ -74,7 +75,8 @@ internal sealed class ClubMemberQueries : IClubMemberQueries
             member.IsMember,
             member.MembershipNumber,
             member.IsFavourite,
-            member.IsActive
+            member.IsActive,
+            member.RegisteredOn
         );
     }
 

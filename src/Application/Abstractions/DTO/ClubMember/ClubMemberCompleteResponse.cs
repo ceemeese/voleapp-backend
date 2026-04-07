@@ -1,6 +1,7 @@
 namespace Application.Abstractions.DTO.ClubMember;
 
 public sealed record ClubMemberCompleteResponse(
+    int Id,
     Guid UserId,
     string Name,
     string LastName,
@@ -9,5 +10,6 @@ public sealed record ClubMemberCompleteResponse(
     bool IsMember,
     string? MembershipNumber,
     bool IsFavourite,
-    bool IsActive
+    bool IsActive,
+    DateOnly RegisteredOn
 );
