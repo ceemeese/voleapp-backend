@@ -25,7 +25,7 @@ public static class ClubMemberErrors
         "El club debe tener al menos un administrador");
     
     public static readonly Error NotEmptymembershipNumber = Error.Validation(
-        "ClubMember.NotEmptymembershipNumbe",
+        "ClubMember.NotEmptymembershipNumber",
         "El número de socio es obligatorio");
     
     public static readonly Error Forbidden = Error.Forbidden(

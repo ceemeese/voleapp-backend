@@ -19,4 +19,8 @@ public static class ClubErrors
     public static Error ScheduleNotFound(int scheduleId) => Error.NotFound(
         "Club.ScheduleNotFound",
         $"El horario con id {scheduleId} no se encontró");
+    
+    public static Error AdminContextNotFound = Error.NotFound(
+        "Club.AdminContextNotFound",
+        "El usuario no tiene un club asignado como administrador");
 }

@@ -54,6 +54,6 @@ internal sealed class ClubMemberConfiguration : IEntityTypeConfiguration<ClubMem
             .IsRequired();
         
         //ver miembros activos
-        builder.HasQueryFilter(cm => cm.IsActive);
+        //builder.HasQueryFilter(cm => cm.IsActive);
     }
 }
