@@ -13,7 +13,7 @@ internal sealed class RegisterCourtValidator : AbstractValidator<RegisterCourt>
         RuleFor(c => c.Name)
             .NotEmpty().WithErrorCode("Court.NameRequired").WithMessage("El nombre de la pista es obligatorio");
 
-        RuleFor(c => c.Type)
+        RuleFor(c => c.CourtType)
             .NotEmpty().WithErrorCode("Court.CourtType").WithMessage("El tipo de pista es obligatorio")
             .Must(BeAValidCourtType).WithErrorCode("Court.CourtType").WithMessage("El tipo de pista no es válido");
 

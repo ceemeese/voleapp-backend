@@ -1,3 +1,4 @@
+using Application.Abstractions.DTO;
 using Application.Abstractions.Interfaces;
 using AutoMapper;
 using Domain.User;
@@ -6,7 +7,7 @@ using SharedKernel;
 
 namespace Application.Users.Commands.Register;
 
-internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result<Guid>>
+internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result<UserResponse>>
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -21,18 +22,18 @@ internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result
         _mapper = mapper;
     }
 
-    public async Task<Result<Guid>> Handle(RegisterUser request, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(RegisterUser request, CancellationToken cancellationToken)
     {
         if (await _userRepository.ExistByDniAsync(request.Dni, cancellationToken))
         {
-            return Result.Failure<Guid>(UserErrors.DniDuplicated);
+            return Result.Failure<UserResponse>(UserErrors.DniDuplicated);
         }
         
         var identityResult = await _identityService.CreateUserAsync(request.Username, request.Email, request.Password);
 
         if (identityResult.IsFailure)
         {
-            return Result.Failure<Guid>(identityResult.Error);
+            return Result.Failure<UserResponse>(identityResult.Error);
         }
 
         var user = new User(
@@ -48,6 +49,7 @@ internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result
         _userRepository.Add(user);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success<Guid>(user.Id);
+        var userMapped = _mapper.Map<UserResponse>(user);
+        return Result.Success(userMapped);
     }
 }

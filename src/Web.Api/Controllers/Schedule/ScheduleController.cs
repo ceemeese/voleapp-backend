@@ -50,7 +50,7 @@ public sealed class ScheduleController : ControllerBase
         var scheduleResult = await _mediator.Send(command, cancellationToken);
         
         return scheduleResult.IsSuccess
-            ? NoContent()
+            ? Ok(scheduleResult.Value)
             : CustomResults.Problem(scheduleResult);
     }
     

@@ -49,7 +49,7 @@ public class ClubsController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var clubResult = await _mediator.Send(new GetClubById(id), cancellationToken);
         
@@ -92,7 +92,7 @@ public class ClubsController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult>Update(Guid id, [FromBody] UpdateClubRequest request)
+    public async Task<IActionResult>Update([FromRoute] Guid id, [FromBody] UpdateClubRequest request)
     {
         var command = new UpdateClub(
             id,
@@ -115,7 +115,7 @@ public class ClubsController : ControllerBase
     
     [AuthorizeSuperAdmin]
     [HttpPatch("{id:guid}/deactivate")]
-    public async Task<IActionResult>Deactivate(Guid id)
+    public async Task<IActionResult>Deactivate([FromRoute] Guid id)
     {
         var clubResult = await _mediator.Send(new DeactivateClub(id));
 
@@ -126,7 +126,7 @@ public class ClubsController : ControllerBase
     
     [AuthorizeSuperAdmin]
     [HttpPatch("{id:guid}/activate")]
-    public async Task<IActionResult>Activate(Guid id)
+    public async Task<IActionResult>Activate([FromRoute] Guid id)
     {
         var clubResult = await _mediator.Send(new ActivateClub(id));
 

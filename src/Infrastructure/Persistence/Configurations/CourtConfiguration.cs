@@ -48,6 +48,6 @@ internal sealed class CourtConfiguration : IEntityTypeConfiguration<Court>
             .UsePropertyAccessMode(PropertyAccessMode.Field);
         
         //filtro global
-        builder.HasQueryFilter(c => c.IsActive);
+        //builder.HasQueryFilter(c => c.IsActive);
     }
 }

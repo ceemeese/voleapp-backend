@@ -1,5 +1,7 @@
+using Application.Abstractions.DTO.CourtEvent;
 using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
+using AutoMapper;
 using Domain.Club;
 using Domain.Court;
 using Domain.User;
@@ -8,33 +10,35 @@ using SharedKernel;
 
 namespace Application.CourtEvents.Commands.Update;
 
-internal sealed class UpdateCourtEventHandler : IRequestHandler<UpdateCourtEvent, Result>
+internal sealed class UpdateCourtEventHandler : IRequestHandler<UpdateCourtEvent, Result<CourtEventResponse>>
 {
     private readonly ICourtRepository _courtRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IClubMemberQueries _clubMemberQueries;
     private readonly IUserContext _userContext;
+    private readonly IMapper _mapper;
 
     public UpdateCourtEventHandler(ICourtRepository courtRepository, IUnitOfWork unitOfWork,
-        IClubMemberQueries clubMemberQueries, IUserContext userContext)
+        IClubMemberQueries clubMemberQueries, IUserContext userContext, IMapper mapper)
     {
         _courtRepository = courtRepository;
         _unitOfWork = unitOfWork;
         _clubMemberQueries = clubMemberQueries;
         _userContext = userContext;
+        _mapper = mapper;
     }
 
-    public async Task<Result> Handle(UpdateCourtEvent request, CancellationToken cancellationToken)
+    public async Task<Result<CourtEventResponse>> Handle(UpdateCourtEvent request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsAnyAdmin())
         {
-            return Result.Failure(UserErrors.Forbidden);
+            return Result.Failure<CourtEventResponse>(UserErrors.Forbidden);
         }
         
         var court = await _courtRepository.GetCourtWithEventsByDateRangeAsync(request.CourtId,request.StartTime, cancellationToken);
         if (court is null)
         {
-            return Result.Failure(CourtErrors.NotFound(request.CourtId));
+            return Result.Failure<CourtEventResponse>(CourtErrors.NotFound(request.CourtId));
         }
         
         if (!_userContext.IsOnlySuperadmin())
@@ -43,17 +47,19 @@ internal sealed class UpdateCourtEventHandler : IRequestHandler<UpdateCourtEvent
 
             if (!hasPermission)
             {
-                return Result.Failure(ClubErrors.Forbidden);
+                return Result.Failure<CourtEventResponse>(ClubErrors.Forbidden);
             }
         }
         
         var courtEventResult = court.UpdateEvent(request.EventId, request.StartTime, request.EndTime, request.EventName, request.Description);
         if (courtEventResult.IsFailure)
         {
-            return Result.Failure(courtEventResult.Error);
+            return Result.Failure<CourtEventResponse>(courtEventResult.Error);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(Unit.Value);
+        
+        var courtEventMapped = _mapper.Map<CourtEventResponse>(courtEventResult.Value);
+        return Result.Success(courtEventMapped);
     }
 }

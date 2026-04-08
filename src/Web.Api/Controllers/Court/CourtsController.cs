@@ -35,7 +35,7 @@ public class CourtsController : ControllerBase
     
     [AllowAnonymous]
     [HttpGet("api/clubs/{clubId:guid}/courts")]
-    public async Task<IActionResult> GetByClubId(Guid clubId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByClubId([FromRoute] Guid clubId, CancellationToken cancellationToken)
     {
         var courtResult = await _mediator.Send(new GetByClubId(clubId), cancellationToken);
         
@@ -46,7 +46,7 @@ public class CourtsController : ControllerBase
     
     [AllowAnonymous]
     [HttpGet("api/courts/{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var courtResult = await _mediator.Send(new GetCourtById(id), cancellationToken);
         
@@ -58,7 +58,7 @@ public class CourtsController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpPost("api/clubs/{clubId}/courts")]
-    public async Task<IActionResult>Register(Guid clubId, [FromBody] RegisterCourtRequest request)
+    public async Task<IActionResult>Register([FromRoute] Guid clubId, [FromBody] RegisterCourtRequest request)
     {
         var command = new RegisterCourt(
             clubId,
@@ -76,7 +76,7 @@ public class CourtsController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpPut("api/courts/{id:guid}")]
-    public async Task<IActionResult>Update(Guid id, [FromBody] UpdateCourtRequest request)
+    public async Task<IActionResult>Update([FromRoute] Guid id, [FromBody] UpdateCourtRequest request)
     {
         var command = new UpdateCourt(
             id,
@@ -92,7 +92,7 @@ public class CourtsController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpPatch("api/courts/{id:guid}/deactivate")]
-    public async Task<IActionResult>Deactivate(Guid id)
+    public async Task<IActionResult>Deactivate([FromRoute] Guid id)
     {
         var courtResult = await _mediator.Send(new DeactivateCourt(id));
 
@@ -103,7 +103,7 @@ public class CourtsController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpPatch("api/courts/{id:guid}/activate")]
-    public async Task<IActionResult>Activate(Guid id)
+    public async Task<IActionResult>Activate([FromRoute] Guid id)
     {
         var courtResult = await _mediator.Send(new ActivateCourt(id));
 

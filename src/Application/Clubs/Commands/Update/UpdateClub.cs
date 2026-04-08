@@ -1,3 +1,4 @@
+using Application.Abstractions.DTO.Club;
 using MediatR;
 using SharedKernel;
 
@@ -12,6 +13,6 @@ public sealed record UpdateClub(
     string ZipCode,
     string Country,
     string PhoneNumber,
-    string Email) : IRequest<Result>
+    string Email) : IRequest<Result<ClubResponse>>
 {
 }
