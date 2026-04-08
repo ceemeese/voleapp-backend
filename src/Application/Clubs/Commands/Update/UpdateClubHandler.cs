@@ -1,5 +1,7 @@
+using Application.Abstractions.DTO.Club;
 using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
+using AutoMapper;
 using Domain.Club;
 using Domain.Common.ValueObjects;
 using Domain.User;
@@ -8,26 +10,28 @@ using SharedKernel;
 
 namespace Application.Clubs.Commands.Update;
 
-internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result>
+internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result<ClubResponse>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IClubRepository _clubRepository;
     private readonly IUserContext _userContext;
     private readonly IClubMemberQueries _clubMemberQueries;
+    private readonly IMapper _mapper;
 
-    public UpdateClubHandler(IUnitOfWork unitOfWork, IClubRepository clubRepository, IUserContext userContext,  IClubMemberQueries clubMemberQueries)
+    public UpdateClubHandler(IUnitOfWork unitOfWork, IClubRepository clubRepository, IUserContext userContext,  IClubMemberQueries clubMemberQueries, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _clubRepository = clubRepository;
         _userContext = userContext;
         _clubMemberQueries = clubMemberQueries;
+        _mapper = mapper;
     }
 
-    public async Task<Result> Handle(UpdateClub request, CancellationToken cancellationToken)
+    public async Task<Result<ClubResponse>> Handle(UpdateClub request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsAnyAdmin())
         {
-            return Result.Failure<int>(UserErrors.Forbidden);
+            return Result.Failure<ClubResponse>(UserErrors.Forbidden);
         }
 
         if (!_userContext.IsOnlySuperadmin())
@@ -36,7 +40,7 @@ internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result>
 
             if (!hasPermission)
             {
-                return Result.Failure<int>(ClubErrors.Forbidden);
+                return Result.Failure<ClubResponse>(ClubErrors.Forbidden);
             }
         }
 
@@ -44,13 +48,13 @@ internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result>
 
         if (club is null)
         {
-            return Result.Failure<Unit>(ClubErrors.NotFound(request.Id));
+            return Result.Failure<ClubResponse>(ClubErrors.NotFound(request.Id));
         }
         
         var addressResult = Address.Create(request.Street, request.City, request.ZipCode, request.Country);
         if (addressResult.IsFailure)
         {
-            return Result.Failure<Guid>(addressResult.Error);
+            return Result.Failure<ClubResponse>(addressResult.Error);
         }
         
         club.UpdateProfile(
@@ -62,6 +66,8 @@ internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result>
             );
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(Unit.Value);
+        
+        var clubMapped = _mapper.Map<ClubResponse>(club);
+        return Result.Success(clubMapped);
     }
 }

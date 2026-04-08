@@ -1,3 +1,4 @@
+using Application.Abstractions.DTO.CourtEvent;
 using MediatR;
 using SharedKernel;
 
@@ -8,4 +9,4 @@ public sealed record RegisterCourtEvent(
     DateTime StartTime,
     DateTime EndTime,
     string EventName,
-    string? Description) : IRequest<Result<int>>{};
+    string? Description) : IRequest<Result<CourtEventResponse>>{};

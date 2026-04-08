@@ -38,7 +38,7 @@ public class AuthsController : ControllerBase
 
   [AllowAnonymous]
   [HttpGet("Refresh/{refreshToken}")]
-  public async Task<IActionResult> Refresh(Guid refreshToken)
+  public async Task<IActionResult> Refresh([FromRoute] Guid refreshToken)
   {
     var authResult = await _mediator.Send(new GetToken(refreshToken));
 

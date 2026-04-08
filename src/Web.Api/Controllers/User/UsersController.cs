@@ -37,7 +37,7 @@ public class UsersController : ControllerBase
     
     [Authorize]
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult>GetById(Guid id)
+    public async Task<IActionResult>GetById([FromRoute] Guid id)
     {
         var userResult = await _mediator.Send(new GetUserById(id));
 
@@ -79,7 +79,7 @@ public class UsersController : ControllerBase
     
     [Authorize]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult>Update(Guid id, [FromBody] UpdateUserRequest request)
+    public async Task<IActionResult>Update([FromRoute] Guid id, [FromBody] UpdateUserRequest request)
     {
         var command = new UpdateUser(
             id,
@@ -91,13 +91,13 @@ public class UsersController : ControllerBase
         var userResult = await _mediator.Send(command);
 
         return userResult.IsSuccess 
-            ? NoContent()
+            ? Ok(userResult.Value)
             : CustomResults.Problem(userResult);
     }
     
     [AuthorizeSuperAdmin]
     [HttpPatch("{id:guid}/deactivate")]
-    public async Task<IActionResult>Deactivate(Guid id)
+    public async Task<IActionResult>Deactivate([FromRoute] Guid id)
     {
         var userResult = await _mediator.Send(new DeactivateUser(id));
 
@@ -108,7 +108,7 @@ public class UsersController : ControllerBase
     
     [AuthorizeSuperAdmin]
     [HttpDelete("{id:guid}/activate")]
-    public async Task<IActionResult>Activate(Guid id)
+    public async Task<IActionResult>Activate([FromRoute] Guid id)
     {
         var userResult = await _mediator.Send(new ActivateUser(id));
 

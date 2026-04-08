@@ -93,27 +93,27 @@ public sealed class Court : AggregateRoot<Guid>
         return Result.Success(eventResult.Value);
     }
     
-    public Result UpdateEvent(int eventId, DateTime startTime, DateTime endTime, string eventName, string? description)
+    public Result<CourtEvent> UpdateEvent(int eventId, DateTime startTime, DateTime endTime, string eventName, string? description)
     {
         var existingEvent = _courtEvents.FirstOrDefault(e => e.Id == eventId);
         if (existingEvent is null)
         {
-            return Result.Failure(CourtEventErrors.NotFound(eventId));
+            return Result.Failure<CourtEvent>(CourtEventErrors.NotFound(eventId));
         }
 
         var validateEventResult =  ValidateEventConflict(eventId, startTime, endTime);
         if (validateEventResult.IsFailure)
         {
-            return Result.Failure(validateEventResult.Error);
+            return Result.Failure<CourtEvent>(validateEventResult.Error);
         }
 
         var eventResult = existingEvent.Update(startTime, endTime, eventName, description);
         if (eventResult.IsFailure)
         {
-            return Result.Failure(eventResult.Error); 
+            return Result.Failure<CourtEvent>(eventResult.Error); 
         }
         
-        return Result.Success();
+        return Result.Success(existingEvent);
     }
 
     public Result DeleteEvent(int eventId)

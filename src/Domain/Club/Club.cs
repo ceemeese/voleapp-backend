@@ -75,26 +75,26 @@ public sealed class Club : AggregateRoot<Guid>
         return Result.Success(newMember);
     }
 
-    public Result UpdateMember(Guid userId, MemberRole role, bool isMember, string? membershipNumber)
+    public Result<ClubMember> UpdateMember(Guid userId, MemberRole role, bool isMember, string? membershipNumber)
     {
         var member = GetMember(userId);
         if (member is null)
         {
-            return Result.Failure(ClubMemberErrors.MemberNotFound(userId));
+            return Result.Failure<ClubMember>(ClubMemberErrors.MemberNotFound(userId));
         }
 
         if (role != MemberRole.Admin && IsLastActiveAdmin(member))
         {
-            return Result.Failure(ClubMemberErrors.MinAdmin);
+            return Result.Failure<ClubMember>(ClubMemberErrors.MinAdmin);
         }
         
         var memberResult = member.UpdateMembership(role, isMember, membershipNumber);
         if (memberResult.IsFailure)
         {
-            return Result.Failure(memberResult.Error);
+            return Result.Failure<ClubMember>(memberResult.Error);
         }
 
-        return Result.Success();
+        return Result.Success(member);
     }
 
 
@@ -166,21 +166,21 @@ public sealed class Club : AggregateRoot<Guid>
     }
     
     
-    public Result UpdateScheduleTime(int scheduleId, TimeOnly openingTime, TimeOnly closingTime)
+    public Result<Schedule> UpdateScheduleTime(int scheduleId, TimeOnly openingTime, TimeOnly closingTime)
     {
         var schedule = _schedules.FirstOrDefault(s => s.Id == scheduleId);
         if (schedule is null)
         {
-            return Result.Failure(ClubErrors.ScheduleNotFound(scheduleId));
+            return Result.Failure<Schedule>(ClubErrors.ScheduleNotFound(scheduleId));
         }
 
         var scheduleResult = schedule.UpdateHours(openingTime, closingTime);
         if (scheduleResult.IsFailure)
         {
-            return Result.Failure(scheduleResult.Error);
+            return Result.Failure<Schedule>(scheduleResult.Error);
         }
         
-        return Result.Success();
+        return Result.Success(scheduleResult.Value);
     }
     
     
