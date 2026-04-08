@@ -150,9 +150,11 @@ public sealed class Club : AggregateRoot<Guid>
     
     public Result<Schedule> AddSchedule(DayOfWeek day, TimeOnly startTime, TimeOnly endTime)
     {
-        if (_schedules.Any(s => s.DayOfWeek == day))
+        var overlaps = _schedules.Any(s => s.DayOfWeek == day && startTime < s.ClosingTime && endTime > s.OpeningTime);
+
+        if (overlaps)
         {
-            return Result.Failure<Schedule>(ClubErrors.ScheduleAlreadyExist);
+            return Result.Failure<Schedule>(ClubErrors.ScheduleExistOverlap);
         }
         
         var scheduleResult = Schedule.Create(this.Id, day, startTime, endTime);
@@ -172,6 +174,13 @@ public sealed class Club : AggregateRoot<Guid>
         if (schedule is null)
         {
             return Result.Failure<Schedule>(ClubErrors.ScheduleNotFound(scheduleId));
+        }
+        
+        var overlaps = _schedules.Any(s => s.Id != schedule.Id && s.DayOfWeek == schedule.DayOfWeek && openingTime < s.ClosingTime && closingTime > s.OpeningTime);
+
+        if (overlaps)
+        {
+            return Result.Failure<Schedule>(ClubErrors.ScheduleExistOverlap);
         }
 
         var scheduleResult = schedule.UpdateHours(openingTime, closingTime);

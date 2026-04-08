@@ -12,7 +12,7 @@ public static class ClubErrors
         "Club.Forbidden",
         "Usuario sin permisos");
     
-    public static readonly Error ScheduleAlreadyExist = Error.Conflict(
+    public static readonly Error ScheduleExistOverlap = Error.Conflict(
         "Club.ScheduleAlreadyExist",
         "Ya existe un horario para ese día de la semana");
     
