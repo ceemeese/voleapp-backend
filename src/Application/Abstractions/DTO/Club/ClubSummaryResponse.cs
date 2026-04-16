@@ -3,6 +3,6 @@ namespace Application.Abstractions.DTO.Club;
 public sealed record ClubSummaryResponse(
     Guid Id,
     string Name,
-    string Address,
+    AddressResponse Address,
     bool IsActive
 );
