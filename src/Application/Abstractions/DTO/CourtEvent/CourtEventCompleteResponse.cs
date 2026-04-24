@@ -4,8 +4,8 @@ public sealed record CourtEventCompleteResponse(
     int Id,
     Guid CourtId,
     string CourtName,
-    DateTime StartDate,
-    DateTime EndDate,
+    DateTime StartTime,
+    DateTime EndTime,
     string EventName,
     string? Description,
     DateTime CreatedAt

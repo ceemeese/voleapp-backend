@@ -8,7 +8,11 @@ public static class DependencyInjection
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter());
+        });
         
         services.AddCors(opt =>
         {
