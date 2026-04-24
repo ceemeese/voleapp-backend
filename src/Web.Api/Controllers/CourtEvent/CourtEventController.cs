@@ -91,7 +91,7 @@ public sealed class CourtEventController : ControllerBase
         var eventResult = await _mediator.Send(command, cancellationToken);
         
         return eventResult.IsSuccess 
-            ? NoContent() 
+            ? Ok(eventResult.Value)
             : CustomResults.Problem(eventResult);
     }
     

@@ -59,8 +59,8 @@ internal sealed class CourtEventQueries : ICourtEventQueries
             eventCourt.Id,
             court.Id,
             court.Name,
-            eventCourt.StartTime,
-            eventCourt.EndTime,
+            DateTime.SpecifyKind(eventCourt.StartTime, DateTimeKind.Utc),
+            DateTime.SpecifyKind(eventCourt.EndTime, DateTimeKind.Utc),
             eventCourt.EventName,
             eventCourt.Description,
             eventCourt.CreatedAt
