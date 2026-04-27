@@ -212,4 +212,15 @@ public sealed class Club : AggregateRoot<Guid>
         
         return Result.Success();
     }
+    
+    public Result EnsureMembership(Guid userId)
+    {
+        var alreadyMember = _members.Any(m => m.UserId == userId);
+        if (alreadyMember) return Result.Success();
+
+        var memberResult = AddMember(userId, MemberRole.Player);
+        return memberResult.IsFailure 
+            ? Result.Failure(memberResult.Error) 
+            : Result.Success();
+    }
 }

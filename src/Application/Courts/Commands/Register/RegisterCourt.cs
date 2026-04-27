@@ -1,5 +1,4 @@
 using Application.Abstractions.DTO.Court;
-using Domain.Court.Enum;
 using MediatR;
 using SharedKernel;
 
