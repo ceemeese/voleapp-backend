@@ -12,9 +12,13 @@ public static class ReservationErrors
         "Reservation.InvalidType",
         $"El estado de la reserva no es válido");
     
+    public static Error NotFound(int reservationId) => Error.NotFound(
+        "Reservation.ClubNotFound",
+        $"No se encuentra la reserva con Id {reservationId}");
+    
     public static readonly Error InvalidTotalPrice = Error.Validation(
         "Reservation.InvalidTotalPrice",
-        $"El precio total de la reserva debe ser mayor que cero");
+        "El precio total de la reserva debe ser mayor que cero");
     
     public static readonly Error InvalidHours = Error.Validation(
         "Reservation.InvalidHours",
@@ -43,4 +47,13 @@ public static class ReservationErrors
     public static readonly Error CourtNotActive = Error.NotFound(
         "Reservation.CourtNotActive",
         "La pista seleccionada no está activa");
+    
+    public static readonly Error AlreadyFinalized = Error.Conflict(
+        "Reservation.AlreadyFinalized",
+        "La reserva ya está finalizada");
+    
+    public static readonly Error CannotMoveBackToPending = Error.Conflict(
+        "Reservation.CannotMoveBackToPending",
+        "La reserva ya no puede pasar a estado pendiente");
+    
 }

@@ -60,6 +60,27 @@ public class Reservation : AggregateRoot<int>
         return Result.Success(reservation);
     }
 
+    public Result ChangeStatus(Status newStatus)
+    {
+        if (Status == newStatus)
+        {
+            return Result.Success();
+        }
+
+        if (Status is Status.Completed or Status.Failed or Status.Refunded)
+        {
+            return Result.Failure(ReservationErrors.AlreadyFinalized);
+        }
+
+        if (Status is Status.Confirmed && newStatus is Status.Pending)
+        {
+            return Result.Failure(ReservationErrors.CannotMoveBackToPending);
+        }
+        
+        Status = newStatus;
+        return Result.Success();
+    }
+
     private static Result ValidateReservationRules(DateOnly date, TimeOnly startTime, TimeOnly endTime, decimal totalPrice)
     {
         if (IsPastDate(date))
@@ -101,4 +122,6 @@ public class Reservation : AggregateRoot<int>
 
     private static bool IsInvalidTimeRange(TimeOnly startTime, TimeOnly endTime)
         => startTime >= endTime;
+    
+    
 }

@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Application.Reservations.Commands.Register;
 
-public class RegisterReservationValidator : AbstractValidator<RegisterReservation>
+internal sealed class RegisterReservationValidator : AbstractValidator<RegisterReservation>
 {
     public RegisterReservationValidator()
     {

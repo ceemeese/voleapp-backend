@@ -1,5 +1,6 @@
 using Application.Reservations.Commands;
 using Application.Reservations.Commands.Register;
+using Application.Reservations.Commands.UpdateStatus;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,20 @@ public class ReservationsController : ControllerBase
 
         return reservationResult.IsSuccess
             ? Ok(reservationResult.Value)
+            : CustomResults.Problem(reservationResult);
+    }
+    
+    [Authorize]
+    [HttpPatch("api/bookings/{id:int}/status")]
+    public async Task<IActionResult> UpdateStatus([FromRoute]int id, [FromBody] UpdateStatusReservationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateStatusReservation(id, request.NewStatus);
+        
+        var reservationResult = await _mediator.Send(command, cancellationToken);
+
+        return reservationResult.IsSuccess
+            ? NoContent()
             : CustomResults.Problem(reservationResult);
     }
     
