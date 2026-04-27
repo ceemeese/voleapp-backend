@@ -2,17 +2,24 @@ using Application.Abstractions.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Domain.Club;
 using Domain.Club.Entities;
+using Domain.Common;
 using Domain.Court;
 using Domain.Court.Entities;
 using Domain.Reservation;
 using Domain.User;
 using Infrastructure.Persistence.Configurations;
+using MediatR;
 
 namespace Infrastructure.Persistence;
 
 public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
+    private readonly IPublisher _publisher;
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher) : base(options)
+    {
+        _publisher = publisher;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,5 +40,24 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<CourtEvent> CourtEvents { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
-    
+
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    {
+        var domainEvents = ChangeTracker
+            .Entries<IAggregateRoot>()
+            .Select(e => e.Entity)
+            .Where(e => e.DomainEvents.Any())
+            .SelectMany(e => e.DomainEvents)
+            .ToList();
+        
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        foreach (var domainEvent in domainEvents)
+        {
+            await _publisher.Publish(domainEvent, cancellationToken);
+        }
+        
+        return result;
+    }
 }
