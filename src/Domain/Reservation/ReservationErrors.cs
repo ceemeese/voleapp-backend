@@ -56,4 +56,8 @@ public static class ReservationErrors
         "Reservation.CannotMoveBackToPending",
         "La reserva ya no puede pasar a estado pendiente");
     
+    public static readonly Error Forbidden = Error.Forbidden(
+        "Reservation.Forbidden",
+        "Usuario sin permisos");
+    
 }

@@ -19,7 +19,7 @@ internal sealed class UpdateStatusReservationHandler : IRequestHandler<UpdateSta
 
     public async Task<Result> Handle(UpdateStatusReservation request, CancellationToken cancellationToken)
     {
-        var reservation = await _reservationRepository.GetReservationById(request.Id, cancellationToken);
+        var reservation = await _reservationRepository.GetReservationByIdAsync(request.Id, cancellationToken);
         if (reservation is null)
         {
             return Result.Failure(ReservationErrors.NotFound(request.Id));
