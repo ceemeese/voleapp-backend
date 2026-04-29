@@ -67,7 +67,7 @@ public class Reservation : AggregateRoot<int>
             return Result.Success();
         }
 
-        if (Status is Status.Completed or Status.Failed or Status.Refunded)
+        if (Status is Status.Completed or Status.Failed or Status.Refunded or Status.Cancelled)
         {
             return Result.Failure(ReservationErrors.AlreadyFinalized);
         }
@@ -78,6 +78,24 @@ public class Reservation : AggregateRoot<int>
         }
         
         Status = newStatus;
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success();
+    }
+
+    public Result Cancel()
+    {
+        if (Status is Status.Cancelled)
+        {
+            return Result.Failure(ReservationErrors.AlreadyFinalized);
+        }
+        
+        if (Status is Status.Completed or Status.Failed or Status.Refunded or Status.Cancelled)
+        {
+            return Result.Failure(ReservationErrors.AlreadyFinalized);
+        }
+        
+        Status = Status.Cancelled;
+        UpdatedAt = DateTime.UtcNow;
         return Result.Success();
     }
 

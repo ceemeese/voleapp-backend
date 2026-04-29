@@ -8,8 +8,8 @@ internal sealed class UpdateStatusReservationValidator : AbstractValidator<Updat
     public UpdateStatusReservationValidator()
     {
         RuleFor(r => r.NewStatus)
-            .Must(BeAValidStatus).WithErrorCode("Reservation.InvalidType").WithMessage("El nuevo estado no es valido")
-            .NotEmpty().WithErrorCode("Reservation.StatusRequired").WithMessage("El nuevo estado es obligatorio");
+            .NotEmpty().WithErrorCode("Reservation.StatusRequired").WithMessage("El nuevo estado es obligatorio")
+            .Must(BeAValidStatus).WithErrorCode("Reservation.InvalidType").WithMessage("El nuevo estado no es valido");
         RuleFor(r => r.Id)
             .NotEmpty().WithErrorCode("Reservation.ReservationIdRequired").WithMessage("El is de la reserva es obligatorio");
     }

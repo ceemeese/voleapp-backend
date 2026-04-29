@@ -52,22 +52,4 @@ internal sealed class ReservationRepository : IReservationRepository
             .ThenByDescending(r => r.StartTime)
             .ToListAsync(cancellationToken);
     }
-
-    public async Task<List<Reservation>> GetReservationsByUserIdAsync(Guid userId, DateOnly? startDateRange, DateOnly? endDateRange, CancellationToken cancellationToken)
-    {
-        var query = _context.Reservations.AsNoTracking().Where(r => r.UserId == userId);
-        
-        if (startDateRange.HasValue)
-        {
-            var start = startDateRange;
-            var end = endDateRange ?? start;
-            
-            query = query.Where(r => r.Date >= start && r.Date <= end);
-        }
-        
-        return await query
-            .OrderByDescending(r => r.Date)
-            .ThenByDescending(r => r.StartTime)
-            .ToListAsync(cancellationToken);
-    }
 }

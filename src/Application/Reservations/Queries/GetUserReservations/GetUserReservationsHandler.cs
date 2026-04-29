@@ -27,8 +27,7 @@ internal sealed class GetUserReservationsHandler : IRequestHandler<GetUserReserv
             return Result.Failure<List<ReservationResponse>>(ReservationErrors.Forbidden);
         }
 
-        var reservations = await _reservationRepository.GetReservationsByUserIdAsync(request.UserId, request.StartDate, request.EndDate, cancellationToken);
-        
+        var reservations = await _reservationRepository.GetAllReservationsAsync(_userContext.UserId, null, request.StartDate, request.EndDate, cancellationToken);
         var reservationsMapped = _mapper.Map<List<ReservationResponse>>(reservations);
         return Result.Success(reservationsMapped);
     }
