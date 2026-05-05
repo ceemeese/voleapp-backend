@@ -116,6 +116,11 @@ public class Reservation : AggregateRoot<int>
             return Result.Failure(ReservationErrors.PastStartTime);
         }
 
+        if (!IsValidDuration(startTime, endTime))
+        {
+            return Result.Failure(ReservationErrors.InvalidDuration);
+        }
+
         if (IsTooFarInFuture(date))
         {
             return Result.Failure(ReservationErrors.TooFarInFuture);
@@ -127,6 +132,12 @@ public class Reservation : AggregateRoot<int>
         }
         
         return Result.Success();
+    }
+    
+    private static bool IsValidDuration(TimeOnly startTime, TimeOnly endTime)
+    {
+        var duration = (endTime.ToTimeSpan() - startTime.ToTimeSpan()).TotalMinutes;
+        return duration == 60 || duration == 90;
     }
     
     private static bool IsPastDate(DateOnly date)

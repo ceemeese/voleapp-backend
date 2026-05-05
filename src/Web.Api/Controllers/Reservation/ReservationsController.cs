@@ -82,9 +82,9 @@ public class ReservationsController : ControllerBase
     
     [Authorize]
      [HttpGet("users/{userId:guid}/reservations")]
-     public async Task<IActionResult> GetUserReservations([FromRoute] Guid userId, [FromQuery] DateOnly? startDate, DateOnly? endDate, CancellationToken cancellationToken)
+     public async Task<IActionResult> GetUserReservations([FromRoute] Guid userId, [FromQuery] DateOnly? startDateRange, DateOnly? endDateRange, CancellationToken cancellationToken)
      {
-         var query = new GetUserReservations(userId,  startDate, endDate);
+         var query = new GetUserReservations(userId,  startDateRange, endDateRange);
          
          var reservationResult = await _mediator.Send(query, cancellationToken);
  
@@ -95,9 +95,9 @@ public class ReservationsController : ControllerBase
      
     [Authorize]
     [HttpGet("clubs/{clubId:guid}/reservations")]
-    public async Task<IActionResult> GetClubReservations([FromRoute] Guid clubId, [FromQuery] DateOnly? startDate, DateOnly? endDate, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetClubReservations([FromRoute] Guid clubId, [FromQuery] DateOnly? startDateRange, DateOnly? endDateRange, CancellationToken cancellationToken)
     {
-        var query = new GetClubReservations(clubId,  startDate, endDate);
+        var query = new GetClubReservations(clubId,  startDateRange, endDateRange);
          
         var reservationResult = await _mediator.Send(query, cancellationToken);
  
