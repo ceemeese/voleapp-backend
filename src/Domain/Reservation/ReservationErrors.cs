@@ -33,8 +33,12 @@ public static class ReservationErrors
         "No se puede reservar en una hora que ya ha pasado");
     
     public static readonly Error TooFarInFuture = Error.Validation(
-        "Reservation.PastStartTime",
+        "Reservation.TooFarInFuture",
         "No se puede reservar con más de 30 días de antelación");
+    
+    public static readonly Error InvalidDuration = Error.Validation(
+        "Reservation.InvalidDuration",
+        "La duración de la reserva debe ser de 60 o 90 minutos");
     
     public static Error ClubNotFound(Guid clubId) => Error.NotFound(
         "Reservation.ClubNotFound",
@@ -55,5 +59,9 @@ public static class ReservationErrors
     public static readonly Error CannotMoveBackToPending = Error.Conflict(
         "Reservation.CannotMoveBackToPending",
         "La reserva ya no puede pasar a estado pendiente");
+    
+    public static readonly Error Forbidden = Error.Forbidden(
+        "Reservation.Forbidden",
+        "Usuario sin permisos");
     
 }
