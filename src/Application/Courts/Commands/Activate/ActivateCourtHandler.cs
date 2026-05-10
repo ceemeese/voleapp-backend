@@ -31,7 +31,7 @@ internal sealed class ActivateCourtHandler : IRequestHandler<ActivateCourt, Resu
             return Result.Failure(UserErrors.Forbidden);
         }
         
-        var court = await _courtRepository.GetCourtById(request.CourtId, cancellationToken);
+        var court = await _courtRepository.GetCourtByIdAsync(request.CourtId, cancellationToken);
 
         if (court is null)
         {

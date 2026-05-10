@@ -18,7 +18,7 @@ internal sealed class CourtRepository : ICourtRepository
         return await _context.Courts.AsNoTracking().ToListAsync(cancellationToken);
     }
     
-    public async Task<Court?> GetCourtById(Guid id, CancellationToken cancellationToken)
+    public async Task<Court?> GetCourtByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _context.Courts
             .IgnoreQueryFilters()
@@ -43,7 +43,7 @@ internal sealed class CourtRepository : ICourtRepository
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
     
-    public async Task<List<Court>> GetCourtsByClubId(Guid clubId, CancellationToken cancellationToken)
+    public async Task<List<Court>> GetCourtsByClubIdAsync(Guid clubId, CancellationToken cancellationToken)
     {       
         return await _context.Courts
             .AsNoTracking()
@@ -51,13 +51,13 @@ internal sealed class CourtRepository : ICourtRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsByNameInClub(Guid clubId, string name, CancellationToken cancellationToken)
+    public async Task<bool> ExistsByNameInClubAsync(Guid clubId, string name, CancellationToken cancellationToken)
     {
         return await _context.Courts
             .AnyAsync(c => c.ClubId == clubId && c.Name == name, cancellationToken);
     }
 
-    public async Task<bool> ExistsByNameInClubExcludeId(Guid clubId, string name, Guid excludeId,CancellationToken cancellationToken)
+    public async Task<bool> ExistsByNameInClubExcludeIdAsync(Guid clubId, string name, Guid excludeId,CancellationToken cancellationToken)
     {
         return await _context.Courts
             .AnyAsync(c => c.ClubId == clubId && c.Name == name && c.Id != excludeId, cancellationToken);
@@ -67,5 +67,17 @@ internal sealed class CourtRepository : ICourtRepository
     {
         _context.Courts.Add(court);
     }
-    
+
+    public async Task<List<Court>> GetCourtsByClubIdWithFilterEventsAsync(List<Guid> clubId, DateTime startDate, DateTime endDate,
+        CancellationToken cancellationToken)
+    {
+        return await _context.Courts
+            .Include(c => c.CourtEvents.Where(e =>
+                e.StartTime < endDate &&
+                e.EndTime > startDate))
+            .Where(c => clubId.Contains(c.ClubId) && c.IsActive)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
+    }
+
 }

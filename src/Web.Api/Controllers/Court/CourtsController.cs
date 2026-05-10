@@ -2,6 +2,7 @@ using Application.Courts.Commands.Activate;
 using Application.Courts.Commands.Deactivate;
 using Application.Courts.Commands.Register;
 using Application.Courts.Commands.Update;
+using Application.Courts.Queries.Availability;
 using Application.Courts.Queries.GetAll;
 using Application.Courts.Queries.GetByClubId;
 using Application.Courts.Queries.GetById;
@@ -63,7 +64,7 @@ public class CourtsController : ControllerBase
         var command = new RegisterCourt(
             clubId,
             request.Name,
-            request.CourtType,
+            request.Type,
             request.BasePrice,
             request.IsActive
         );
@@ -109,6 +110,19 @@ public class CourtsController : ControllerBase
 
         return courtResult.IsSuccess 
             ? NoContent()
+            : CustomResults.Problem(courtResult);
+    }
+
+    [Authorize]
+    [HttpGet("api/courts/availability")]
+    public async Task<IActionResult> GetAvailability([FromQuery] string city, [FromQuery] DateTime dateFilter, [FromQuery] int durationMinutes,
+        CancellationToken cancellationToken)
+    {
+        var query = new AvailabilityCourts(city, dateFilter, durationMinutes);
+        
+        var courtResult = await _mediator.Send(query);
+        return courtResult.IsSuccess
+            ? Ok(courtResult.Value)
             : CustomResults.Problem(courtResult);
     }
     

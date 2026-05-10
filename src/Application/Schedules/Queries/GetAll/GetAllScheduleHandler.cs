@@ -19,7 +19,7 @@ internal sealed class GetAllScheduleHandler : IRequestHandler<GetAllSchedule, Re
 
     public async Task<Result<List<ScheduleResponse>>> Handle(GetAllSchedule request, CancellationToken cancellationToken)
     {
-        var club = await _clubRepository.GetClubById(request.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubByIdAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure<List<ScheduleResponse>>(ClubErrors.NotFound(request.ClubId));

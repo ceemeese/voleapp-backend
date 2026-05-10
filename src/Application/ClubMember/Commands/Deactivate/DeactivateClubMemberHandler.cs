@@ -39,7 +39,7 @@ internal sealed class DeactivateClubMemberHandler : IRequestHandler<DeactivateCl
             }
         }
         
-        var club = await _clubRepository.GetClubWithMembers(request.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubWithMembersAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure(ClubErrors.NotFound(request.ClubId));

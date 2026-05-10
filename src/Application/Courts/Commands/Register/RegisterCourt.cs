@@ -4,4 +4,4 @@ using SharedKernel;
 
 namespace Application.Courts.Commands.Register;
 
-public sealed record RegisterCourt(Guid ClubId, string Name, string CourtType, decimal BasePrice, bool IsActive) : IRequest<Result<CourtResponse>>;
+public sealed record RegisterCourt(Guid ClubId, string Name, string Type, decimal BasePrice, bool IsActive) : IRequest<Result<CourtResponse>>;

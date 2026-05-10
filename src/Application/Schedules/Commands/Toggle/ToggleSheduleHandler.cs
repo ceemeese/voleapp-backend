@@ -39,7 +39,7 @@ internal sealed class ToggleSheduleHandler : IRequestHandler<ToggleSchedule, Res
             }
         }
         
-        var club = await _clubRepository.GetClubById(request.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubByIdAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure(ClubErrors.NotFound(request.ClubId));

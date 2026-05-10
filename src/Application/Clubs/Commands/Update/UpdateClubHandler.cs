@@ -44,7 +44,7 @@ internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result<Clu
             }
         }
 
-        var club = await _clubRepository.GetClubById(request.Id, cancellationToken);
+        var club = await _clubRepository.GetClubByIdAsync(request.Id, cancellationToken);
 
         if (club is null)
         {

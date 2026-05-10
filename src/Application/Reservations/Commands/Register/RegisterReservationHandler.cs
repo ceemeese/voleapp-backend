@@ -39,7 +39,7 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             return Result.Failure<ReservationResponse>(ReservationErrors.Unauthenticated);
         }
         
-        var court = await _courtRepository.GetCourtById(request.CourtId, cancellationToken);
+        var court = await _courtRepository.GetCourtByIdAsync(request.CourtId, cancellationToken);
         if (court is null)
         {
             return Result.Failure<ReservationResponse>(ReservationErrors.CourtNotFound);
@@ -61,7 +61,7 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         
         _reservationRepository.Add(reservationResult.Value);
         
-        var club = await _clubRepository.GetClubWithMembers(court.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubWithMembersAsync(court.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure<ReservationResponse>(ReservationErrors.ClubNotFound(court.ClubId));
