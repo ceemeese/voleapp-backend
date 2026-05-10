@@ -13,12 +13,12 @@ internal sealed class ClubRepository : IClubRepository
         _context = context;
     }
     
-    public async Task<List<Club>> GetAll(CancellationToken cancellationToken)
+    public async Task<List<Club>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Clubs.ToListAsync(cancellationToken);
     }
     
-    public async Task<Club?> GetClubById(Guid clubId, CancellationToken cancellationToken)
+    public async Task<Club?> GetClubByIdAsync(Guid clubId, CancellationToken cancellationToken)
     {
         return await _context.Clubs
             .Where(c => c.Id == clubId)
@@ -26,14 +26,14 @@ internal sealed class ClubRepository : IClubRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
     
-    public async Task<Club?> GetClubWithMembers(Guid clubId, CancellationToken cancellationToken)
+    public async Task<Club?> GetClubWithMembersAsync(Guid clubId, CancellationToken cancellationToken)
     {
         return await _context.Clubs
             .Include(c => c.Members)
             .FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken);
     }
 
-    public async Task<List<Club>> GetAllSearch(string? name, CancellationToken cancellationToken)
+    public async Task<List<Club>> GetAllSearchAsync(string? name, CancellationToken cancellationToken)
     {
         var query = _context.Clubs.AsNoTracking();
 
@@ -45,7 +45,7 @@ internal sealed class ClubRepository : IClubRepository
         return await query.ToListAsync(cancellationToken);
     }
     
-    public async Task<List<Club>> GetAllSearchActive(string? name, CancellationToken cancellationToken)
+    public async Task<List<Club>> GetAllSearchActiveAsync(string? name, CancellationToken cancellationToken)
     {
         var query = _context.Clubs.AsNoTracking().Where(c => c.IsActive);
 
@@ -61,5 +61,14 @@ internal sealed class ClubRepository : IClubRepository
     {
         _context.Clubs.Add(club);
     }
+
+    public async Task<List<Club>> GetActiveClubsByCityWithSchedulesAsync(string city, CancellationToken cancellationToken)
+    {
+        return await _context.Clubs
+            .Include(c => c.Schedules)
+            .Where(c => c.IsActive && c.Address.City == city)
+            .ToListAsync(cancellationToken);
+    }
     
+
 }

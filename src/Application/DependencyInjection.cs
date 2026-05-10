@@ -1,4 +1,5 @@
 using Application.Abstractions.Behaviors;
+using Domain.Court.Service;
 using Domain.Reservation.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         });
         
         services.AddScoped<IReservationService, ReservationService>();
+        services.AddScoped<IAvailabilityService, AvailabilityService>();
         
         services.AddAutoMapper(cfg => {}, AppDomain.CurrentDomain.GetAssemblies());
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);

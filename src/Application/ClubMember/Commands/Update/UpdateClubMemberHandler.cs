@@ -48,7 +48,7 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
             }
         }
         
-        var club = await _clubRepository.GetClubWithMembers(request.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubWithMembersAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure<ClubMemberCompleteResponse>(ClubErrors.NotFound(request.ClubId));

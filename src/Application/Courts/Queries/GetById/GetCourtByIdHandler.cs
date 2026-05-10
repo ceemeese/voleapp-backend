@@ -19,7 +19,7 @@ internal sealed class GetCourtByIdHandler : IRequestHandler<GetCourtById, Result
 
     public async Task<Result<CourtSummaryResponse>> Handle(GetCourtById request, CancellationToken cancellationToken)
     {
-        var court = await _courtRepository.GetCourtById(request.CourtId, cancellationToken);
+        var court = await _courtRepository.GetCourtByIdAsync(request.CourtId, cancellationToken);
 
         if (court is null)
         {

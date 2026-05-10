@@ -52,4 +52,14 @@ internal sealed class ReservationRepository : IReservationRepository
             .ThenByDescending(r => r.StartTime)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<Reservation>> GetReservationsByCourtIdFilterDate(List<Guid> courtsId, DateOnly date,
+        CancellationToken cancellationToken)
+    {
+        return await _context.Reservations
+            .Where(r => courtsId.Contains(r.CourtId) && r.Date == date)
+            .ToListAsync(cancellationToken);
+    }
+
+    
 }

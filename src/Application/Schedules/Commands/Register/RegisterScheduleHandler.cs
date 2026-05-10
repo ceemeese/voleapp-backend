@@ -45,7 +45,7 @@ internal sealed class RegisterScheduleHandler : IRequestHandler<RegisterSchedule
             }
         }
         
-        var club = await _clubRepository.GetClubById(request.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubByIdAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
             return Result.Failure<ScheduleResponse>(ClubErrors.NotFound(request.ClubId));

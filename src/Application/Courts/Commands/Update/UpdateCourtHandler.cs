@@ -34,7 +34,7 @@ internal sealed class UpdateCourtHandler : IRequestHandler<UpdateCourt, Result<C
             return Result.Failure<CourtResponse>(UserErrors.Forbidden);
         }
         
-        var court = await _courtRepository.GetCourtById(request.Id, cancellationToken);
+        var court = await _courtRepository.GetCourtByIdAsync(request.Id, cancellationToken);
         if (court is null)
         {
             return Result.Failure<CourtResponse>(CourtErrors.NotFound(request.Id));
@@ -50,7 +50,7 @@ internal sealed class UpdateCourtHandler : IRequestHandler<UpdateCourt, Result<C
             }
         }
         
-        var isDuplicate = await _courtRepository.ExistsByNameInClubExcludeId(court.ClubId, request.Name, request.Id, cancellationToken);
+        var isDuplicate = await _courtRepository.ExistsByNameInClubExcludeIdAsync(court.ClubId, request.Name, request.Id, cancellationToken);
         if (isDuplicate)
         {
             return Result.Failure<CourtResponse>(CourtErrors.DuplicateName(request.Name));

@@ -45,18 +45,18 @@ internal sealed class RegisterCourtHandler : IRequestHandler<RegisterCourt, Resu
             }
         }
         
-        var isDuplicate = await _courtRepository.ExistsByNameInClub(request.ClubId, request.Name, cancellationToken);
+        var isDuplicate = await _courtRepository.ExistsByNameInClubAsync(request.ClubId, request.Name, cancellationToken);
         if (isDuplicate)
         {
             return Result.Failure<CourtResponse>(CourtErrors.DuplicateName(request.Name));
         }
         
-        if (!Enum.TryParse<CourtType>(request.CourtType, ignoreCase: true, out var courtType))
+        if (!Enum.TryParse<CourtType>(request.Type, ignoreCase: true, out var type))
         {
             return Result.Failure<CourtResponse>(CourtErrors.InvalidType);
         }
         
-        var courtResult = Court.Create(request.ClubId, request.Name, courtType, request.BasePrice, request.IsActive);
+        var courtResult = Court.Create(request.ClubId, request.Name, type, request.BasePrice, request.IsActive);
 
         if (courtResult.IsFailure)
         {

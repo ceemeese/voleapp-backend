@@ -19,7 +19,7 @@ internal sealed class GetClubByIdHandler : IRequestHandler<GetClubById, Result<C
 
     public async Task<Result<ClubResponse>> Handle(GetClubById request, CancellationToken cancellationToken)
     {
-        var club = await _clubRepository.GetClubById(request.ClubId, cancellationToken);
+        var club = await _clubRepository.GetClubByIdAsync(request.ClubId, cancellationToken);
 
         if (club is null)
         {

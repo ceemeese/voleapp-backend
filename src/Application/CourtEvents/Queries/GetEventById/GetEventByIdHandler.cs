@@ -32,7 +32,7 @@ internal sealed class GetEventByIdHandler : IRequestHandler<GetEventById, Result
          return Result.Failure<CourtEventCompleteResponse>(UserErrors.Forbidden);
       }
       
-      var court = await _courtRepository.GetCourtById(request.CourtId, cancellationToken);
+      var court = await _courtRepository.GetCourtByIdAsync(request.CourtId, cancellationToken);
       if (court is null)
       {
          return Result.Failure<CourtEventCompleteResponse>(CourtErrors.NotFound(request.CourtId));

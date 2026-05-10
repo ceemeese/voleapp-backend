@@ -27,4 +27,5 @@ public static class CourtErrors
     public static readonly Error SlotOccupied = Error.Conflict(
         "Court.SlotOccupied",
         "La pista ya está ocupada en el horario seleccionado");
+    
 }

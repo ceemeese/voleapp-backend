@@ -24,8 +24,8 @@ internal sealed class GetAllClubsSearchHandler : IRequestHandler<GetAllClubsSear
     public async Task<Result<List<ClubSummaryResponse>>> Handle(GetAllClubsSearch request, CancellationToken cancellationToken)
     {
         var clubs = _userContext.IsOnlySuperadmin()
-            ? await _clubRepository.GetAllSearch(request.Name, cancellationToken)
-            : await _clubRepository.GetAllSearchActive(request.Name, cancellationToken);
+            ? await _clubRepository.GetAllSearchAsync(request.Name, cancellationToken)
+            : await _clubRepository.GetAllSearchActiveAsync(request.Name, cancellationToken);
 
         var clubsMapped = _mapper.Map<List<ClubSummaryResponse>>(clubs);
         return Result.Success(clubsMapped);

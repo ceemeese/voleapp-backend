@@ -29,4 +29,9 @@ public record Address
         return Result.Success(new Address(street, city, zipCode, country));
     }
     
+    public override string ToString()
+    {
+        return $"{Street}, {City}, {ZipCode}, {Country}";
+    }
+    
 };

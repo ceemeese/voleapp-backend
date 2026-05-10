@@ -19,7 +19,7 @@ internal sealed class GetAllClubsHandler : IRequestHandler<GetAllClubs, Result<L
 
     public async Task<Result<List<ClubResponse>>> Handle(GetAllClubs request, CancellationToken cancellationToken)
     {
-        var clubs = await _clubRepository.GetAll(cancellationToken);
+        var clubs = await _clubRepository.GetAllAsync(cancellationToken);
 
         var clubsMapped = _mapper.Map<List<ClubResponse>>(clubs);
         return Result.Success(clubsMapped);
