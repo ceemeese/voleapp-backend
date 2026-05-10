@@ -117,6 +117,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IClubContext, ClubContext>();
+        services.AddHttpClient<IWeatherService, WeatherService.WeatherService>();
         services.AddSingleton<ITokenProvider, TokenProvider>();
         
         return services;
