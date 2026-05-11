@@ -1,4 +1,5 @@
 using Domain.Club;
+using Domain.Club.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -80,6 +81,10 @@ internal sealed class ClubConfiguration : IEntityTypeConfiguration<Club>
             .HasField("_members")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
         
+        builder.HasOne(c => c.PricingConfig)
+            .WithOne()
+            .HasForeignKey<PricingConfig>(p => p.ClubId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
     
 }

@@ -30,6 +30,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
         modelBuilder.ApplyConfiguration(new ScheduleConfiguration());
         modelBuilder.ApplyConfiguration(new CourtEventConfiguration());
         modelBuilder.ApplyConfiguration(new ReservationConfiguration());
+        modelBuilder.ApplyConfiguration(new PricingConfigConfiguration());
         base.OnModelCreating(modelBuilder);
     }
     
@@ -40,6 +41,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<CourtEvent> CourtEvents { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
+    public DbSet<PricingConfig> PricingConfigs { get; set; }
 
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
