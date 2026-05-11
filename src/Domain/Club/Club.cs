@@ -22,6 +22,8 @@ public sealed class Club : AggregateRoot<Guid>
 
     private readonly List<Schedule> _schedules = new();
     public IReadOnlyCollection<Schedule> Schedules => _schedules.AsReadOnly();
+    public PricingConfig PricingConfig { get; private set; }
+    
     
     
     private Club(Guid id, string name, string cif, Address address, string phoneNumber, string email) : base(id)
@@ -33,6 +35,7 @@ public sealed class Club : AggregateRoot<Guid>
         Email = email;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
+        PricingConfig = new PricingConfig(id);
     }
 
     private Club()
@@ -222,5 +225,15 @@ public sealed class Club : AggregateRoot<Guid>
         return memberResult.IsFailure 
             ? Result.Failure(memberResult.Error) 
             : Result.Success();
+    }
+    
+    public Result UpdatePricing( decimal rain, double windT, decimal windD, double heatT, decimal heatD, double coldT, decimal coldD)
+    {
+        var pricingResult = PricingConfig.Update(rain, windT, windD, heatT, heatD, coldT, coldD);
+        if (pricingResult.IsFailure)
+        {
+            return Result.Failure(pricingResult.Error);
+        }
+        return Result.Success();
     }
 }
