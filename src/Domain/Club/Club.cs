@@ -229,6 +229,11 @@ public sealed class Club : AggregateRoot<Guid>
     
     public Result UpdatePricing( decimal rain, double windT, decimal windD, double heatT, decimal heatD, double coldT, decimal coldD)
     {
-        return PricingConfig.Update(rain, windT, windD, heatT, heatD, coldT, coldD);
+        var pricingResult = PricingConfig.Update(rain, windT, windD, heatT, heatD, coldT, coldD);
+        if (pricingResult.IsFailure)
+        {
+            return Result.Failure(pricingResult.Error);
+        }
+        return Result.Success();
     }
 }

@@ -38,7 +38,7 @@ public sealed class PricingConfig : Entity<int>
         var validationResult = ValidatePercentages(rainD, windD, heatD, coldD);
         if (validationResult.IsFailure)
         {
-            return validationResult;
+            return Result.Failure(validationResult.Error);
         }
 
         RainDiscountPercent = rainD;
