@@ -31,6 +31,7 @@ internal sealed class ClubRepository : IClubRepository
     {
         return await _context.Clubs
             .Include(c => c.Members)
+            .Include(c => c.PricingConfig)
             .FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken);
     }
 

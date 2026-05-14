@@ -33,9 +33,23 @@ internal sealed class ReservationConfiguration : IEntityTypeConfiguration<Reserv
             .HasColumnType("time")
             .IsRequired();
         
-        builder.Property(r => r.TotalPrice)
-            .HasPrecision(10,2)
-            .IsRequired();
+        builder.OwnsOne(r => r.Price, priceBuilder =>
+        {
+            priceBuilder.Property(p => p.BasePrice)
+                .HasPrecision(10, 2);
+
+            priceBuilder.Property(p => p.TotalPrice)
+                .HasPrecision(10, 2);
+
+            priceBuilder.Property(p => p.DiscountAmount)
+                .HasPrecision(10, 2);
+
+            priceBuilder.Property(p => p.AppliedDiscountPercent)
+                .IsRequired();
+
+            priceBuilder.Property(p => p.DiscountReason)
+                .HasMaxLength(100);
+        });
 
         builder.Property(r => r.Notes)
             .HasMaxLength(300);

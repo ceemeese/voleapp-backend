@@ -1,42 +1,57 @@
 using System.Net.Http.Json;
-using Application.Abstractions.DTO.Weather;
 using Application.Abstractions.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Domain.Common.ValueObjects;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.WeatherService;
 
-internal sealed class WeatherService(HttpClient httpClient, IConfiguration configuration):IWeatherService
+internal sealed class WeatherService(HttpClient httpClient, IConfiguration configuration, ILogger<WeatherService> logger):IWeatherService
 {
-    public async Task<WeatherSummary?> GetWeatherForecastAsync(string city, string country, DateTime date)
+    public async Task<WeatherData?> GetWeatherForecastAsync(string city, string country, DateTime date)
     {
         var apiKey = configuration["WeatherApi:ApiKey"];
         var baseUrl = configuration["WeatherApi:BaseUrl"];
         var formattedDate = date.ToString("yyyy-MM-dd");
-
+        
         var geoUrl = $"http://api.openweathermap.org/geo/1.0/direct?q={city},{country}&limit=1&appid={apiKey}";
         var geoResponse = await httpClient.GetFromJsonAsync<List<OpenWeatherGeoResponse>>(geoUrl);
         var location = geoResponse?.FirstOrDefault();
 
         if (location == null) return null;
 
-        var weatherUrl = $"{baseUrl}?lat={location.Lat}&lon={location.Lon}&exclude=minutely,hourly&appid={apiKey}&units=metric";
+        var weatherUrl = $"{baseUrl}?lat={location.Lat}&lon={location.Lon}&appid={apiKey}&units=metric&lang=es&cnt=16";
         var weatherData = await httpClient.GetFromJsonAsync<OpenWeatherResponse>(weatherUrl);
         
-        var dayForecast = weatherData?.Daily?.FirstOrDefault(d =>
-            DateTimeOffset.FromUnixTimeSeconds(d.Dt).Date == date.Date);
+        var dayBlocks = weatherData?.List?.Where(d => 
+            DateTimeOffset.FromUnixTimeSeconds(d.Dt).UtcDateTime.Date == date.Date).ToList();
 
-        if (dayForecast == null) return null;
+        if (dayBlocks == null || !dayBlocks.Any()) return null;
         
-        var weatherDetail = dayForecast.Weather.FirstOrDefault();
+        //primer bloque del dia para datos generales
+        var referenceBlock = dayBlocks.First();
+        var weatherDetail = referenceBlock.Weather.FirstOrDefault();
 
-        bool isRaining = dayForecast.Weather.Any(w => w.Main.Contains("Rain", StringComparison.OrdinalIgnoreCase));
-
-        return new WeatherSummary(
+        //en cualquier momento del dia
+        var isRaining = dayBlocks.Any(b => b.Weather.Any(w => w.Main.Contains("Rain", StringComparison.OrdinalIgnoreCase)));
+        var maxPop = dayBlocks.Max(b => b.Pop) * 100;
+        
+        logger.LogInformation("Consulta de clima realizada: {City}, {Country}. Resultado: {@WeatherData}", 
+            city, country, new { 
+                Temp = referenceBlock.Main.Temp, 
+                Wind = referenceBlock.Wind.Speed,
+                RainProb = maxPop,
+                IsRaining = isRaining,
+                Condition = weatherDetail?.Main,
+                FullDesc = weatherDetail?.Description
+            });
+        
+        return new WeatherData(
             IsRaining: isRaining,
-            Temperature: dayForecast.Temp.Day,
-            WindSpeed: dayForecast.WindSpeed,
+            Temperature: referenceBlock.Main.Temp,
+            WindSpeed: referenceBlock.Wind.Speed,
             Description: weatherDetail?.Description ?? "Sin descripción",
-            RainProbability: dayForecast.PrecipitationProbability,
+            RainProbability: maxPop,
             IconCode: weatherDetail?.Icon
         );
     }

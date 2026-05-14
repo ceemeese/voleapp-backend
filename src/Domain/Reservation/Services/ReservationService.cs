@@ -1,23 +1,35 @@
+using Domain.Club.Entities;
+using Domain.Common.Services;
+using Domain.Common.ValueObjects;
 using SharedKernel;
 
 namespace Domain.Reservation.Services;
 
 public sealed class ReservationService : IReservationService
 {
-    public Result<Reservation> BookCourt(Guid userId,
+    public Result<Reservation> BookCourt(
+        Guid userId,
         Court.Court court,
         DateOnly date,
         TimeOnly start,
         TimeOnly end,
-        string? notes)
+        string? notes,
+        WeatherData weather,
+        IPricingService pricingService,
+        PricingConfig pricingConfig)
     {
         if (!court.IsActive)
         {
             return Result.Failure<Reservation>(ReservationErrors.CourtNotActive);
         }
-        var duration = (end.ToTimeSpan() - start.ToTimeSpan()).TotalHours;
-        var totalPrice = (decimal)duration * court.BasePrice;
-
+        
+        var totalPrice = pricingService.CalculateTransactionPrice(
+            court.BasePrice, 
+            pricingConfig, 
+            weather, 
+            start, 
+            end);
+        
         var reservationResult = Reservation.Create(userId, court.ClubId, court.Id, date, start, end, totalPrice, notes);
         if (reservationResult.IsFailure)
         {

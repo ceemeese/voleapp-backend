@@ -1,8 +1,8 @@
-using Application.Abstractions.DTO.Weather;
+using Domain.Common.ValueObjects;
 
 namespace Application.Abstractions.Interfaces;
 
 public interface IWeatherService
 {
-    Task<WeatherSummary?> GetWeatherForecastAsync(string city, string country, DateTime date);
+    Task<WeatherData?> GetWeatherForecastAsync(string city, string country, DateTime date);
 }

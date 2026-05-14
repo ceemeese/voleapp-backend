@@ -9,8 +9,18 @@ public sealed record ReservationResponse(
     TimeOnly StartTime,
     TimeOnly EndTime,
     StatusResponse Status,
-    decimal TotalPrice,
+    PriceResponse Price,
     string? Notes,
     DateTime CreatedAt, 
     DateTime UpdatedAt
+);
+
+
+public sealed record PriceResponse
+(
+    decimal BasePrice,
+    decimal TotalPrice,
+    decimal DiscountAmount,
+    double AppliedDiscountPercent,
+    string? DiscountReason
 );
