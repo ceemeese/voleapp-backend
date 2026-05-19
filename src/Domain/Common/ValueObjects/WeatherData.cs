@@ -8,6 +8,10 @@ public sealed record WeatherData(
     double RainProbability,
     string? IconCode)
 {
+    
+    public string IconUrl => !string.IsNullOrWhiteSpace(IconCode)
+        ? $"https://openweathermap.org/img/wn/{IconCode}@2x.png"
+        : "https://openweathermap.org/img/wn/01d@2x.png";
 
     public static readonly WeatherData Default = new(
         IsRaining: false,
@@ -15,7 +19,7 @@ public sealed record WeatherData(
         WindSpeed: 0,
         Description: string.Empty,
         RainProbability: 0,
-        IconCode: null
+        IconCode: "01d"
     );
 }
     

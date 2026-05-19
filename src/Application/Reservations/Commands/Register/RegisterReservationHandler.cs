@@ -5,6 +5,7 @@ using Domain.Club;
 using Domain.Common.Services;
 using Domain.Common.ValueObjects;
 using Domain.Court;
+using Domain.Court.Service;
 using Domain.Reservation;
 using Domain.Reservation.Services;
 using MediatR;
@@ -22,11 +23,10 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
     private readonly IClubRepository _clubRepository;
     private readonly IReservationService _reservationService;
     private readonly ICourtRepository _courtRepository;
-    private readonly IPricingService _pricingService;
     private readonly IWeatherService _weatherService;
     private readonly ILogger<RegisterReservationHandler> _logger;
 
-    public RegisterReservationHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork, IMapper mapper,  IUserContext userContext,  IClubRepository clubRepository,  IReservationService reservationService, ICourtRepository courtRepository, IPricingService pricingService, IWeatherService weatherService,  ILogger<RegisterReservationHandler> logger)
+    public RegisterReservationHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork, IMapper mapper,  IUserContext userContext,  IClubRepository clubRepository,  IReservationService reservationService, ICourtRepository courtRepository, IWeatherService weatherService,  ILogger<RegisterReservationHandler> logger)
     {
         _reservationRepository = reservationRepository;
         _unitOfWork = unitOfWork;
@@ -35,7 +35,6 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         _clubRepository = clubRepository;
         _reservationService = reservationService;
         _courtRepository = courtRepository;
-        _pricingService = pricingService;
         _weatherService = weatherService;
         _logger = logger;
     }
@@ -60,6 +59,8 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             return Result.Failure<ReservationResponse>(ReservationErrors.ClubNotFound(court.ClubId));
         }
         
+        var existingReservations = await _reservationRepository.GetReservationsByCourtIdFilterDate([court.Id], request.Date, cancellationToken);
+        
         DateTime reservationDateTime = request.Date.ToDateTime(request.StartTime);
         
         var weatherData = await _weatherService.GetWeatherForecastAsync(club.Address.City, club.Address.Country, reservationDateTime);
@@ -68,14 +69,20 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         var reservationResult = _reservationService.BookCourt(
             _userContext.UserId, 
             court, 
+            club,
+            existingReservations,
             request.Date,
             request.StartTime, 
             request.EndTime, 
             request.Notes,
             finalWeather,
-            _pricingService,
             club.PricingConfig
         );
+
+        if (reservationResult.IsFailure)
+        {
+            return Result.Failure<ReservationResponse>(reservationResult.Error);
+        }
         
         _logger.LogInformation("Reserva procesada para el usuario {UserId} en {City}. " +
                                "Resultado: {TotalPrice}€ (Descuento aplicado: {Discount}%). " +
@@ -87,11 +94,6 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             finalWeather.Temperature,
             finalWeather.WindSpeed,
             finalWeather.RainProbability);
-
-        if (reservationResult.IsFailure)
-        {
-            return Result.Failure<ReservationResponse>(reservationResult.Error);
-        }
         
         _reservationRepository.Add(reservationResult.Value);
         

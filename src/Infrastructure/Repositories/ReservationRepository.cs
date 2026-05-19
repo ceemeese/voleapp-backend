@@ -1,4 +1,5 @@
 using Domain.Reservation;
+using Domain.Reservation.Enum;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,6 +61,18 @@ internal sealed class ReservationRepository : IReservationRepository
             .Where(r => courtsId.Contains(r.CourtId) && r.Date == date)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> IsCourtOccupiedAsync(Guid courtId, DateOnly date, TimeOnly start, TimeOnly end, CancellationToken cancellationToken)
+    {
+        return await _context.Reservations.AnyAsync(r =>
+            r.CourtId == courtId &&
+            r.Date == date &&
+            r.Status != Status.Cancelled &&
+            start < r.EndTime && 
+            end > r.StartTime,
+            cancellationToken);
+    }
+
 
     
 }

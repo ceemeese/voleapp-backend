@@ -32,6 +32,7 @@ internal sealed class ClubRepository : IClubRepository
         return await _context.Clubs
             .Include(c => c.Members)
             .Include(c => c.PricingConfig)
+            .Include(c => c.Schedules)
             .FirstOrDefaultAsync(c => c.Id == clubId, cancellationToken);
     }
 
@@ -68,6 +69,7 @@ internal sealed class ClubRepository : IClubRepository
     {
         return await _context.Clubs
             .Include(c => c.Schedules)
+            .Include(c => c.PricingConfig)
             .Where(c => c.IsActive && c.Address.City == city)
             .ToListAsync(cancellationToken);
     }

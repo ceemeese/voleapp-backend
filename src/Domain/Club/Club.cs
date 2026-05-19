@@ -236,4 +236,17 @@ public sealed class Club : AggregateRoot<Guid>
         }
         return Result.Success();
     }
+    
+    public bool IsOpen(DateOnly date, TimeOnly start, TimeOnly end)
+    {
+        var domainDayOfWeek = (DayOfWeek)date.DayOfWeek;
+        return Schedules
+            .Where(s => s.DayOfWeek == domainDayOfWeek && !s.IsClosed)
+            .Any(s => start >= s.OpeningTime && end <= s.ClosingTime);
+    }
+    
+    public bool IsOpen(DateTime date, TimeOnly start, TimeOnly end)
+    {
+        return IsOpen(DateOnly.FromDateTime(date), start, end);
+    }
 }
