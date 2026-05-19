@@ -1,5 +1,5 @@
-using System.Formats.Asn1;
 using Domain.Common;
+using Domain.Common.Helpers;
 using Domain.Court.Entities;
 using Domain.Court.Enum;
 using SharedKernel;
@@ -133,12 +133,21 @@ public sealed class Court : AggregateRoot<Guid>
         if (!IsActive)
             return Result.Failure(CourtErrors.NotActive);
 
-        var hasConflict = _courtEvents.Any(e => (updatingEventId == null || e.Id != updatingEventId) && e.StartTime < endTime && e.EndTime > startTime);
+        var hasConflict = _courtEvents.Any(e => (updatingEventId == null || e.Id != updatingEventId) &&  TimeOverlapHelper.DateTimeOverlaps(e.StartTime, e.EndTime, startTime, endTime));
         if (hasConflict)
         {
-            return Result.Failure(CourtErrors.SlotOccupied);   
+            return Result.Failure(CourtErrors.SlotOccupied);
         }
         
         return Result.Success();
+    }
+    
+    public Result CheckAvailability(DateOnly date, TimeOnly start, TimeOnly end)
+    {
+        //convertir a datetime por los eventos
+        DateTime startDateTime = date.ToDateTime(start);
+        DateTime endDateTime = date.ToDateTime(end);
+        
+        return ValidateEventConflict(null, startDateTime, endDateTime);
     }
 }

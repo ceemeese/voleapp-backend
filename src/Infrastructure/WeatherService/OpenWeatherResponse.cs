@@ -4,26 +4,43 @@ namespace Infrastructure.WeatherService;
 
 internal sealed class OpenWeatherResponse
 {
-    [JsonPropertyName("daily")]
-    public List<DailyForecast> Daily { get; set; } = new();
+    [JsonPropertyName("list")]
+    public List<WeatherInterval> List { get; set; } = new();
 }
 
-internal sealed class DailyForecast
+internal sealed class WeatherInterval
 {
     //unix UTC
     [JsonPropertyName("dt")]
     public long Dt { get; set; }
     
-    [JsonPropertyName("temp")]
-    public TemperatureData Temp { get; set; } = new();
+    [JsonPropertyName("main")]
+    public MainData Main { get; set; } = new();
+
+    [JsonPropertyName("wind")]
+    public WindData Wind { get; set; } = new();
 
     [JsonPropertyName("weather")]
     public List<WeatherDetail> Weather { get; set; } = new();
-    
+
     [JsonPropertyName("pop")]
-    public double PrecipitationProbability { get; set; }
-    [JsonPropertyName("wind_speed")]
-    public double WindSpeed { get; set; }
+    public double Pop { get; set; }
+
+    [JsonPropertyName("dt_txt")]
+    public string DtTxt { get; set; } = string.Empty;
+}
+
+internal sealed class MainData
+{
+    [JsonPropertyName("temp")]
+    public double Temp { get; set; }
+}
+
+
+internal sealed class WindData
+{
+    [JsonPropertyName("speed")]
+    public double Speed { get; set; }
 }
 
 internal sealed class WeatherDetail
@@ -36,10 +53,4 @@ internal sealed class WeatherDetail
     
     [JsonPropertyName("icon")]
     public string Icon { get; set; } = string.Empty;
-}
-
-internal sealed class TemperatureData
-{
-    [JsonPropertyName("day")]
-    public double Day { get; set; }
 }

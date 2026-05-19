@@ -1,6 +1,6 @@
 using Domain.Common;
+using Domain.Common.ValueObjects;
 using Domain.Reservation.Enum;
-using Domain.Reservation.Events;
 using SharedKernel;
 
 namespace Domain.Reservation;
@@ -14,12 +14,12 @@ public class Reservation : AggregateRoot<int>
     public TimeOnly StartTime { get; private set; }
     public TimeOnly EndTime { get; private set; }
     public Status Status { get; private set; }
-    public decimal TotalPrice { get; private set; }
     public string? Notes { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public PriceBreakdown Price { get; private set; }
     
-    internal Reservation(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, decimal totalPrice, string? notes = null)
+    internal Reservation(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, PriceBreakdown price, string? notes = null)
     {
         UserId = userId;
         ClubId = clubId;
@@ -27,7 +27,7 @@ public class Reservation : AggregateRoot<int>
         Date = date;
         StartTime = startTime;
         EndTime = endTime;
-        TotalPrice = totalPrice;
+        Price = price;
         Notes = notes;
         Status = Status.Pending;
         CreatedAt = DateTime.UtcNow;
@@ -39,9 +39,9 @@ public class Reservation : AggregateRoot<int>
     }
 
     public static Result<Reservation> Create(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime,
-        TimeOnly endTime, decimal totalPrice, string? notes)
+        TimeOnly endTime, PriceBreakdown price, string? notes)
     {
-        var validationResult = ValidateReservationRules(date, startTime, endTime, totalPrice);
+        var validationResult = ValidateReservationRules(date, startTime, endTime, price.TotalPrice);
         if (validationResult.IsFailure)
         {
             return Result.Failure<Reservation>(validationResult.Error);
@@ -54,7 +54,7 @@ public class Reservation : AggregateRoot<int>
             date,
             startTime,
             endTime,
-            totalPrice,
+            price,
             notes);
 
         return Result.Success(reservation);

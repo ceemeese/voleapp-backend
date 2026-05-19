@@ -64,4 +64,8 @@ public static class ReservationErrors
         "Reservation.Forbidden",
         "Usuario sin permisos");
     
+    public static readonly Error TimeSlotOccupied = Error.Validation(
+        "Reservation.TimeSlotOccupied",
+        "Ya existe una reserva en este horario");
+    
 }

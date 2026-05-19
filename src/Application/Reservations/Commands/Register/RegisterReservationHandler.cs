@@ -2,10 +2,14 @@ using Application.Abstractions.DTO.Reservation;
 using Application.Abstractions.Interfaces;
 using AutoMapper;
 using Domain.Club;
+using Domain.Common.Services;
+using Domain.Common.ValueObjects;
 using Domain.Court;
+using Domain.Court.Service;
 using Domain.Reservation;
 using Domain.Reservation.Services;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using SharedKernel;
 
 namespace Application.Reservations.Commands.Register;
@@ -19,8 +23,10 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
     private readonly IClubRepository _clubRepository;
     private readonly IReservationService _reservationService;
     private readonly ICourtRepository _courtRepository;
+    private readonly IWeatherService _weatherService;
+    private readonly ILogger<RegisterReservationHandler> _logger;
 
-    public RegisterReservationHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork, IMapper mapper,  IUserContext userContext,  IClubRepository clubRepository,  IReservationService reservationService, ICourtRepository courtRepository)
+    public RegisterReservationHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork, IMapper mapper,  IUserContext userContext,  IClubRepository clubRepository,  IReservationService reservationService, ICourtRepository courtRepository, IWeatherService weatherService,  ILogger<RegisterReservationHandler> logger)
     {
         _reservationRepository = reservationRepository;
         _unitOfWork = unitOfWork;
@@ -29,8 +35,10 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         _clubRepository = clubRepository;
         _reservationService = reservationService;
         _courtRepository = courtRepository;
+        _weatherService = weatherService;
+        _logger = logger;
     }
-
+    
     public async Task<Result<ReservationResponse>> Handle(RegisterReservation request,
         CancellationToken cancellationToken)
     {
@@ -44,14 +52,31 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         {
             return Result.Failure<ReservationResponse>(ReservationErrors.CourtNotFound);
         }
-
+        
+        var club = await _clubRepository.GetClubWithMembersAsync(court.ClubId, cancellationToken);
+        if (club is null)
+        {
+            return Result.Failure<ReservationResponse>(ReservationErrors.ClubNotFound(court.ClubId));
+        }
+        
+        var existingReservations = await _reservationRepository.GetReservationsByCourtIdFilterDate([court.Id], request.Date, cancellationToken);
+        
+        DateTime reservationDateTime = request.Date.ToDateTime(request.StartTime);
+        
+        var weatherData = await _weatherService.GetWeatherForecastAsync(club.Address.City, club.Address.Country, reservationDateTime);
+        var finalWeather = weatherData ?? WeatherData.Default;
+        
         var reservationResult = _reservationService.BookCourt(
             _userContext.UserId, 
             court, 
+            club,
+            existingReservations,
             request.Date,
             request.StartTime, 
             request.EndTime, 
-            request.Notes
+            request.Notes,
+            finalWeather,
+            club.PricingConfig
         );
 
         if (reservationResult.IsFailure)
@@ -59,13 +84,18 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             return Result.Failure<ReservationResponse>(reservationResult.Error);
         }
         
-        _reservationRepository.Add(reservationResult.Value);
+        _logger.LogInformation("Reserva procesada para el usuario {UserId} en {City}. " +
+                               "Resultado: {TotalPrice}€ (Descuento aplicado: {Discount}%). " +
+                               "Condiciones: Temp {Temp}°C, Viento {Wind}km/h, Lluvia {Rain}%",
+            _userContext.UserId,
+            club.Address.City,
+            reservationResult.Value.Price.TotalPrice,
+            reservationResult.Value.Price.AppliedDiscountPercent,
+            finalWeather.Temperature,
+            finalWeather.WindSpeed,
+            finalWeather.RainProbability);
         
-        var club = await _clubRepository.GetClubWithMembersAsync(court.ClubId, cancellationToken);
-        if (club is null)
-        {
-            return Result.Failure<ReservationResponse>(ReservationErrors.ClubNotFound(court.ClubId));
-        }
+        _reservationRepository.Add(reservationResult.Value);
         
         var ensureMemberResult = club.EnsureMembership(_userContext.UserId);
         if (ensureMemberResult.IsFailure)

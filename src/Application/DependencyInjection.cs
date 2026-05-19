@@ -1,4 +1,5 @@
 using Application.Abstractions.Behaviors;
+using Domain.Common.Services;
 using Domain.Court.Service;
 using Domain.Reservation.Services;
 using FluentValidation;
@@ -18,7 +19,8 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
         
-        services.AddScoped<IReservationService, ReservationService>();
+        services.AddScoped<IReservationService, ReservationService >();
+        services.AddScoped<IPricingService, PricingService >();
         services.AddScoped<IAvailabilityService, AvailabilityService>();
         
         services.AddAutoMapper(cfg => {}, AppDomain.CurrentDomain.GetAssemblies());

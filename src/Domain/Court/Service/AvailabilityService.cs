@@ -1,4 +1,7 @@
+using Domain.Club;
 using Domain.Common.ValueObjects;
+using Domain.Common.Helpers;
+using Domain.Reservation;
 using SharedKernel;
 
 namespace Domain.Court.Service;
@@ -22,68 +25,50 @@ public sealed class AvailabilityService : IAvailabilityService
         }
         
         var requestedRange = rangeResult.Value;
-        var domainDayOfWeek = (Domain.Club.Enum.DayOfWeek)requestDateTime.DayOfWeek;
+        var requestedDate = DateOnly.FromDateTime(requestedRange.Start);
+        var requestedStartTime = TimeOnly.FromDateTime(requestedRange.Start);
+        var requestedEndTime = TimeOnly.FromDateTime(requestedRange.End);
+        
         var availableCourts = new List<Court>();
         
         foreach (var court in courts)
         {
             var club = clubs.FirstOrDefault(c => c.Id == court.ClubId);
-            if (club == null) continue;
+            if (club is null) continue;
 
-            //verificar Horario del Club
-            var requestedTime = TimeOnly.FromDateTime(requestDateTime);
-            var requestedEndTime = requestedTime.AddMinutes(durationMinutes);
-
-            var isWithinSchedule = club.Schedules
-                .Where(s => s.DayOfWeek == domainDayOfWeek)
-                .Any(s => requestedTime >= s.OpeningTime && requestedEndTime <= s.ClosingTime);
-
-            //si el club está cerrado para este horario, pasamos a la siguiente pista
-            if (!isWithinSchedule) continue;
-
-            //verificar disponibilidad física
-            if (IsCourtAvailable(court, requestedRange, existingReservations))
-            {
-                availableCourts.Add(court);
-            }
+            var availabilityResult = CheckSlot(club, court, existingReservations, requestedDate, requestedStartTime, requestedEndTime);
+            if (availabilityResult.IsFailure) continue;
+            
+            availableCourts.Add(court);
         }
 
         return Result.Success(availableCourts);
     }
     
-    
-    
-    private bool IsCourtAvailable(Court court, DateTimeRange requestedRange, List<Reservation.Reservation> reservations)
+    public Result CheckSlot(
+        Club.Club club, 
+        Court court, 
+        List<Reservation.Reservation> reservations, 
+        DateOnly date, 
+        TimeOnly start, 
+        TimeOnly end)
     {
-        //convertir el DateTime a DateOnly y TimeOnly para las reservas
-        var requestedDate = DateOnly.FromDateTime(requestedRange.Start);
-        var requestedStartTime = TimeOnly.FromDateTime(requestedRange.Start);
-        var requestedEndTime = TimeOnly.FromDateTime(requestedRange.End);
+        if (!club.IsOpen(date, start, end)) 
+            return Result.Failure(ClubErrors.ClubClosed);
 
-        //hay conflicto con reservas existentes?
-        bool hasReservationConflict = reservations
-            .Where(r => r.CourtId == court.Id && r.Date == requestedDate)
-            .Any(r => TimesOverlap(requestedStartTime, requestedEndTime, r.StartTime, r.EndTime));
+        if (!court.IsActive) 
+            return Result.Failure(CourtErrors.NotActive);
 
-        if (hasReservationConflict)
-        {
-            return false;
-        }
+        var eventCheck = court.CheckAvailability(date, start, end);
+        if (eventCheck.IsFailure) return eventCheck;
 
-        //hay conflicto con eventos?
-        bool hasEventConflict = court.CourtEvents
-            .Any(e => DateTimeOverlaps(requestedRange.Start, requestedRange.End, e.StartTime, e.EndTime));
+        var hasConflict = reservations.Any(r => 
+            r.CourtId == court.Id && 
+            r.Date == date && 
+            TimeOverlapHelper.TimesOverlap(start, end, r.StartTime, r.EndTime));
 
-        return !hasEventConflict;
-    }
-
-    private bool TimesOverlap(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)
-    {
-        return start1 < end2 && end1 > start2;
-    }
-
-    private bool DateTimeOverlaps(DateTime start1, DateTime end1, DateTime start2, DateTime end2)
-    {
-        return start1 < end2 && end1 > start2;
+        return hasConflict 
+            ? Result.Failure(ReservationErrors.TimeSlotOccupied) 
+            : Result.Success();
     }
 }
