@@ -5,4 +5,4 @@ using SharedKernel;
 
 namespace Application.Reservations.Queries.GetUserReservations;
 
-public sealed record GetUserReservations(Guid UserId, DateOnly? StartDate, DateOnly? EndDate) : IRequest<Result<List<ReservationResponse>>>;
+public sealed record GetUserReservations(Guid UserId, DateOnly? StartDate, DateOnly? EndDate) : IRequest<Result<List<ReservationCompleteResponse>>>;

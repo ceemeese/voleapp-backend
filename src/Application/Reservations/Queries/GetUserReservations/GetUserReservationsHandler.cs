@@ -1,34 +1,30 @@
 using Application.Abstractions.DTO.Reservation;
 using Application.Abstractions.Interfaces;
-using AutoMapper;
 using Domain.Reservation;
 using MediatR;
 using SharedKernel;
 
 namespace Application.Reservations.Queries.GetUserReservations;
 
-internal sealed class GetUserReservationsHandler : IRequestHandler<GetUserReservations, Result<List<ReservationResponse>>>
+internal sealed class GetUserReservationsHandler : IRequestHandler<GetUserReservations, Result<List<ReservationCompleteResponse>>>
 {
-    private readonly IMapper _mapper;
-    private readonly IReservationRepository _reservationRepository;
     private readonly IUserContext _userContext;
+    private readonly IReservationQueries _reservationQueries;
 
-    public GetUserReservationsHandler(IMapper mapper, IReservationRepository reservationRepository, IUserContext userContext)
+    public GetUserReservationsHandler(IUserContext userContext,  IReservationQueries reservationQueries)
     {
-        _mapper = mapper;
-        _reservationRepository = reservationRepository;
         _userContext = userContext;
+        _reservationQueries = reservationQueries;
     }
 
-    public async Task<Result<List<ReservationResponse>>> Handle(GetUserReservations request, CancellationToken cancellationToken)
+    public async Task<Result<List<ReservationCompleteResponse>>> Handle(GetUserReservations request, CancellationToken cancellationToken)
     {
         if (request.UserId != _userContext.UserId && !_userContext.IsSuperAdmin)
         {
-            return Result.Failure<List<ReservationResponse>>(ReservationErrors.Forbidden);
+            return Result.Failure<List<ReservationCompleteResponse>>(ReservationErrors.Forbidden);
         }
 
-        var reservations = await _reservationRepository.GetAllReservationsAsync(_userContext.UserId, null, request.StartDate, request.EndDate, cancellationToken);
-        var reservationsMapped = _mapper.Map<List<ReservationResponse>>(reservations);
-        return Result.Success(reservationsMapped);
+        var reservations = await _reservationQueries.GetAllReservationsAsync(_userContext.UserId, null, request.StartDate, request.EndDate, cancellationToken);
+        return Result.Success(reservations);
     }
 }

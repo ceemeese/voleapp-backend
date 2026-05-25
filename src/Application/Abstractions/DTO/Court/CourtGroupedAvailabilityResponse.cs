@@ -5,5 +5,5 @@ public sealed record CourtGroupedAvailabilityResponse(
     string ClubName,
     string Address, 
     string WeatherIcon,
-    List<CourtSummaryResponse> AvailableCourts
+    List<CourtAvailabilityDetailResponse> AvailableCourts
 );

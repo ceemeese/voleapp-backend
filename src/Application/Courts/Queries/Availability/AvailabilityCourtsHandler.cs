@@ -96,7 +96,7 @@ internal sealed class AvailabilityCourtsHandler : IRequestHandler<AvailabilityCo
                         startTime,
                         endTime);
                     
-                    return new CourtSummaryResponse(
+                    return new CourtAvailabilityDetailResponse(
                         court.Id,
                         court.Name,
                         _mapper.Map<CourtTypeResponse>(court.Type),

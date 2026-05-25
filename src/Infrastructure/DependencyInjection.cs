@@ -150,6 +150,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IClubMemberQueries, ClubMemberQueries>();
         services.AddScoped<ICourtEventQueries, CourtEventQueries>();
+        services.AddScoped<IReservationQueries, ReservationQueries>();
 
         return services;
     }
