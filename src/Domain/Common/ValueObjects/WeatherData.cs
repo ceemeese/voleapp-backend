@@ -10,7 +10,7 @@ public sealed record WeatherData(
 {
     
     public string IconUrl => !string.IsNullOrWhiteSpace(IconCode)
-        ? $"https://openweathermap.org/img/wn/{IconCode}@2x.png"
+        ? $"https://openweathermap.org/img/wn/{IconCode.Replace("n", "d")}@2x.png"
         : "https://openweathermap.org/img/wn/01d@2x.png";
 
     public static readonly WeatherData Default = new(

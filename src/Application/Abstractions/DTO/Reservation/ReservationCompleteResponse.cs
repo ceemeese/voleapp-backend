@@ -12,7 +12,7 @@ public record ReservationCompleteResponse(
     TimeOnly StartTime,
     TimeOnly EndTime,
     StatusResponse Status,
-    decimal TotalPrice,
+    PriceResponse Price,
     string? Notes,
     DateTime CreatedAt, 
     DateTime UpdatedAt
