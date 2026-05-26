@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scrutor;
-using SharedKernel;
 
 namespace Infrastructure;
 
@@ -29,7 +28,8 @@ public static class DependencyInjection
             .AddHealthChecks(configuration)
             .AddAuthenticationInternal(configuration)
             .AddAuthorizationInternal()
-            .AddIdentityInternal();
+            .AddIdentityInternal()
+            .AddEmailInternal();
 
     
     
@@ -152,6 +152,13 @@ public static class DependencyInjection
         services.AddScoped<ICourtEventQueries, CourtEventQueries>();
         services.AddScoped<IReservationQueries, ReservationQueries>();
 
+        return services;
+    }
+
+    private static IServiceCollection AddEmailInternal(this IServiceCollection services)
+    {
+        services.AddScoped<IEmailService, EmailService.EmailService>();
+        
         return services;
     }
     
