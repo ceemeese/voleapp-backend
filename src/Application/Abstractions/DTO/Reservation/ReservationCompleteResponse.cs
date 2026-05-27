@@ -4,6 +4,7 @@ public record ReservationCompleteResponse(
     int Id,
     Guid UserId,
     string Username,
+    string Email,
     Guid ClubId,
     string ClubName,
     Guid CourtId,

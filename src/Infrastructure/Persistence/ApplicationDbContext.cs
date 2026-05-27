@@ -46,18 +46,26 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
-        var domainEvents = ChangeTracker
+        var aggregateRoots = ChangeTracker
             .Entries<IAggregateRoot>()
             .Select(e => e.Entity)
             .Where(e => e.DomainEvents.Any())
-            .SelectMany(e => e.DomainEvents)
             .ToList();
         
         var result = await base.SaveChangesAsync(cancellationToken);
 
+        var domainEvents = aggregateRoots
+            .SelectMany(root => root.DomainEvents)
+            .ToList();
+        
         foreach (var domainEvent in domainEvents)
         {
             await _publisher.Publish(domainEvent, cancellationToken);
+        }
+        
+        foreach (var root in aggregateRoots)
+        {
+            root.ClearDomainEvents();
         }
         
         return result;

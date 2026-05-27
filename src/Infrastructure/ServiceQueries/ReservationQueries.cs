@@ -49,6 +49,7 @@ internal sealed class ReservationQueries : IReservationQueries
             x.reservations.Id,
             x.reservations.UserId,
             $"{x.users.Name} {x.users.LastName}",
+            x.users.Email,
             x.reservations.ClubId,
             x.clubs.Name,
             x.reservations.CourtId,
@@ -68,5 +69,48 @@ internal sealed class ReservationQueries : IReservationQueries
             x.reservations.CreatedAt,
             x.reservations.UpdatedAt
             )).ToList();
+    }
+    
+    
+    public async Task<ReservationCompleteResponse?> GetReservationCompleteByIdAsync(int reservationId, CancellationToken cancellationToken)
+    {
+        var query = from reservations in _context.Reservations.AsNoTracking()
+            join courts in _context.Courts on reservations.CourtId equals courts.Id
+            join clubs in _context.Clubs on courts.ClubId equals clubs.Id
+            join users in _context.Users on reservations.UserId equals users.Id
+            where reservations.Id == reservationId
+            select new { reservations, courts, clubs, users };
+
+        var result = await query.FirstOrDefaultAsync(cancellationToken);
+
+        if (result is null)
+        {
+            return null;
+        }
+        
+        return new ReservationCompleteResponse(
+            result.reservations.Id,
+            result.reservations.UserId,
+            $"{result.users.Name} {result.users.LastName}",
+            result.users.Email,
+            result.reservations.ClubId,
+            result.clubs.Name,
+            result.reservations.CourtId,
+            result.courts.Name,
+            result.reservations.Date,
+            result.reservations.StartTime,
+            result.reservations.EndTime,
+            new StatusResponse((int)result.reservations.Status, result.reservations.Status.ToString()),
+            new PriceResponse(
+                result.reservations.Price.BasePrice,
+                result.reservations.Price.TotalPrice,
+                result.reservations.Price.DiscountAmount,
+                result.reservations.Price.AppliedDiscountPercent,
+                result.reservations.Price.DiscountReason
+            ),
+            result.reservations.Notes,
+            result.reservations.CreatedAt,
+            result.reservations.UpdatedAt
+        );
     }
 }

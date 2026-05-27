@@ -1,6 +1,7 @@
 using Domain.Common;
 using Domain.Common.ValueObjects;
 using Domain.Reservation.Enum;
+using Domain.Reservation.Events;
 using SharedKernel;
 
 namespace Domain.Reservation;
@@ -57,6 +58,7 @@ public class Reservation : AggregateRoot<int>
             price,
             notes);
 
+        reservation.RaiseDomainEvent(new ReservationCreatedDomainEvent(reservation));
         return Result.Success(reservation);
     }
 
