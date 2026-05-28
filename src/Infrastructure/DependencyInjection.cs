@@ -29,7 +29,8 @@ public static class DependencyInjection
             .AddAuthenticationInternal(configuration)
             .AddAuthorizationInternal()
             .AddIdentityInternal()
-            .AddEmailInternal();
+            .AddEmailInternal()
+            .AddQueries();
 
     
     
@@ -147,11 +148,6 @@ public static class DependencyInjection
             .AddEntityFrameworkStores<AuthDbContext>()
             .AddDefaultTokenProviders();
 
-        services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<IClubMemberQueries, ClubMemberQueries>();
-        services.AddScoped<ICourtEventQueries, CourtEventQueries>();
-        services.AddScoped<IReservationQueries, ReservationQueries>();
-
         return services;
     }
 
@@ -159,6 +155,17 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService.EmailService>();
         
+        return services;
+    }
+
+    private static IServiceCollection AddQueries(this IServiceCollection services)
+    {
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IClubMemberQueries, ClubMemberQueries>();
+        services.AddScoped<ICourtEventQueries, CourtEventQueries>();
+        services.AddScoped<IReservationQueries, ReservationQueries>();
+        services.AddScoped<IDashboardQueries, DashboardQueries>();
+
         return services;
     }
     
