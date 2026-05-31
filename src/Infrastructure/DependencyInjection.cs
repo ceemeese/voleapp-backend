@@ -29,6 +29,7 @@ public static class DependencyInjection
             .AddAuthenticationInternal(configuration)
             .AddAuthorizationInternal()
             .AddIdentityInternal()
+            .AddWeatherApi()
             .AddEmailInternal()
             .AddQueries();
 
@@ -118,7 +119,6 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IClubContext, ClubContext>();
-        services.AddHttpClient<IWeatherService, WeatherService.WeatherService>();
         services.AddSingleton<ITokenProvider, TokenProvider>();
         
         return services;
@@ -151,10 +151,15 @@ public static class DependencyInjection
         return services;
     }
 
+    private static IServiceCollection AddWeatherApi(this IServiceCollection services)
+    {
+        services.AddHttpClient<IWeatherService, WeatherService.WeatherService>();
+        return services;
+    }
+
     private static IServiceCollection AddEmailInternal(this IServiceCollection services)
     {
         services.AddScoped<IEmailService, EmailService.EmailService>();
-        
         return services;
     }
 
@@ -165,6 +170,8 @@ public static class DependencyInjection
         services.AddScoped<ICourtEventQueries, CourtEventQueries>();
         services.AddScoped<IReservationQueries, ReservationQueries>();
         services.AddScoped<IDashboardQueries, DashboardQueries>();
+        services.AddScoped<IAnalyticsQueries, AnalyticsQueries>();
+        services.AddScoped<IOccupancyQueries, OccupancyQueries>();
 
         return services;
     }

@@ -1,4 +1,6 @@
+using Application.Analytics.GetAnalytics;
 using Application.Analytics.GetDashboard;
+using Application.Analytics.GetOccupancy;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Infrastructure;
@@ -18,7 +20,7 @@ public class AnalyticsController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpGet("dashboard/{clubId:guid}")]
-    public async Task<IActionResult> GetAdminContext([FromRoute] Guid clubId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDashboardStats([FromRoute] Guid clubId, CancellationToken cancellationToken)
     {
         var query =  new GetDashboard(clubId);
         
@@ -27,5 +29,31 @@ public class AnalyticsController : ControllerBase
         return analyticsResult.IsSuccess 
             ? Ok(analyticsResult.Value) 
             : CustomResults.Problem(analyticsResult);
+    }
+    
+    [AuthorizeAdmins]
+    [HttpGet("analytics/{clubId:guid}/{year:int}/{month:int}")]
+    public async Task<IActionResult> GetAnalyticsStats([FromRoute] Guid clubId, [FromRoute] int year, [FromRoute] int month, CancellationToken cancellationToken)
+    {
+        var query =  new GetAnalytics(clubId, year, month);
+        
+        var analyticsResult = await _mediator.Send(query, cancellationToken);
+        
+        return analyticsResult.IsSuccess 
+            ? Ok(analyticsResult.Value) 
+            : CustomResults.Problem(analyticsResult);
+    }
+    
+    [AuthorizeAdmins]
+    [HttpGet("occupancy/{clubId:guid}/{year:int}/{month:int}")]
+    public async Task<IActionResult> GetOccupancyStats([FromRoute] Guid clubId, [FromRoute] int year, [FromRoute] int month, CancellationToken cancellationToken)
+    {
+        var query =  new GetOccupancy(clubId, year, month);
+        
+        var occupancyResult = await _mediator.Send(query, cancellationToken);
+        
+        return occupancyResult.IsSuccess 
+            ? Ok(occupancyResult.Value) 
+            : CustomResults.Problem(occupancyResult);
     }
 }
