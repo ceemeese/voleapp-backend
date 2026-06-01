@@ -32,8 +32,8 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpGet("analytics/{clubId:guid}/{year:int}/{month:int}")]
-    public async Task<IActionResult> GetAnalyticsStats([FromRoute] Guid clubId, [FromRoute] int year, [FromRoute] int month, CancellationToken cancellationToken)
+    [HttpGet("analytics/{clubId:guid}")]
+    public async Task<IActionResult> GetAnalyticsStats([FromRoute] Guid clubId, [FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         var query =  new GetAnalytics(clubId, year, month);
         
@@ -45,8 +45,8 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpGet("occupancy/{clubId:guid}/{year:int}/{month:int}")]
-    public async Task<IActionResult> GetOccupancyStats([FromRoute] Guid clubId, [FromRoute] int year, [FromRoute] int month, CancellationToken cancellationToken)
+    [HttpGet("occupancy/{clubId:guid}")]
+    public async Task<IActionResult> GetOccupancyStats([FromRoute] Guid clubId, [FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         var query =  new GetOccupancy(clubId, year, month);
         
