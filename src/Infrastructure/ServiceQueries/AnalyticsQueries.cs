@@ -1,8 +1,8 @@
-using System.Globalization;
 using Application.Abstractions.DTO.Dashboard;
-using Application.Abstractions.Interfaces;
+using Application.Abstractions.Interfaces.Queries;
 using Domain.Reservation.Enum;
 using Infrastructure.Persistence;
+using Infrastructure.ServiceQueries.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ServiceQueries;
@@ -15,53 +15,65 @@ internal sealed class AnalyticsQueries : IAnalyticsQueries
     {
         _dbContext = dbContext;
     }
+    
+    private record ClubReservationData(decimal TotalPrice, DateOnly Date);
 
     public async Task<AnalysisResponse> GetAnalysisStatsAsync(Guid clubId, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken)
     {
-        int currentYear = startDate.Year;
+        var currentYear = startDate.Year;
         
-        var startOfYear = new DateOnly(currentYear, 1, 1);
-        var endOfYear = new DateOnly(currentYear, 12, 31);
+        var allYearReservations = await FetchYearlyClubReservationsAsync(clubId, currentYear, cancellationToken);
+        var newUsersCount = await CountNewClubMembersAsync(clubId, startDate, endDate, cancellationToken);
         
-        var allYearReservations = await _dbContext.Reservations
-            .AsNoTracking()
-            .Where(r => r.ClubId == clubId && r.Date >= startOfYear && r.Date <= endOfYear && r.Status != Status.Cancelled)
-            .Select(r => new {r.Price.TotalPrice, r.Date})
-            .ToListAsync(cancellationToken);
-            
-        var newUsersCount = await _dbContext.ClubMembers
-            .AsNoTracking()
-            .CountAsync(cm => cm.ClubId == clubId && cm.RegisteredOn >= startDate && cm.RegisteredOn <= endDate, cancellationToken);
-
-        var periodReservations = allYearReservations
-            .Where(r => r.Date >= startDate && r.Date <= endDate)
-            .ToList();
-
-        int totalReservationsPeriod = periodReservations.Count;
+        var periodReservations = allYearReservations.Where(r => r.Date >= startDate && r.Date <= endDate).ToList();
+        var totalReservationsPeriod = periodReservations.Count;
         decimal totalRevenuePeriod = periodReservations.Sum(r => r.TotalPrice);
+        
         decimal averageTicketPeriod = totalReservationsPeriod > 0 
             ? Math.Round(totalRevenuePeriod / totalReservationsPeriod, 2) 
             : 0;
+        
+        var evolutionData = BuildMonthlyEvolution(allYearReservations);
 
+        return new AnalysisResponse(totalRevenuePeriod, averageTicketPeriod, totalReservationsPeriod, newUsersCount, evolutionData);
+    }
 
-        var evolutionData = new List<MonthPerformanceDto>();
-        var culture= new CultureInfo("es-ES");
+    private async Task<List<ClubReservationData>> FetchYearlyClubReservationsAsync(Guid clubId, int year, CancellationToken cancellationToken)
+    {
+        var startOfYear = new DateOnly(year, 1, 1);
+        var endOfYear = new DateOnly(year, 12, 31);
+
+        return await _dbContext.Reservations
+            .AsNoTracking()
+            .Where(r => r.ClubId == clubId && r.Date >= startOfYear && r.Date <= endOfYear && r.Status != Status.Cancelled)
+            .Select(r => new ClubReservationData(r.Price.TotalPrice, r.Date))
+            .ToListAsync(cancellationToken);
+    }
+
+    private async Task<int> CountNewClubMembersAsync(Guid clubId, DateOnly start, DateOnly end, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ClubMembers
+            .AsNoTracking()
+            .CountAsync(cm => cm.ClubId == clubId && cm.RegisteredOn >= start && cm.RegisteredOn <= end, cancellationToken);
+    }
+
+    private List<MonthPerformanceDto> BuildMonthlyEvolution(List<ClubReservationData> reservations)
+    {
+        var evolution = new List<MonthPerformanceDto>();
 
         for (int m = 1; m <= 12; m++)
         {
-            string monthName = culture.DateTimeFormat.GetMonthName(m);
-            monthName = char.ToUpper(monthName[0]) + monthName.Substring(1);
+            var monthRes = reservations.Where(r => r.Date.Month == m).ToList();
 
-            var monthRes = allYearReservations.Where(r => r.Date.Month == m).ToList();
-            
-            evolutionData.Add(new MonthPerformanceDto(
-                monthName,
+            evolution.Add(new MonthPerformanceDto(
+                AnalyticsHelper.GetCapitalizedMonthName(m),
                 m,
                 Math.Round(monthRes.Sum(r => r.TotalPrice), 2),
                 monthRes.Count
             ));
         }
 
-        return new AnalysisResponse(totalRevenuePeriod, averageTicketPeriod, totalReservationsPeriod, newUsersCount, evolutionData);
+        return evolution;
     }
+    
 }

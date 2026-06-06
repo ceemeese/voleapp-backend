@@ -1,6 +1,7 @@
 using Application.Abstractions.DTO.Dashboard;
 using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
+using Application.Abstractions.Interfaces.Queries;
 using Domain.Club;
 using MediatR;
 using SharedKernel;

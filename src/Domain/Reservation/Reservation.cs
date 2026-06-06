@@ -20,7 +20,7 @@ public class Reservation : AggregateRoot<int>
     public DateTime UpdatedAt { get; private set; }
     public PriceBreakdown Price { get; private set; }
     
-    internal Reservation(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, PriceBreakdown price, string? notes = null)
+    private Reservation(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, PriceBreakdown price, string? notes = null)
     {
         UserId = userId;
         ClubId = clubId;

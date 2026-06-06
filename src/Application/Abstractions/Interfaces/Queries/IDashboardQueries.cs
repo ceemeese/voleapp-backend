@@ -1,6 +1,6 @@
 using Application.Abstractions.DTO.Dashboard;
 
-namespace Application.Abstractions.Interfaces;
+namespace Application.Abstractions.Interfaces.Queries;
 
 public interface IDashboardQueries
 {

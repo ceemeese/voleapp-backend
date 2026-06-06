@@ -1,5 +1,6 @@
 using Application.Abstractions.DTO.Dashboard;
-using Application.Abstractions.Interfaces;
+using Application.Abstractions.Interfaces.Queries;
+using Domain.Club.Extensions;
 using Domain.Reservation.Enum;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -91,8 +92,7 @@ internal sealed class DashboardQueries : IDashboardQueries
     {
         if (totalCourts == 0) return 0;
 
-        var systemDay = DateTime.Today.DayOfWeek;
-        var domainDayOfWeek = (Domain.Club.Enum.DayOfWeek)systemDay;
+        var domainDayOfWeek = DateTime.Today.DayOfWeek.ToDomainDay();
         
         var schedule = await _dbContext.Clubs
             .AsNoTracking()

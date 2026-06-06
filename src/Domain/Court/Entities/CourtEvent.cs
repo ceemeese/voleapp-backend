@@ -14,7 +14,7 @@ public class CourtEvent : Entity<int>
     public DateTime CreatedAt { get; private set; }
     
     
-    internal CourtEvent(Guid courtId, DateTime startTime, DateTime endTime, string eventName, string? description = null)
+    private CourtEvent(Guid courtId, DateTime startTime, DateTime endTime, string eventName, string? description = null)
     {
         CourtId = courtId;
         StartTime = startTime;
@@ -29,7 +29,7 @@ public class CourtEvent : Entity<int>
     }
 
     
-    public static Result<CourtEvent> Create(Guid courtId, DateTime startTime, DateTime endTime, string eventName, string? description)
+    internal static Result<CourtEvent> Create(Guid courtId, DateTime startTime, DateTime endTime, string eventName, string? description)
     {
         var validateEventDateResult = ValidateEventDate(startTime, endTime);
         if (validateEventDateResult.IsFailure)
@@ -41,7 +41,7 @@ public class CourtEvent : Entity<int>
         return Result.Success<CourtEvent>(courtEvent);
     }
     
-    public Result Update(DateTime startTime, DateTime endTime, string eventName, string? description)
+    internal Result Update(DateTime startTime, DateTime endTime, string eventName, string? description)
     {
         var validateEventDateResult = ValidateEventDate(startTime, endTime);
         if (validateEventDateResult.IsFailure)

@@ -15,7 +15,7 @@ public sealed class ClubMember : Entity<int>
     public bool IsMember { get; private set; }
     public bool IsActive { get; private set; }
     
-    internal ClubMember(Guid clubId, Guid userId, MemberRole role)
+    private ClubMember(Guid clubId, Guid userId, MemberRole role)
     {
         ClubId = clubId;
         UserId = userId;
@@ -30,8 +30,13 @@ public sealed class ClubMember : Entity<int>
     private ClubMember()
     {
     }
+    
+    internal static ClubMember Create(Guid clubId, Guid userId, MemberRole role)
+    {
+        return new ClubMember(clubId, userId, role);
+    }
 
-    public Result UpdateMembership(MemberRole role, bool isMember, string? membershipNumber)
+    internal Result UpdateMembership(MemberRole role, bool isMember, string? membershipNumber)
     {
         if (isMember && string.IsNullOrWhiteSpace(membershipNumber))
         {
@@ -45,17 +50,17 @@ public sealed class ClubMember : Entity<int>
         return Result.Success();
     }
 
-    public void Deactivate()
+    internal void Deactivate()
     {
         IsActive = false;
     }
     
-    public void Activate()
+    internal void Activate()
     {
         IsActive = true;
     }
 
-    public void ToggleFavourite()
+    internal void ToggleFavourite()
     {
         IsFavourite = !IsFavourite;
     }

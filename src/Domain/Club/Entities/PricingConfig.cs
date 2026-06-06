@@ -14,7 +14,7 @@ public sealed class PricingConfig : Entity<int>
     public double ColdThreshold { get; private set; }
     public decimal ColdDiscountPercent { get; private set; }
 
-    internal PricingConfig(Guid clubId)
+    private PricingConfig(Guid clubId)
     {
         ClubId = clubId;
         RainDiscountPercent = 0;
@@ -28,7 +28,13 @@ public sealed class PricingConfig : Entity<int>
     
     private PricingConfig() { }
     
-    public Result Update(
+    
+    public static PricingConfig CreateForClub(Guid clubId)
+    {
+        return new PricingConfig(clubId);
+    }
+    
+    internal Result Update(
         decimal rainD, 
         double windT, decimal windD, 
         double heatT, decimal heatD, 

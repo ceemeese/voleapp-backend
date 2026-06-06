@@ -1,5 +1,8 @@
 using Application.Analytics.GetAnalytics;
 using Application.Analytics.GetDashboard;
+using Application.Analytics.GetGlobalAnalytics;
+using Application.Analytics.GetGlobalDashboard;
+using Application.Analytics.GetGlobalOccupancy;
 using Application.Analytics.GetOccupancy;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -55,5 +58,42 @@ public class AnalyticsController : ControllerBase
         return occupancyResult.IsSuccess 
             ? Ok(occupancyResult.Value) 
             : CustomResults.Problem(occupancyResult);
+    }
+    
+    [AuthorizeSuperAdmin]
+    [HttpGet("global")]
+    public async Task<IActionResult> GetGlobalStats(CancellationToken cancellationToken)
+    {
+        var globalResult = await _mediator.Send(new GetGlobalDashboard(), cancellationToken);
+        
+        return globalResult.IsSuccess 
+            ? Ok(globalResult.Value) 
+            : CustomResults.Problem(globalResult);
+    }
+    
+    [AuthorizeSuperAdmin]
+    [HttpGet("global/analytics")]
+    public async Task<IActionResult> GetGlobalAnalysisStats([FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
+    {
+        var query =  new GetGlobalAnalytics(year, month);
+        
+        var globalAnalyticsResult = await _mediator.Send(query, cancellationToken);
+        
+        return globalAnalyticsResult.IsSuccess 
+            ? Ok(globalAnalyticsResult.Value) 
+            : CustomResults.Problem(globalAnalyticsResult);
+    }
+    
+    [AuthorizeSuperAdmin]
+    [HttpGet("global/occupancy")]
+    public async Task<IActionResult> GetGlobalOccupancyStats([FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
+    {
+        var query =  new GetGlobalOccupancy(year, month);
+        
+        var globalOccupancyResult = await _mediator.Send(query, cancellationToken);
+        
+        return globalOccupancyResult.IsSuccess 
+            ? Ok(globalOccupancyResult.Value) 
+            : CustomResults.Problem(globalOccupancyResult);
     }
 }

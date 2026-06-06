@@ -1,5 +1,6 @@
 using System.Text;
 using Application.Abstractions.Interfaces;
+using Application.Abstractions.Interfaces.Queries;
 using Domain.User;
 using Infrastructure.Authentication;
 using Infrastructure.Identity;
@@ -172,6 +173,9 @@ public static class DependencyInjection
         services.AddScoped<IDashboardQueries, DashboardQueries>();
         services.AddScoped<IAnalyticsQueries, AnalyticsQueries>();
         services.AddScoped<IOccupancyQueries, OccupancyQueries>();
+        services.AddScoped<IGlobalOccupancyQueries, GlobalOccupancyQueries>();
+        services.AddScoped<IGlobalDashboardQueries, GlobalDashboardQueries>();
+        services.AddScoped<IGlobalAnalyticsQueries, GlobalAnalyticsQueries>();
 
         return services;
     }

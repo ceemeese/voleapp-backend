@@ -1,5 +1,6 @@
 using Domain.Club.Entities;
 using Domain.Club.Enum;
+using Domain.Club.Extensions;
 using Domain.Common;
 using Domain.Common.ValueObjects;
 using SharedKernel;
@@ -35,7 +36,7 @@ public sealed class Club : AggregateRoot<Guid>
         Email = email;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
-        PricingConfig = new PricingConfig(id);
+        PricingConfig = PricingConfig.CreateForClub(id);
     }
 
     private Club()
@@ -73,7 +74,7 @@ public sealed class Club : AggregateRoot<Guid>
             return Result.Failure<ClubMember>(ClubMemberErrors.MemberDuplicated);
         }
 
-        var newMember = new ClubMember(this.Id, userId, role);
+        var newMember = ClubMember.Create(this.Id, userId, role);
         _members.Add(newMember);
         return Result.Success(newMember);
     }
@@ -239,7 +240,7 @@ public sealed class Club : AggregateRoot<Guid>
     
     public bool IsOpen(DateOnly date, TimeOnly start, TimeOnly end)
     {
-        var domainDayOfWeek = (DayOfWeek)date.DayOfWeek;
+        var domainDayOfWeek = date.DayOfWeek.ToDomainDay();
         return Schedules
             .Where(s => s.DayOfWeek == domainDayOfWeek && !s.IsClosed)
             .Any(s => start >= s.OpeningTime && end <= s.ClosingTime);
