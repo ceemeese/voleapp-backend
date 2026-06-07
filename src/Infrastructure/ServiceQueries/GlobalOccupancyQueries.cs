@@ -168,6 +168,16 @@ internal sealed class GlobalOccupancyQueries : IGlobalOccupancyQueries
         
         for (var m = 1; m <= 12; m++)
         {
+            var currentMonthReal = DateTime.UtcNow.Month;
+            var currentYearReal = DateTime.UtcNow.Year;
+
+            if (year == currentYearReal && m > currentMonthReal)
+            {
+                var futureMonthName = textInfo.ToTitleCase(culture.DateTimeFormat.GetMonthName(m));
+                result.Add(new MonthOccupancyDto(futureMonthName, m, 0));
+                continue;
+            }
+            
             var monthName = textInfo.ToTitleCase(culture.DateTimeFormat.GetMonthName(m));
             
             var startOfMonth = new DateOnly(year, m, 1);

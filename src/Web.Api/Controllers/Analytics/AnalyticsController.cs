@@ -10,7 +10,6 @@ using Web.Api.Infrastructure;
 
 namespace Web.Api.Controllers.Analytics;
 
-[Route("api/[controller]")]
 [ApiController]
 public class AnalyticsController : ControllerBase
 {
@@ -22,7 +21,7 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpGet("dashboard/{clubId:guid}")]
+    [HttpGet("api/clubs/{clubId:guid}/dashboard")]
     public async Task<IActionResult> GetDashboardStats([FromRoute] Guid clubId, CancellationToken cancellationToken)
     {
         var query =  new GetDashboard(clubId);
@@ -35,7 +34,7 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpGet("analytics/{clubId:guid}")]
+    [HttpGet("api/clubs/{clubId:guid}/analytics")]
     public async Task<IActionResult> GetAnalyticsStats([FromRoute] Guid clubId, [FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         var query =  new GetAnalytics(clubId, year, month);
@@ -48,7 +47,7 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeAdmins]
-    [HttpGet("occupancy/{clubId:guid}")]
+    [HttpGet("api/clubs/{clubId:guid}/occupancy")]
     public async Task<IActionResult> GetOccupancyStats([FromRoute] Guid clubId, [FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         var query =  new GetOccupancy(clubId, year, month);
@@ -61,7 +60,7 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpGet("global")]
+    [HttpGet("api/management/dashboard")]
     public async Task<IActionResult> GetGlobalStats(CancellationToken cancellationToken)
     {
         var globalResult = await _mediator.Send(new GetGlobalDashboard(), cancellationToken);
@@ -72,7 +71,7 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpGet("global/analytics")]
+    [HttpGet("api/management/analytics")]
     public async Task<IActionResult> GetGlobalAnalysisStats([FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         var query =  new GetGlobalAnalytics(year, month);
@@ -85,7 +84,7 @@ public class AnalyticsController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpGet("global/occupancy")]
+    [HttpGet("api/management/occupancy")]
     public async Task<IActionResult> GetGlobalOccupancyStats([FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         var query =  new GetGlobalOccupancy(year, month);

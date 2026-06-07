@@ -6,4 +6,4 @@ public sealed record GlobalOccupancyResponse(
     IReadOnlyList<MonthOccupancyDto>  OccupancyEvolution
 );
 
-public sealed record GlobalClubOccupancyDto(Guid ClubId, string CourtName, double OccupancyRate);
+public sealed record GlobalClubOccupancyDto(Guid ClubId, string ClubName, double OccupancyRate);

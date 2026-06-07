@@ -74,18 +74,24 @@ internal sealed class GlobalDashboardQueries : IGlobalDashboardQueries
     private async Task<double> CalculateGlobalOccupancyAsync(DateOnly todayDateOnly, DateTime todayStart, DateTime todayEnd,
         Domain.Club.Enum.DayOfWeek domainDayOfWeek, CancellationToken cancellationToken)
     {
-        var totalHoursReservations = await _dbContext.Reservations
+        var reservationsHours = await _dbContext.Reservations
             .AsNoTracking()
             .Where(r => r.Date == todayDateOnly && r.Status != Status.Cancelled)
-            .Select(r => (r.EndTime - r.StartTime).TotalHours)
-            .SumAsync(cancellationToken);
+            .Select(r => new { r.StartTime, r.EndTime })
+            .ToListAsync(cancellationToken);
+        
+        var totalHoursReservations = reservationsHours
+            .Sum(r => (r.EndTime - r.StartTime).TotalHours);
 
-        var totalHoursEvents = await _dbContext.CourtEvents
+        var reservationHours = await _dbContext.CourtEvents
             .AsNoTracking()
             .Where(ce => ce.StartTime >= todayStart && ce.EndTime <= todayEnd)
-            .Select(ce => (ce.EndTime - ce.StartTime).TotalHours)
-            .SumAsync(cancellationToken);
+            .Select(ce => new { ce.StartTime, ce.EndTime })
+            .ToListAsync(cancellationToken);
 
+        var totalHoursEvents = reservationHours
+            .Sum(r => (r.EndTime - r.StartTime).TotalHours);
+        
         var totalHoursConsumed = totalHoursReservations + totalHoursEvents;
         if (totalHoursConsumed == 0) return 0;
 

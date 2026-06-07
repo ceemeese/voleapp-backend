@@ -14,6 +14,6 @@ public sealed record GlobalMonthPerformanceDto(
     int MonthNumber,
     decimal TotalRevenue,
     int TotalReservations,
-    int TotalNewClubs,
-    int TotalNewPlayers
+    int TotalClubs,
+    int TotalPlayers
 );

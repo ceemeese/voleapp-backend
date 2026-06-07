@@ -1,4 +1,3 @@
-using System.Globalization;
 using Application.Abstractions.DTO.Dashboard;
 using Application.Abstractions.Interfaces.Queries;
 using Domain.Reservation.Enum;
@@ -33,14 +32,15 @@ internal sealed class GlobalAnalyticsQueries : IGlobalAnalyticsQueries
         var endDateTime = endDate.ToDateTime(TimeOnly.MaxValue);
         
         var periodReservations = reservations.Where(r => r.Date >= startDate && r.Date <= endDate).ToList();
-        int totalClubsPeriod = clubs.Count(c => c.CreatedAt >= startDateTime && c.CreatedAt <= endDateTime);
-        int totalNewPlayersPeriod = players.Count(u => u.CreatedAt >= startDateTime && u.CreatedAt <= endDateTime);
+        var totalClubsPeriod = clubs.Count(c => c.CreatedAt >= startDateTime && c.CreatedAt <= endDateTime);
+        var totalNewPlayersPeriod = players.Count(u => u.CreatedAt >= startDateTime && u.CreatedAt <= endDateTime);
         
-        double averageReservationsPerClub = totalClubsPeriod > 0 
-            ? Math.Round((double)periodReservations.Count / totalClubsPeriod, 2) 
+        var totalClubsUpToDate = clubs.Count(c => c.CreatedAt <= endDateTime);
+        double averageReservationsPerClub = totalClubsUpToDate > 0 
+            ? Math.Round((double)periodReservations.Count / totalClubsUpToDate, 2) 
             : 0;
         
-        var monthlyEvolution = BuildMonthlyEvolution(reservations, clubs, players);
+        var monthlyEvolution = BuildMonthlyEvolution(currentYear, reservations, clubs, players);
         
         return new GlobalAnalysisResponse(
             periodReservations.Sum(r => r.TotalPrice),
@@ -65,7 +65,7 @@ internal sealed class GlobalAnalyticsQueries : IGlobalAnalyticsQueries
             .Select(r => new ReservationData(r.Price.TotalPrice, r.Date))
             .ToListAsync(cancellationToken);
 
-        var clubs = await _dbContext.Clubs
+        /*var clubs = await _dbContext.Clubs
             .AsNoTracking()
             .Where(c => c.CreatedAt >= startOfYearDt && c.CreatedAt <= endOfYearDt)
             .Select(c => new ClubData(c.Id, c.CreatedAt))
@@ -75,20 +75,48 @@ internal sealed class GlobalAnalyticsQueries : IGlobalAnalyticsQueries
             .AsNoTracking()
             .Where(u => u.CreatedAt >= startOfYearDt && u.CreatedAt <= endOfYearDt)
             .Select(u => new PlayerData(u.Id, u.CreatedAt))
+            .ToListAsync(cancellationToken);*/
+        
+        var clubs = await _dbContext.Clubs
+            .AsNoTracking()
+            .Where(c => c.IsActive)
+            .Select(c => new ClubData(c.Id, c.CreatedAt))
+            .ToListAsync(cancellationToken);
+        
+        var players = await _dbContext.Users
+            .AsNoTracking()
+            .Where(u => u.IsActive)
+            .Select(u => new PlayerData(u.Id, u.CreatedAt))
             .ToListAsync(cancellationToken);
 
         return (reservations, clubs, players);
     }
 
-    private List<GlobalMonthPerformanceDto> BuildMonthlyEvolution(List<ReservationData> reservations, List<ClubData> clubs, List<PlayerData> players)
+    private List<GlobalMonthPerformanceDto> BuildMonthlyEvolution(int year, List<ReservationData> reservations, List<ClubData> clubs, List<PlayerData> players)
     {
         var evolution = new List<GlobalMonthPerformanceDto>();
+        var currentMonthReal = DateTime.UtcNow.Month;
+        var currentYearReal = DateTime.UtcNow.Year;
 
         for (int m = 1; m <= 12; m++)
         {
+            if (year == currentYearReal && m > currentMonthReal)
+            {
+                evolution.Add(new GlobalMonthPerformanceDto(
+                    AnalyticsHelper.GetCapitalizedMonthName(m),
+                    m,
+                    0,
+                    0,
+                    0,
+                    0
+                ));
+                continue;
+            }
+            var lastSecondOfMonth = new DateTime(year, m, DateTime.DaysInMonth(year, m), 23, 59, 59);
+            
             var monthRes = reservations.Where(r => r.Date.Month == m).ToList();
-            int clubsInMonth = clubs.Count(c => c.CreatedAt.Month == m);
-            int playersInMonth = players.Count(u => u.CreatedAt.Month == m);
+            var clubsInMonth = clubs.Count(c => c.CreatedAt <= lastSecondOfMonth);
+            var playersInMonth = players.Count(c => c.CreatedAt <= lastSecondOfMonth);
 
             evolution.Add(new GlobalMonthPerformanceDto(
                 AnalyticsHelper.GetCapitalizedMonthName(m),
