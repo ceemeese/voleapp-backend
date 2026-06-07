@@ -1,8 +1,10 @@
 using System.Globalization;
 using Application.Abstractions.DTO.Dashboard;
-using Application.Abstractions.Interfaces;
+using Application.Abstractions.Interfaces.Queries;
+using Domain.Club.Extensions;
 using Domain.Reservation.Enum;
 using Infrastructure.Persistence;
+using Infrastructure.ServiceQueries.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ServiceQueries;
@@ -34,7 +36,7 @@ internal sealed class OccupancyQueries : IOccupancyQueries
 
         var reservations = await _dbContext.Reservations
             .AsNoTracking()
-            .Where(r => r.ClubId == clubId && r.Date >= startDate && r.Date <= endDate && r.Status != Status.Cancelled)
+            .Where(r => r.ClubId == clubId && r.Date.Year == currentYear && r.Status != Status.Cancelled)
             .Select(r => new PeriodReservationReadModel(r.CourtId, r.Price.TotalPrice, r.Date, r.StartTime, r.EndTime))
             .ToListAsync(cancellationToken);
 
@@ -71,7 +73,7 @@ internal sealed class OccupancyQueries : IOccupancyQueries
         var endDateTime = endDate.ToDateTime(TimeOnly.MaxValue);
         var periodEvents = clubEvents.Where(e => e.StartTime >= startDateTime && e.EndTime <= endDateTime).ToList();
         
-        var daysCountInPeriod = CountDaysOfWeekInPeriod(startDate, endDate);
+        var daysCountInPeriod = OccupancyCalculator.CountDaysOfWeekInPeriod(startDate, endDate);
         
         var occupancyByDay = CalculateOccupancyByDayOfWeek(periodReservations, periodEvents, schedules, daysCountInPeriod, courts.Count);
         var occupancyByCourt = CalculateOccupancyByCourt(periodReservations, periodEvents, schedules, daysCountInPeriod, courts);
@@ -81,31 +83,13 @@ internal sealed class OccupancyQueries : IOccupancyQueries
     }
 
     
-    
-    
-    private Dictionary<DayOfWeek, int> CountDaysOfWeekInPeriod(DateOnly start, DateOnly end)
-    {
-        var dic = new Dictionary<DayOfWeek, int>();
-        for (DateOnly date = start; date <= end; date = date.AddDays(1))
-        {
-            var day = date.DayOfWeek;
-            if (dic.ContainsKey(day)) dic[day]++;
-            else dic[day] = 1;
-        }
-        return dic;
-    }
 
     private IReadOnlyList<DayOccupancyDto> CalculateOccupancyByDayOfWeek(
         List<PeriodReservationReadModel> reservations, List<PeriodCourtEventReadModel> events,
         List<ScheduleReadModel> schedules, Dictionary<DayOfWeek, int> daysCount, int totalCourts)
     {
-        var dayNames = new Dictionary<DayOfWeek, string> {
-            { DayOfWeek.Monday, "Lunes" }, { DayOfWeek.Tuesday, "Martes" }, { DayOfWeek.Wednesday, "Miércoles" },
-            { DayOfWeek.Thursday, "Jueves" }, { DayOfWeek.Friday, "Viernes" }, { DayOfWeek.Saturday, "Sábado" }, { DayOfWeek.Sunday, "Domingo" }
-        };
-
         var temporaryList = new List<(DayOfWeek Day, double Rate)>();
-        var schedulesByDay = schedules.GroupBy(s => (DayOfWeek)s.DayOfWeek);
+        var schedulesByDay = schedules.GroupBy(s => s.DayOfWeek.ToDotNetDay());
         
         foreach (var group in schedulesByDay)
         {
@@ -120,18 +104,16 @@ internal sealed class OccupancyQueries : IOccupancyQueries
             
             var totalAvailableHours = totalCourts * totalHoursOpenPerDay * occurrencesAtMonth;
 
-            if (totalAvailableHours <= 0) continue;
-
             var resHours = reservations.Where(r => r.Date.DayOfWeek == dotnetDay).Sum(r => (r.EndTime - r.StartTime).TotalHours);
             var evHours = events.Where(e => e.StartTime.DayOfWeek == dotnetDay).Sum(e => (e.EndTime - e.StartTime).TotalHours);
 
-            var rate = Math.Round(((resHours + evHours) / totalAvailableHours) * 100, 2);
+            var rate = OccupancyCalculator.CalculateRate(resHours + evHours, totalAvailableHours);
             temporaryList.Add((dotnetDay, rate));
         }
 
         return temporaryList
             .OrderBy(item => item.Day == DayOfWeek.Sunday ? 7 : (int)item.Day)
-            .Select(item => new DayOccupancyDto(dayNames[item.Day], item.Rate))
+            .Select(item => new DayOccupancyDto(OccupancyCalculator.DayNames[item.Day], item.Rate))
             .ToList();
     }
 
@@ -144,21 +126,22 @@ internal sealed class OccupancyQueries : IOccupancyQueries
 
         foreach (var sched in schedules)
         {
-            DayOfWeek dotnetDay = (DayOfWeek)sched.DayOfWeek;
+            DayOfWeek dotnetDay = sched.DayOfWeek.ToDotNetDay();
             if (daysCount.TryGetValue(dotnetDay, out int occurrences))
             {
                 totalOpenHoursPerCourt += (sched.ClosingTime - sched.OpeningTime).TotalHours * occurrences;
             }
         }
 
-        if (totalOpenHoursPerCourt <= 0) return result;
+        var reservationsByCourt = reservations.ToLookup(r => r.CourtId);
+        var eventsByCourt = events.ToLookup(e => e.CourtId);
 
         foreach (var court in courts)
         {
-            double resHours = reservations.Where(r => r.CourtId == court.Id).Sum(r => (r.EndTime - r.StartTime).TotalHours);
-            double evHours = events.Where(e => e.CourtId == court.Id).Sum(e => (e.EndTime - e.StartTime).TotalHours);
-
-            double rate = Math.Round(((resHours + evHours) / totalOpenHoursPerCourt) * 100, 2);
+            double resHours = reservationsByCourt[court.Id].Sum(r => (r.EndTime - r.StartTime).TotalHours);;
+            double evHours = eventsByCourt[court.Id].Sum(e => (e.EndTime - e.StartTime).TotalHours);
+            
+            var rate = OccupancyCalculator.CalculateRate(resHours + evHours, totalOpenHoursPerCourt);
             result.Add(new CourtOccupancyDto(court.Id, court.Name, rate));
         }
 
@@ -173,18 +156,21 @@ internal sealed class OccupancyQueries : IOccupancyQueries
         var culture = new CultureInfo("es-ES");
         var textInfo = culture.TextInfo;
 
+        var reservationsByMonth = allReservations.ToLookup(r => r.Date.Month);
+        var eventsByMonth = allEvents.ToLookup(e => e.StartTime.Month);
+        
         for (var m = 1; m <= 12; m++)
         {
             var monthName = textInfo.ToTitleCase(culture.DateTimeFormat.GetMonthName(m));
             
             var startOfMonth = new DateOnly(year, m, 1);
             var endOfMonth = new DateOnly(year, m, DateTime.DaysInMonth(year, m));
-            var daysCount = CountDaysOfWeekInPeriod(startOfMonth, endOfMonth);
+            var daysCount = OccupancyCalculator.CountDaysOfWeekInPeriod(startOfMonth, endOfMonth);
 
             double totalOpenHoursInMonth = 0;
             foreach (var sched in schedules)
             {
-                DayOfWeek dotnetDay = (DayOfWeek)sched.DayOfWeek;
+                DayOfWeek dotnetDay = sched.DayOfWeek.ToDotNetDay();
                 if (daysCount.TryGetValue(dotnetDay, out int occurrences))
                 {
                     totalOpenHoursInMonth += (sched.ClosingTime - sched.OpeningTime).TotalHours * occurrences;
@@ -192,17 +178,11 @@ internal sealed class OccupancyQueries : IOccupancyQueries
             }
 
             var totalAvailableHoursInMonth = totalOpenHoursInMonth * totalCourts;
-
-            if (totalAvailableHoursInMonth <= 0)
-            {
-                result.Add(new MonthOccupancyDto(monthName, m, 0));
-                continue;
-            }
-
-            var resHours = allReservations.Where(r => r.Date.Month == m).Sum(r => (r.EndTime - r.StartTime).TotalHours);
-            var evHours = allEvents.Where(e => e.StartTime.Month == m).Sum(e => (e.EndTime - e.StartTime).TotalHours);
-
-            var rate = Math.Round(((resHours + evHours) / totalAvailableHoursInMonth) * 100, 2);
+            
+            var resHours = reservationsByMonth[m].Sum(r => (r.EndTime - r.StartTime).TotalHours);
+            var evHours = eventsByMonth[m].Sum(e => (e.EndTime - e.StartTime).TotalHours);
+            
+            var rate = OccupancyCalculator.CalculateRate(resHours + evHours, totalAvailableHoursInMonth);
             result.Add(new MonthOccupancyDto(monthName, m, rate));
         }
 

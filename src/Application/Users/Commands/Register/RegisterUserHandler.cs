@@ -36,7 +36,7 @@ internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result
             return Result.Failure<UserResponse>(identityResult.Error);
         }
 
-        var user = new User(
+        var user = User.Create(
             identityResult.Value,
             request.Dni,
             request.Name,

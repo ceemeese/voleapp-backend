@@ -6,7 +6,7 @@ using Domain.Common;
 
 public sealed class Schedule : Entity<int>
 {
-    internal Schedule(Guid clubId, DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
+    private Schedule(Guid clubId, DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
     {
         ClubId = clubId;
         DayOfWeek = dayOfWeek;
@@ -27,7 +27,7 @@ public sealed class Schedule : Entity<int>
     public bool IsClosed { get; private set; }
 
 
-    public static Result<Schedule> Create(Guid clubId, DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
+    internal static Result<Schedule> Create(Guid clubId, DayOfWeek dayOfWeek, TimeOnly openingTime, TimeOnly closingTime)
     {
         if (openingTime >= closingTime)
         {
@@ -38,7 +38,7 @@ public sealed class Schedule : Entity<int>
         return Result.Success(newSchedule);
     }
 
-    public Result<Schedule> UpdateHours(TimeOnly openingTime, TimeOnly closingTime)
+    internal Result<Schedule> UpdateHours(TimeOnly openingTime, TimeOnly closingTime)
     {
         if (openingTime >= closingTime)
         {
@@ -52,12 +52,12 @@ public sealed class Schedule : Entity<int>
         return Result.Success<Schedule>(this);
     }
     
-    public void MaskAsClosed()
+    internal void MaskAsClosed()
     {
         IsClosed = true;
     }
     
-    public void MaskAsOpen()
+    internal void MaskAsOpen()
     {
         IsClosed = true;
     }

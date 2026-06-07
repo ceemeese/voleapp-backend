@@ -19,7 +19,7 @@ public sealed class Court : AggregateRoot<Guid>
     public IReadOnlyCollection<CourtEvent> CourtEvents => _courtEvents.AsReadOnly();
     
     
-    internal Court(Guid id, Guid clubId, string name, CourtType type, decimal basePrice, bool isActive)
+    private Court(Guid id, Guid clubId, string name, CourtType type, decimal basePrice, bool isActive)
     {
         ClubId = clubId;
         Name = name;

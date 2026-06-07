@@ -55,7 +55,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         var superadminId = Guid.Parse("7c9e66ab-7839-47e2-9383-718693c04200");
             
-        builder.HasData(new User
+        builder.HasData(User.Create
             (
                 superadminId,
                 "00000000A",

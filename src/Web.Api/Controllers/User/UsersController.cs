@@ -107,7 +107,7 @@ public class UsersController : ControllerBase
     }
     
     [AuthorizeSuperAdmin]
-    [HttpDelete("{id:guid}/activate")]
+    [HttpPatch("{id:guid}/activate")]
     public async Task<IActionResult>Activate([FromRoute] Guid id)
     {
         var userResult = await _mediator.Send(new ActivateUser(id));
