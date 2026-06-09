@@ -101,16 +101,18 @@ internal sealed class GlobalDashboardQueries : IGlobalDashboardQueries
             .Select(c => new
             {
                 TotalCourts = _dbContext.Courts.Where(court => court.IsActive).Count(court => court.ClubId == c.Id),
-                TotalHoursOpenToday = c.Schedules
+                Schedules = c.Schedules
                     .Where(s => s.DayOfWeek == domainDayOfWeek && !s.IsClosed)
-                    .Select(s => (s.ClosingTime - s.OpeningTime).TotalHours)
-                    .Sum()
+                    .Select(s => new { s.OpeningTime, s.ClosingTime })
+                    .ToList(),
             })
             .ToListAsync(cancellationToken);
 
-        double totalAvailableHours = clubsCapacity
-            .Where(club => club.TotalCourts > 0 && club.TotalHoursOpenToday > 0)
-            .Sum(club => club.TotalCourts * club.TotalHoursOpenToday);
+        double totalAvailableHours = clubsCapacity.Sum(club =>
+        {
+            var totalHoursOpenToday = club.Schedules.Sum(s => (s.ClosingTime - s.OpeningTime).TotalHours);
+            return club.TotalCourts * totalHoursOpenToday;
+        });
 
         if (totalAvailableHours <= 0) return 0;
 
