@@ -3,9 +3,9 @@ using Application.Abstractions.Interfaces;
 using MediatR;
 using SharedKernel;
 
-namespace Application.Users.Queries.GetToken;
+namespace Application.Users.Commands.RefreshToken;
 
-internal sealed class GetTokenHandler : IRequestHandler<GetToken, Result<LoginResponse>>
+internal sealed class GetTokenHandler : IRequestHandler<RefreshToken, Result<LoginResponse>>
 {
     private readonly IIdentityService _identityService;
     private readonly ITokenProvider _tokenProvider;
@@ -16,9 +16,9 @@ internal sealed class GetTokenHandler : IRequestHandler<GetToken, Result<LoginRe
         _tokenProvider = tokenProvider;
     }
 
-    public async Task<Result<LoginResponse>> Handle(GetToken request, CancellationToken cancellationToken)
+    public async Task<Result<LoginResponse>> Handle(RefreshToken request, CancellationToken cancellationToken)
     {
-        var identityResult = await _identityService.ValidateRefreshToken(request.RefreshToken.ToString());
+        var identityResult = await _identityService.ValidateRefreshToken(request.Token.ToString());
         if (identityResult.IsFailure)
         {
             return Result.Failure<LoginResponse>(identityResult.Error);
