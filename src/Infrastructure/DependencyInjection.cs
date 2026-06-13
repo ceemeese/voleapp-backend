@@ -32,7 +32,8 @@ public static class DependencyInjection
             .AddIdentityInternal()
             .AddWeatherApi()
             .AddEmailInternal()
-            .AddQueries();
+            .AddQueries()
+            .AddOptions(configuration);
 
     
     
@@ -149,6 +150,11 @@ public static class DependencyInjection
             .AddEntityFrameworkStores<AuthDbContext>()
             .AddDefaultTokenProviders();
 
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromMinutes(15);
+            });
+
         return services;
     }
 
@@ -177,6 +183,15 @@ public static class DependencyInjection
         services.AddScoped<IGlobalDashboardQueries, GlobalDashboardQueries>();
         services.AddScoped<IGlobalAnalyticsQueries, GlobalAnalyticsQueries>();
 
+        return services;
+    }
+    
+    
+    private static IServiceCollection AddOptions(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<Application.Abstractions.Options.UrlOptions>(
+            configuration.GetSection(Application.Abstractions.Options.UrlOptions.SectionName));
+    
         return services;
     }
     

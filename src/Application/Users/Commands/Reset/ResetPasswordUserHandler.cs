@@ -1,5 +1,4 @@
 using Application.Abstractions.Interfaces;
-using Domain.User;
 using MediatR;
 using SharedKernel;
 
@@ -9,7 +8,7 @@ internal sealed class ResetPasswordUserHandler : IRequestHandler<ResetPasswordUs
 {
     private readonly IIdentityService _identityService;
     
-    public ResetPasswordUserHandler(IIdentityService identityService, IUserRepository userRepository)
+    public ResetPasswordUserHandler(IIdentityService identityService)
     {
         _identityService = identityService;
     }

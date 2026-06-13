@@ -16,7 +16,7 @@ public interface IIdentityService
     Task<Result> UpdateUserStatusAsync(Guid userId, bool isActive);
     Task<Result> SetRefreshTokenAsync(Guid userId, string refreshToken);
     Task<Result<UserIdentity>> ValidateRefreshToken(string refreshToken);
-    Task<Result<ForgotPasswordIdentity>> ForgotPasswordAsync(string email);
+    Task<ForgotPasswordIdentity?> ForgotPasswordAsync(string email);
     Task<Result> ResetPasswordAsync(string email, string token, string newPassword);
     Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
 }

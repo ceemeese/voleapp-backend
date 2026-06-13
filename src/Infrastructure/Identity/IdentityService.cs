@@ -199,22 +199,18 @@ internal sealed class IdentityService(
         return Result.Success(new UserIdentity(user.Id, user.Email!, role!));
     }
 
-    public async Task<Result<ForgotPasswordIdentity>> ForgotPasswordAsync(string email)
+    public async Task<ForgotPasswordIdentity?> ForgotPasswordAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user is null)
         {
-            return Result.Failure<ForgotPasswordIdentity>(IdentityErrors.NotFoundByEmail);
+            return null;
         }
         
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        if (string.IsNullOrEmpty(token))
-        {
-            return Result.Failure<ForgotPasswordIdentity>(IdentityErrors.UpdateFailed);
-        }
 
-        return Result.Success(new ForgotPasswordIdentity(token, user.Email!));
+        return new ForgotPasswordIdentity(token, user.Email!);
     }
 
     public async Task<Result> ResetPasswordAsync(string email, string token, string newPassword)
@@ -227,6 +223,14 @@ internal sealed class IdentityService(
         }
 
         var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+        if (!result.Succeeded)
+        {
+            if (result.Errors.Any(e => e.Code == "InvalidToken"))
+            {
+                return Result.Failure(IdentityErrors.InvalidToken);
+            }
+            return Result.Failure(IdentityErrors.GenericError);
+        }
         
         return result.ToApplicationResult(IdentityErrors.UpdateFailed);
     }
