@@ -48,7 +48,7 @@ public class AuthsController : ControllerBase
   }
   
   [AllowAnonymous]
-  [HttpPost("forgotPassword")]
+  [HttpPost("forgot-password")]
   public async Task<IActionResult> Reset([FromBody] ForgotPasswordRequest request)
   {
     var command = new ForgotPasswordUser(
@@ -57,12 +57,12 @@ public class AuthsController : ControllerBase
     var authResult = await _mediator.Send(command);
 
     return authResult.IsSuccess 
-      ? Ok(authResult.Value) 
+      ? NoContent() 
       : CustomResults.Problem(authResult);
   }
   
   [AllowAnonymous]
-  [HttpPost("resetPassword")]
+  [HttpPost("reset-password")]
   public async Task<IActionResult> Reset([FromBody] ResetPasswordRequest request)
   {
     var command = new ResetPasswordUser(
@@ -78,7 +78,7 @@ public class AuthsController : ControllerBase
   }
   
   [Authorize]
-  [HttpPost("changePassword")]
+  [HttpPost("change-password")]
   public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
   {
     var command = new ChangeUserPassword(
@@ -91,4 +91,5 @@ public class AuthsController : ControllerBase
       ? NoContent()
       : CustomResults.Problem(authResult);
   }
+  
 }

@@ -87,7 +87,7 @@ public class CourtsController : ControllerBase
         var courtResult = await _mediator.Send(command);
 
         return courtResult.IsSuccess 
-            ? NoContent()
+            ? Ok(courtResult.Value)
             : CustomResults.Problem(courtResult);
     }
     

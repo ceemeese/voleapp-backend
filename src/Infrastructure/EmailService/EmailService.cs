@@ -12,7 +12,8 @@ public class EmailService: IEmailService
     private readonly string _fromEmail;
     private readonly string _fromSendEmail;
     private readonly string _fromName;
-    private readonly string _templateId;
+    private readonly string _templateIdSend;
+    private readonly string _templateIdForgot;
     private readonly ILogger<EmailService> _logger;
 
     public EmailService(IConfiguration configuration,  ILogger<EmailService> logger)
@@ -21,7 +22,8 @@ public class EmailService: IEmailService
         _fromEmail = configuration["SendGrid:FromEmail"]!;
         _fromSendEmail = configuration["SendGrid:FromSendEmail"]!;
         _fromName = configuration["SendGrid:FromName"]!;
-        _templateId = configuration["SendGrid:TemplateId"]!;
+        _templateIdSend = configuration["SendGrid:TemplateIdSend"]!;
+        _templateIdForgot = configuration["SendGrid:TemplateIdForgot"]!;
         _logger = logger;
     }
     
@@ -36,7 +38,7 @@ public class EmailService: IEmailService
             var msg = new SendGridMessage();
             msg.SetFrom(from);
             msg.AddTo(to);
-            msg.SetTemplateId(_templateId);
+            msg.SetTemplateId(_templateIdSend);
 
             var templateData = new
             {
@@ -114,5 +116,42 @@ public class EmailService: IEmailService
         }
         
     }
+    
+    public async Task SendResetPasswordEmailAsync(string toEmail, string resetUrl)
+    {
+        try
+        {
+            var client = new SendGridClient(_apiKey);
+            var from = new EmailAddress(_fromEmail, _fromName);
+            var to = new EmailAddress(toEmail);
 
+            var msg = new SendGridMessage();
+            msg.SetFrom(from);
+            msg.AddTo(to);
+            msg.SetTemplateId(_templateIdForgot);
+
+            var templateData = new
+            {
+                resetUrl = resetUrl,
+            };
+            
+            msg.SetTemplateData(templateData);
+            var response = await client.SendEmailAsync(msg);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("SendGrid devolvió código de error: {StatusCode}. No se pudo enviar el email de contacto de {toEmail}.", response.StatusCode,
+                    toEmail);
+            }
+            else
+            {
+                _logger.LogInformation("Email de contacto a {toEmail} enviado correctamente", toEmail);
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al enviar email de reset a {Email}.", toEmail);
+        }
+    }
 }

@@ -1,31 +1,41 @@
-using Application.Abstractions.DTO.Auth;
+using System.Web;
 using Application.Abstractions.Interfaces;
+using Application.Abstractions.Options;
 using MediatR;
+using Microsoft.Extensions.Options;
 using SharedKernel;
 
 namespace Application.Users.Commands.Forgot;
 
-internal sealed class ForgotPasswordUserHandler : IRequestHandler<ForgotPasswordUser, Result<ForgotResponse>>
+internal sealed class ForgotPasswordUserHandler : IRequestHandler<ForgotPasswordUser, Result>
 {
     private readonly IIdentityService _identityService;
+    private readonly IEmailService _emailService;
+    private readonly UrlOptions _webOptions;
 
-    public ForgotPasswordUserHandler(IIdentityService identityService)
+    public ForgotPasswordUserHandler(IIdentityService identityService,  IEmailService emailService, IOptions<UrlOptions> webOptions)
     {
         _identityService = identityService;
+        _emailService = emailService;
+        _webOptions = webOptions.Value;
     }
 
-    public async Task<Result<ForgotResponse>> Handle(ForgotPasswordUser request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ForgotPasswordUser request, CancellationToken cancellationToken)
     {
-        var identityResult = await _identityService.ForgotPasswordAsync(request.Email);
+        var identityData = await _identityService.ForgotPasswordAsync(request.Email);
 
-        if (identityResult.IsFailure)
+        if (identityData is null)
         {
-            return Result.Failure<ForgotResponse>(identityResult.Error);
+            return Result.Success();
         }
-        
-        var (token, email) = identityResult.Value;
+
+        var baseUrl = _webOptions.FrontendUrl;
+        var encodedToken = HttpUtility.UrlEncode(identityData.Token);
+        var resetUrl = $"{baseUrl}/reset-password?token={encodedToken}&email={identityData.Email}";
         
         //envio de mail
-        return Result.Success(new ForgotResponse(token, email));
+      
+        await _emailService.SendResetPasswordEmailAsync(identityData.Email, resetUrl);
+        return Result.Success();
     }
 }

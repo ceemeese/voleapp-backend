@@ -4,4 +4,4 @@ using SharedKernel;
 
 namespace Application.Users.Commands.Forgot;
 
-public record ForgotPasswordUser(string Email) : IRequest<Result<ForgotResponse>>;
+public record ForgotPasswordUser(string Email) : IRequest<Result>;

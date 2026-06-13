@@ -43,4 +43,12 @@ public static class IdentityErrors
     public static readonly Error InvalidToken = Error.Problem(
         "IdentityUser.InvalidToken",
         "El refresh token no pertenece a ningún usuario");
+    
+    public static readonly Error InvalidResetToken = Error.Validation(
+        "User.InvalidToken",
+        "El enlace ha expirado o no es válido");
+    
+    public static readonly Error GenericError = Error.Failure(
+        "User.GeneralFailure",
+        "Ha ocurrido un error inesperado, por favor inténtalo de nuevo");
 }
