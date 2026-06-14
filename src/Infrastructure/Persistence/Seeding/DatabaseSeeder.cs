@@ -30,16 +30,23 @@ public class DatabaseSeeder
 
     public async Task SeedAsync()
     {
-        if (await _db.Users.AnyAsync())
+        if (await _db.Clubs.AnyAsync())
         {
-            _logger.LogInformation("La base de datos ya tiene datos. Seed omitido.");
+            _logger.LogInformation("La base de datos ya tiene datos. Seed omitido");
             return;
         }
 
         _logger.LogInformation("Iniciando seed...");
 
         //clubs
-        var baseEmail = _configuration["Seeding__BaseEmail"]!;
+        var baseEmail = _configuration.GetSection("Seeding").GetValue<string>("BaseEmail");
+        
+        if (string.IsNullOrEmpty(baseEmail))
+        {
+            _logger.LogError("Seeding__BaseEmail no está configurado en las variables de entorno");
+            return;
+        }
+
         var clubs = ClubFaker.Generate(baseEmail);
         _db.Clubs.AddRange(clubs);
         await _db.SaveChangesAsync();
@@ -74,9 +81,9 @@ public class DatabaseSeeder
     private async Task<List<Domain.User.User>> SeedUsersAsync(int clubCount)
     {
         var domainUsers = new List<Domain.User.User>();
-        var baseEmail = _configuration["Seeding__BaseEmail"]!;
-        var adminPassword = _configuration["Seeding__AdminPassword"]!;
-        var userPassword = _configuration["Seeding__UserPassword"]!;
+        var baseEmail = _configuration.GetSection("Seeding").GetValue<string>("BaseEmail");
+        var adminPassword = _configuration.GetSection("Seeding").GetValue<string>("AdminPassword");
+        var userPassword = _configuration.GetSection("Seeding").GetValue<string>("UserPassword");
 
         //admin por club
         for (var i = 1; i <= clubCount; i++)
