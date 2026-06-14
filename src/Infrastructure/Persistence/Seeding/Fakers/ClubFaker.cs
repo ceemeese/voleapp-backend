@@ -69,11 +69,11 @@ public static class ClubFaker
 
                 club.UpdatePricing(
                     rain:  f.Random.Decimal(5, 20),
-                    windT: f.Random.Double(15, 50),
+                    windT: Math.Round(f.Random.Double(15, 50), 0),
                     windD: f.Random.Decimal(10, 50),
-                    heatT: f.Random.Double(35, 42),
+                    heatT: Math.Round(f.Random.Double(35, 42), 0),
                     heatD: f.Random.Decimal(5, 20),
-                    coldT: f.Random.Double(0, 5),
+                    coldT: Math.Round(f.Random.Double(0, 5), 0),
                     coldD: f.Random.Decimal(5, 20)
                 );
 

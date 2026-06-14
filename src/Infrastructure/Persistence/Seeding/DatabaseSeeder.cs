@@ -1,4 +1,7 @@
+using System.Globalization;
+using System.Text;
 using Application.Abstractions.Interfaces;
+using Bogus;
 using Domain.Club;
 using Domain.Club.Enum;
 using Domain.Roles;
@@ -85,12 +88,21 @@ public class DatabaseSeeder
         var adminPassword = _configuration.GetSection("Seeding").GetValue<string>("AdminPassword");
         var userPassword = _configuration.GetSection("Seeding").GetValue<string>("UserPassword");
 
+        var f = new Faker("es");
+        
         //admin por club
         for (var i = 1; i <= clubCount; i++)
         {
+            var firstName = f.Name.FirstName();
+            var lastName = f.Name.LastName();
+            var username = GenerateUsername(firstName, lastName, f.Random.Number(10, 99));
+            var email = $"{baseEmail.Split('@')[0]}+{username}@{baseEmail.Split('@')[1]}";
+            
             await CreateUserAsync(
-                username: $"admin{i}",
-                email: $"{baseEmail.Split('@')[0]}+admin{i}@{baseEmail.Split('@')[1]}",
+                firstName: firstName,
+                lastName: lastName,
+                username: username,
+                email: email,
                 password: adminPassword,
                 role: new Role.Admin(),
                 domainUsers: domainUsers
@@ -100,9 +112,16 @@ public class DatabaseSeeder
         //30 usuarios normales
         for (var i = 1; i <= 30; i++)
         {
+            var firstName = f.Name.FirstName();
+            var lastName = f.Name.LastName();
+            var username = GenerateUsername(firstName, lastName, f.Random.Number(10, 99));
+            var email = $"{baseEmail.Split('@')[0]}+{username}@{baseEmail.Split('@')[1]}";
+            
             await CreateUserAsync(
-                username: $"user{i}",
-                email: $"{baseEmail.Split('@')[0]}+user{i}@{baseEmail.Split('@')[1]}",
+                firstName: firstName,
+                lastName: lastName,
+                username: username,
+                email: $"{baseEmail.Split('@')[0]}+{username}@{baseEmail.Split('@')[1]}",
                 password: userPassword,
                 role: new Role.User(),
                 domainUsers: domainUsers
@@ -115,6 +134,8 @@ public class DatabaseSeeder
     }
 
     private async Task CreateUserAsync(
+        string firstName,
+        string lastName,
         string username,
         string email,
         string password,
@@ -134,7 +155,9 @@ public class DatabaseSeeder
 
         //entidad de dominio
         var domainUser = UserFaker.Generate(
-            identityId: identityResult.Value,
+            identityId: identityResult.Value, 
+            firstName: firstName,
+            lastName: lastName,
             username: username,
             email: email
         );
@@ -159,10 +182,38 @@ public class DatabaseSeeder
                 .Take(f.Random.Int(5, 15));
 
             foreach (var user in members)
-                club.AddMember(user.Id, MemberRole.Player);
+            {
+                var memberResult = club.AddMember(user.Id, MemberRole.Player);
+                if (memberResult.IsFailure) continue;
+                
+                if (f.Random.Bool(0.7f))
+                {
+                    club.UpdateMember(
+                        userId: user.Id,
+                        role: MemberRole.Player,
+                        isMember: true,
+                        membershipNumber: f.Random.Replace("SOC-#####")
+                    );
+                }
+                
+                if (f.Random.Bool(0.3f))
+                    club.ToggleMemberFavourite(user.Id);
+            }
         }
 
         await _db.SaveChangesAsync();
         _logger.LogInformation("Miembros de club asignados");
+    }
+    
+    
+    
+    private static string GenerateUsername(string firstName, string lastName, int number)
+    {
+        var raw = $"{firstName[0]}{lastName}{number}".ToLower();
+        return new string(
+            raw.Normalize(NormalizationForm.FormD)
+                .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                .ToArray()
+        );
     }
 }
