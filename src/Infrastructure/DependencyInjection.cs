@@ -6,6 +6,7 @@ using Infrastructure.Authentication;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Models;
 using Infrastructure.Persistence;
+using Infrastructure.Persistence.Seeding;
 using Infrastructure.ServiceQueries;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -40,16 +41,25 @@ public static class DependencyInjection
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         string? connectionString = configuration.GetConnectionString("DefaultConnection");
+        var serverVersion = new MySqlServerVersion(new Version(8, 3, 0));
+        
+        services.AddDbContext<ApplicationDbContext>(options => options
+            .UseMySql(connectionString, serverVersion, mysqlOptions =>
+                mysqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 10,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null
+                ))
+        );
 
-        services
-            .AddDbContext<ApplicationDbContext>(options => options
-                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-            );
-
-        services
-            .AddDbContext<AuthDbContext>(options => options
-                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-            );
+        services.AddDbContext<AuthDbContext>(options => options
+            .UseMySql(connectionString, serverVersion, mysqlOptions =>
+                mysqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 10,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null
+                ))
+        );
 
         return services;
     }
@@ -67,6 +77,9 @@ public static class DependencyInjection
             .UsingRegistrationStrategy(RegistrationStrategy.Throw)
             .AsMatchingInterface()
             .WithScopedLifetime());
+
+        services.AddScoped<DatabaseSeeder>();
+        
         return services;
     }
 

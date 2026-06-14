@@ -2,6 +2,7 @@ using Application;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Extensions;
+using Infrastructure.Persistence.Seeding;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using Web.Api;
@@ -47,6 +48,12 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.ApplyMigrations();
+if (app.Configuration.GetValue<bool>("SeedDatabase"))
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    await seeder.SeedAsync();
+}
 //app.UseHttpsRedirection();
 
 app.Run();

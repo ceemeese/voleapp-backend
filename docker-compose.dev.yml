@@ -5,7 +5,7 @@
     ports:
       - "3306:3306"
     env_file:
-      - src/Web.Api/.env.dev
+      - ./src/Web.Api/.env.dev
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
