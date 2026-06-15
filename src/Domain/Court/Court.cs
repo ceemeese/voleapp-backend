@@ -142,7 +142,7 @@ public sealed class Court : AggregateRoot<Guid>
         return Result.Success();
     }
     
-    public Result CheckAvailability(DateOnly date, TimeOnly start, TimeOnly end)
+    public Result CheckEventAvailability(DateOnly date, TimeOnly start, TimeOnly end)
     {
         //convertir a datetime por los eventos
         DateTime startDateTime = date.ToDateTime(start);
