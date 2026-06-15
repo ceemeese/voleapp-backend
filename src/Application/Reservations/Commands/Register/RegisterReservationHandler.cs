@@ -37,8 +37,7 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         _logger = logger;
     }
     
-    public async Task<Result<ReservationResponse>> Handle(RegisterReservation request,
-        CancellationToken cancellationToken)
+    public async Task<Result<ReservationResponse>> Handle(RegisterReservation request, CancellationToken cancellationToken)
     {
         if (_userContext.UserId == Guid.Empty)
         {
@@ -57,7 +56,11 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             return Result.Failure<ReservationResponse>(ReservationErrors.ClubNotFound(court.ClubId));
         }
         
-        var existingReservations = await _reservationRepository.GetReservationsByCourtIdFilterDate([court.Id], request.Date, cancellationToken);
+        var hasConflictReservations = await _reservationRepository.ExistsConflictAsync(court.Id, request.Date, request.StartTime, request.EndTime, cancellationToken);
+        if (hasConflictReservations)
+        {
+            return Result.Failure<ReservationResponse>(ReservationErrors.TimeSlotOccupied);
+        }
         
         DateTime reservationDateTime = request.Date.ToDateTime(request.StartTime);
         
@@ -68,7 +71,6 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             _userContext.UserId, 
             court, 
             club,
-            existingReservations,
             request.Date,
             request.StartTime, 
             request.EndTime, 

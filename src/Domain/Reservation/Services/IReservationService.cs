@@ -10,7 +10,6 @@ public interface IReservationService
         Guid userId,
         Court.Court court,
         Club.Club club,
-        List<Reservation> existingReservations,
         DateOnly date,
         TimeOnly start,
         TimeOnly end,

@@ -62,7 +62,7 @@ internal sealed class ReservationRepository : IReservationRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> IsCourtOccupiedAsync(Guid courtId, DateOnly date, TimeOnly start, TimeOnly end, CancellationToken cancellationToken)
+    public async Task<bool> ExistsConflictAsync(Guid courtId, DateOnly date, TimeOnly start, TimeOnly end, CancellationToken cancellationToken)
     {
         return await _context.Reservations.AnyAsync(r =>
             r.CourtId == courtId &&
@@ -72,7 +72,5 @@ internal sealed class ReservationRepository : IReservationRepository
             end > r.StartTime,
             cancellationToken);
     }
-
-
     
 }

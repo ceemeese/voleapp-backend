@@ -4,6 +4,7 @@ using Application.Abstractions.Interfaces;
 using AutoMapper;
 using Domain.Club;
 using Domain.Court;
+using Domain.Reservation;
 using Domain.User;
 using MediatR;
 using SharedKernel;
@@ -17,14 +18,16 @@ internal sealed class RegisterCourtEventHandler : IRequestHandler<RegisterCourtE
     private readonly IClubMemberQueries _clubMemberQueries;
     private readonly ICourtRepository _courtRepository;
     private readonly IMapper _mapper;
+    private readonly IReservationRepository _reservationRepository;
     
-    public RegisterCourtEventHandler(IUnitOfWork unitOfWork, IUserContext userContext,  IClubMemberQueries clubMemberQueries,  ICourtRepository courtRepository, IMapper mapper)
+    public RegisterCourtEventHandler(IUnitOfWork unitOfWork, IUserContext userContext,  IClubMemberQueries clubMemberQueries,  ICourtRepository courtRepository, IMapper mapper, IReservationRepository reservationRepository)
     {
         _unitOfWork = unitOfWork;
         _userContext = userContext;
         _clubMemberQueries = clubMemberQueries;
         _courtRepository = courtRepository;
         _mapper = mapper;
+        _reservationRepository = reservationRepository;
     }
 
     public async Task<Result<CourtEventResponse>> Handle(RegisterCourtEvent request, CancellationToken cancellationToken)
@@ -49,6 +52,16 @@ internal sealed class RegisterCourtEventHandler : IRequestHandler<RegisterCourtE
                 return Result.Failure<CourtEventResponse>(ClubErrors.Forbidden);
             }
         }
+        
+        var hasConflictReservations = await _reservationRepository
+            .ExistsConflictAsync(court.Id, 
+                DateOnly.FromDateTime(request.StartTime),
+                TimeOnly.FromDateTime(request.StartTime),
+                TimeOnly.FromDateTime(request.EndTime),
+                cancellationToken);
+
+        if (hasConflictReservations)
+            return Result.Failure<CourtEventResponse>(ReservationErrors.TimeSlotOccupied);
         
         var courtEventResult = court.AddEvent(request.StartTime, request.EndTime, request.EventName, request.Description);
         if (courtEventResult.IsFailure)

@@ -59,7 +59,7 @@ public sealed class AvailabilityService : IAvailabilityService
         if (!court.IsActive) 
             return Result.Failure(CourtErrors.NotActive);
 
-        var eventCheck = court.CheckAvailability(date, start, end);
+        var eventCheck = court.CheckEventAvailability(date, start, end);
         if (eventCheck.IsFailure) return eventCheck;
 
         var hasConflict = reservations.Any(r => 

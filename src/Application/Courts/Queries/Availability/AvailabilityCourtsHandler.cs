@@ -81,40 +81,43 @@ internal sealed class AvailabilityCourtsHandler : IRequestHandler<AvailabilityCo
         
         var startTime = TimeOnly.FromDateTime(request.RequestDateTime);
         var endTime = TimeOnly.FromDateTime(request.RequestDateTime.AddMinutes(request.DurationMinutes));
-        var groupedResponse = availableCourts
+        
+        var response = BuildGroupedResponse(availableCourts, clubs, finalWeather, startTime, endTime);
+        return Result.Success(response);
+    }
+    
+    
+    
+    
+    private List<CourtGroupedAvailabilityResponse> BuildGroupedResponse(
+        List<Court> availableCourts,
+        List<Club> clubs,
+        WeatherData weather,
+        TimeOnly startTime,
+        TimeOnly endTime)
+    {
+        return availableCourts
             .GroupBy(c => c.ClubId)
-            .Select(group => 
+            .Select(group =>
             {
                 var club = clubs.First(c => c.Id == group.Key);
-        
-                var courtSummaries = group.Select(court => 
+                var courtSummaries = group.Select(court =>
                 {
                     var pricingResult = _pricingService.CalculateTransactionPrice(
-                        court.BasePrice,
-                        club.PricingConfig,
-                        finalWeather,
-                        startTime,
-                        endTime);
-                    
+                        court.BasePrice, club.PricingConfig, weather, startTime, endTime);
+
                     return new CourtAvailabilityDetailResponse(
                         court.Id,
                         court.Name,
                         _mapper.Map<CourtTypeResponse>(court.Type),
                         _mapper.Map<PriceResponse>(pricingResult),
-                        court.IsActive
-                    );
+                        court.IsActive);
                 }).ToList();
-        
+
                 return new CourtGroupedAvailabilityResponse(
-                    club.Id,
-                    club.Name,
-                    club.Address.ToString(),
-                    finalWeather.IconUrl,
-                    courtSummaries
-                );
+                    club.Id, club.Name, club.Address.ToString(),
+                    weather.IconUrl, courtSummaries);
             })
             .ToList();
-        
-        return Result.Success(groupedResponse);
     }
 }
