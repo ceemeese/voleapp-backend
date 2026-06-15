@@ -1,4 +1,4 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.User;
 using MediatR;
 using SharedKernel;
 

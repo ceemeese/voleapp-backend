@@ -6,9 +6,6 @@ internal sealed class RegisterUserValidator : AbstractValidator<RegisterUser>
 {
     public RegisterUserValidator()
     {
-        RuleFor(x => x.Dni)
-            .NotEmpty().WithErrorCode("User.DniRequired").WithMessage("El DNI es obligatorio ");
-        
         RuleFor(x => x.Name)
             .NotEmpty().WithErrorCode("User.NameRequired").WithMessage("El nombre es obligatorio");
         

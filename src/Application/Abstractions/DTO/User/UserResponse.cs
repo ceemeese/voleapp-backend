@@ -1,8 +1,7 @@
-namespace Application.Abstractions.DTO;
+namespace Application.Abstractions.DTO.User;
 
 public sealed record UserResponse(
     Guid Id,
-    string Dni,
     string Name,
     string LastName,
     string Username,

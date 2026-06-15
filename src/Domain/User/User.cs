@@ -4,9 +4,8 @@ namespace Domain.User;
 
 public sealed class User : AggregateRoot<Guid>
 {
-    private User(Guid id, string dni, string name, string lastName, string username, string email, string phoneNumber) : base(id)
+    private User(Guid id, string name, string lastName, string username, string email, string phoneNumber) : base(id)
     {
-        Dni = dni;
         Name = name;
         LastName = lastName;
         Username = username;
@@ -20,7 +19,6 @@ public sealed class User : AggregateRoot<Guid>
     {
     }
     
-    public string Dni { get; private set; }
     public string Name { get; private set; }
     public string LastName { get; private set; }
     public string Username { get; private set; }
@@ -33,9 +31,9 @@ public sealed class User : AggregateRoot<Guid>
     public void Deactivate() => IsActive = false;
     public void Activate() => IsActive = true;
 
-    public static User Create(Guid identityId, string dni, string name, string lastName, string username, string email, string phoneNumber)
+    public static User Create(Guid identityId, string name, string lastName, string username, string email, string phoneNumber)
     {
-        return new User(identityId, dni, name, lastName, username, email, phoneNumber);
+        return new User(identityId, name, lastName, username, email, phoneNumber);
     }
 
     public void UpdateProfile(string username, string phoneNumber, string email)

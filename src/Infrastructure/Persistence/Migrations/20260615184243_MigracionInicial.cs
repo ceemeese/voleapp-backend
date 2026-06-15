@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class MigracionInicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,8 +21,6 @@ namespace Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Cif = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Address_Street = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -51,8 +49,6 @@ namespace Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    Dni = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LastName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
@@ -93,6 +89,33 @@ namespace Infrastructure.Persistence.Migrations
                     table.PrimaryKey("PK_Courts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Courts_Clubs_ClubId",
+                        column: x => x.ClubId,
+                        principalTable: "Clubs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "PricingConfigs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ClubId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    RainDiscountPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    WindThreshold = table.Column<double>(type: "double", nullable: false),
+                    WindDiscountPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    HeatThreshold = table.Column<double>(type: "double", nullable: false),
+                    HeatDiscountPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    ColdThreshold = table.Column<double>(type: "double", nullable: false),
+                    ColdDiscountPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PricingConfigs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PricingConfigs_Clubs_ClubId",
                         column: x => x.ClubId,
                         principalTable: "Clubs",
                         principalColumn: "Id",
@@ -202,12 +225,17 @@ namespace Infrastructure.Persistence.Migrations
                     EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
                     Status = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    TotalPrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
                     Notes = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Price_BasePrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    Price_TotalPrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    Price_DiscountAmount = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    Price_AppliedDiscountPercent = table.Column<double>(type: "double", nullable: false),
+                    Price_DiscountReason = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -235,8 +263,8 @@ namespace Infrastructure.Persistence.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "CreatedAt", "Dni", "Email", "IsActive", "LastName", "Name", "PhoneNumber", "Username" },
-                values: new object[] { new Guid("7c9e66ab-7839-47e2-9383-718693c04200"), new DateTime(2026, 3, 26, 14, 23, 33, 268, DateTimeKind.Utc).AddTicks(4030), "00000000A", "superadminadmin@voleapp.es", true, "Superadmin", "SuperAdmin", "000000000", "superadmin" });
+                columns: new[] { "Id", "CreatedAt", "Email", "IsActive", "LastName", "Name", "PhoneNumber", "Username" },
+                values: new object[] { new Guid("7c9e66ab-7839-47e2-9383-718693c04200"), new DateTime(2026, 6, 15, 18, 42, 43, 671, DateTimeKind.Utc).AddTicks(6440), "superadminadmin@voleapp.es", true, "Superadmin", "SuperAdmin", "000000000", "superadmin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClubMembers_ClubId_UserId",
@@ -254,12 +282,6 @@ namespace Infrastructure.Persistence.Migrations
                 name: "IX_ClubMembers_UserId",
                 table: "ClubMembers",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clubs_Cif",
-                table: "Clubs",
-                column: "Cif",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clubs_Email",
@@ -289,6 +311,12 @@ namespace Infrastructure.Persistence.Migrations
                 column: "ClubId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PricingConfigs_ClubId",
+                table: "PricingConfigs",
+                column: "ClubId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reservations_ClubId",
                 table: "Reservations",
                 column: "ClubId");
@@ -314,12 +342,6 @@ namespace Infrastructure.Persistence.Migrations
                 column: "ClubId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Dni",
-                table: "Users",
-                column: "Dni",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
@@ -334,6 +356,9 @@ namespace Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "CourtEvents");
+
+            migrationBuilder.DropTable(
+                name: "PricingConfigs");
 
             migrationBuilder.DropTable(
                 name: "Reservations");

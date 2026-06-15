@@ -48,13 +48,6 @@ internal sealed class UserRepository : IUserRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
     
-    public async Task<bool> ExistByDniAsync(string dni, CancellationToken cancellationToken)
-    {
-        return await _context.Users
-            .IgnoreQueryFilters()
-            .AnyAsync(u => u.Dni.Trim() == dni.Trim(), cancellationToken);
-    }
-    
     public async Task<bool> ExistByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await _context.Users.AnyAsync(u => u.Email == email, cancellationToken);

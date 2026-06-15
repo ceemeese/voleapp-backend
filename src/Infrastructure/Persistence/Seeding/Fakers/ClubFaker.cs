@@ -48,7 +48,6 @@ public static class ClubFaker
 
                 var club = Club.Create(
                     name: c.Name,
-                    cif: f.Random.Replace("?########").ToUpper(),
                     address: addressResult.Value,
                     phoneNumber: f.Phone.PhoneNumber("9########"),
                     email: clubEmail

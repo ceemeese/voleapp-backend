@@ -1,6 +1,4 @@
-using Application.Abstractions.DTO;
-using Application.Users.Commands.Register;
-using Application.Users.Commands.Update;
+using Application.Abstractions.DTO.User;
 using AutoMapper;
 using Domain.User;
 

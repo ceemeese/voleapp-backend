@@ -62,7 +62,6 @@ public class UsersController : ControllerBase
     public async Task<IActionResult>Register([FromBody] RegisterUserRequest request)
     {
         var command = new RegisterUser(
-            request.Dni,
             request.Name,
             request.LastName,
             request.Username,

@@ -1,4 +1,4 @@
-using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.User;
 using Application.Abstractions.Interfaces;
 using AutoMapper;
 using Domain.User;
@@ -24,11 +24,6 @@ internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result
 
     public async Task<Result<UserResponse>> Handle(RegisterUser request, CancellationToken cancellationToken)
     {
-        if (await _userRepository.ExistByDniAsync(request.Dni, cancellationToken))
-        {
-            return Result.Failure<UserResponse>(UserErrors.DniDuplicated);
-        }
-        
         var identityResult = await _identityService.CreateUserAsync(request.Username, request.Email, request.Password);
 
         if (identityResult.IsFailure)
@@ -38,7 +33,6 @@ internal sealed class RegisterUserHandler : IRequestHandler<RegisterUser, Result
 
         var user = User.Create(
             identityResult.Value,
-            request.Dni,
             request.Name,
             request.LastName,
             request.Username,
