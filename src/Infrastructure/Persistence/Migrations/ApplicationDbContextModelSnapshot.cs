@@ -28,11 +28,6 @@ namespace Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Cif")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("varchar(15)");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime");
@@ -58,9 +53,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Cif")
-                        .IsUnique();
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -345,11 +337,6 @@ namespace Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
 
-                    b.Property<string>("Dni")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -380,9 +367,6 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Dni")
-                        .IsUnique();
-
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -392,8 +376,7 @@ namespace Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("7c9e66ab-7839-47e2-9383-718693c04200"),
-                            CreatedAt = new DateTime(2026, 5, 12, 18, 0, 43, 694, DateTimeKind.Utc).AddTicks(8580),
-                            Dni = "00000000A",
+                            CreatedAt = new DateTime(2026, 6, 15, 18, 42, 43, 671, DateTimeKind.Utc).AddTicks(6440),
                             Email = "superadminadmin@voleapp.es",
                             IsActive = true,
                             LastName = "Superadmin",

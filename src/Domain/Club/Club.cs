@@ -11,7 +11,6 @@ namespace Domain.Club;
 public sealed class Club : AggregateRoot<Guid>
 {
     public string Name { get; private set; }
-    public string Cif { get; private set; }
     public Address Address { get; private set; }
     public string PhoneNumber { get; private set; }
     public string Email { get; private set; }
@@ -27,10 +26,9 @@ public sealed class Club : AggregateRoot<Guid>
     
     
     
-    private Club(Guid id, string name, string cif, Address address, string phoneNumber, string email) : base(id)
+    private Club(Guid id, string name, Address address, string phoneNumber, string email) : base(id)
     {
         Name = name;
-        Cif = cif;
         Address = address;
         PhoneNumber = phoneNumber;
         Email = email;
@@ -43,21 +41,19 @@ public sealed class Club : AggregateRoot<Guid>
     {
     }
 
-    public static Club Create(string name, string cif, Address address, string phoneNumber, string email)
+    public static Club Create(string name, Address address, string phoneNumber, string email)
     {
         return new Club(
             Guid.NewGuid(), 
-            name, 
-            cif, 
+            name,
             address, 
             phoneNumber, 
             email);
     }
 
-    public void UpdateProfile(string name, string cif, Address address, string phoneNumber, string email)
+    public void UpdateProfile(string name, Address address, string phoneNumber, string email)
     {
         Name = name;
-        Cif = cif;
         Address = address;
         PhoneNumber = phoneNumber;
         Email = email;

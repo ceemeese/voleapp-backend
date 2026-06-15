@@ -59,7 +59,6 @@ internal sealed class UpdateClubHandler : IRequestHandler<UpdateClub, Result<Clu
         
         club.UpdateProfile(
             request.Name, 
-            request.Cif, 
             addressResult.Value,
             request.PhoneNumber,
             request.Email

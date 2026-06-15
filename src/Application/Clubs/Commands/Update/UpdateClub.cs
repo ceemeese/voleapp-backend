@@ -7,7 +7,6 @@ namespace Application.Clubs.Commands.Update;
 public sealed record UpdateClub(
     Guid Id,
     string Name,
-    string Cif,
     string Street,
     string City,
     string ZipCode,

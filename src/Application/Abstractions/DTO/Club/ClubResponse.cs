@@ -3,7 +3,6 @@ namespace Application.Abstractions.DTO.Club;
 public sealed record ClubResponse(
     Guid Id,
     string Name,
-    string Cif,
     AddressResponse Address,
     string PhoneNumber,
     string Email,

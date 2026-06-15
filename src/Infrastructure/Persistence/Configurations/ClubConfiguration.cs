@@ -18,13 +18,6 @@ internal sealed class ClubConfiguration : IEntityTypeConfiguration<Club>
         builder.HasIndex(c => c.Name)
             .IsUnique();
         
-        builder.Property(c => c.Cif)
-            .HasMaxLength(15)
-            .IsRequired();
-        
-        builder.HasIndex(c => c.Cif)
-            .IsUnique();
-        
         //RECUERDA! value object
         builder.OwnsOne(c => c.Address, addressBuilder =>
         {

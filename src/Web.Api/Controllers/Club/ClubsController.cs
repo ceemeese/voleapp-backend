@@ -75,7 +75,6 @@ public class ClubsController : ControllerBase
     {
         var command = new RegisterClub(
             request.Name,
-            request.Cif,
             request.Street,
             request.City,
             request.ZipCode,
@@ -97,7 +96,6 @@ public class ClubsController : ControllerBase
         var command = new UpdateClub(
             id,
             request.Name,
-            request.Cif,
             request.Street,
             request.City,
             request.ZipCode,

@@ -11,7 +11,6 @@ public static class UserFaker
 
         return User.Create(
             identityId: identityId,
-            dni: faker.Random.Replace("########?").ToUpper(),
             name: firstName,
             lastName: lastName,
             username: username,

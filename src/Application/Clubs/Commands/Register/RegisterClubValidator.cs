@@ -8,10 +8,6 @@ internal sealed class RegisterClubValidator : AbstractValidator<RegisterClub>
     {
         RuleFor(c => c.Name)
             .NotEmpty().WithErrorCode("Club.NameRequired").WithMessage("El nombre es obligatorio");
-
-        RuleFor(c => c.Cif)
-            .NotEmpty().WithErrorCode("Club.CifRequired").WithMessage("El Cif es obligatorio")
-            .MaximumLength(9).WithErrorCode("Club.CifMaxLength").WithMessage("El código de identificación no puede contener más de 9 dígitos");
         
         RuleFor(c => c.Street)
             .NotEmpty().WithErrorCode("Club.StreetRequired").WithMessage("La calle es obligatoria");

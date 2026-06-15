@@ -12,13 +12,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.HasKey(u => u.Id);
         
-        builder.Property(u => u.Dni)
-            .HasMaxLength(10)
-            .IsRequired();
-        
-        builder.HasIndex(u => u.Dni)
-            .IsUnique();
-        
         builder.Property(u => u.Email)
             .HasMaxLength(150)
             .IsRequired();
@@ -58,7 +51,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasData(User.Create
             (
                 superadminId,
-                "00000000A",
                 "SuperAdmin",
                 "Superadmin",
                 "superadmin",

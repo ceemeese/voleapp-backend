@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260511083921_AddPricingConfig")]
-    partial class AddPricingConfig
+    [Migration("20260615184243_MigracionInicial")]
+    partial class MigracionInicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,11 +30,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("Cif")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("varchar(15)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -61,9 +56,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Cif")
-                        .IsUnique();
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -317,10 +309,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime");
 
@@ -352,11 +340,6 @@ namespace Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<DateTime>("CreatedAt"));
 
-                    b.Property<string>("Dni")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -387,9 +370,6 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Dni")
-                        .IsUnique();
-
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -399,8 +379,7 @@ namespace Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("7c9e66ab-7839-47e2-9383-718693c04200"),
-                            CreatedAt = new DateTime(2026, 5, 11, 8, 39, 21, 637, DateTimeKind.Utc).AddTicks(7260),
-                            Dni = "00000000A",
+                            CreatedAt = new DateTime(2026, 6, 15, 18, 42, 43, 671, DateTimeKind.Utc).AddTicks(6440),
                             Email = "superadminadmin@voleapp.es",
                             IsActive = true,
                             LastName = "Superadmin",
@@ -518,6 +497,41 @@ namespace Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Domain.Common.ValueObjects.PriceBreakdown", "Price", b1 =>
+                        {
+                            b1.Property<int>("ReservationId")
+                                .HasColumnType("int");
+
+                            b1.Property<double>("AppliedDiscountPercent")
+                                .HasColumnType("double");
+
+                            b1.Property<decimal>("BasePrice")
+                                .HasPrecision(10, 2)
+                                .HasColumnType("decimal(10,2)");
+
+                            b1.Property<decimal>("DiscountAmount")
+                                .HasPrecision(10, 2)
+                                .HasColumnType("decimal(10,2)");
+
+                            b1.Property<string>("DiscountReason")
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)");
+
+                            b1.Property<decimal>("TotalPrice")
+                                .HasPrecision(10, 2)
+                                .HasColumnType("decimal(10,2)");
+
+                            b1.HasKey("ReservationId");
+
+                            b1.ToTable("Reservations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ReservationId");
+                        });
+
+                    b.Navigation("Price")
                         .IsRequired();
                 });
 

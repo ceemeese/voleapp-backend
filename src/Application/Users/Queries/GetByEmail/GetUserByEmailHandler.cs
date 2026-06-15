@@ -1,4 +1,5 @@
 using Application.Abstractions.DTO;
+using Application.Abstractions.DTO.User;
 using Application.Abstractions.Extensions;
 using Application.Abstractions.Interfaces;
 using Domain.User;
@@ -36,7 +37,6 @@ internal sealed class GetUserByEmailHandler : IRequestHandler<GetUserByEmail, Re
         
         var userResponse = new UserResponse(
             user.Id,
-            user.Dni,
             user.Name,
             user.LastName,
             user.Username,

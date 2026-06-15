@@ -40,7 +40,6 @@ internal sealed class RegisterClubHandler : IRequestHandler<RegisterClub, Result
 
         var club = Club.Create(
             request.Name,
-            request.Cif,
             addressResult.Value,
             request.PhoneNumber,
             request.Email
