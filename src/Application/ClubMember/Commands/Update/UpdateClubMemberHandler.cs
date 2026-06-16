@@ -12,7 +12,7 @@ using SharedKernel;
 
 namespace Application.ClubMember.Commands.Update;
 
-internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember, Result<ClubMemberCompleteResponse>>
+internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IClubRepository _clubRepository;
@@ -31,11 +31,11 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
         _mapper = mapper;
     }
 
-    public async Task<Result<ClubMemberCompleteResponse>> Handle(UpdateClubMember request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateClubMember request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsAnyAdmin())
         {
-            return Result.Failure<ClubMemberCompleteResponse>(UserErrors.Forbidden);
+            return Result.Failure(UserErrors.Forbidden);
         }
 
         if (!_userContext.IsOnlySuperadmin())
@@ -44,19 +44,19 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
 
             if (!hasPermission)
             {
-                return Result.Failure<ClubMemberCompleteResponse>(ClubErrors.Forbidden);
+                return Result.Failure(ClubErrors.Forbidden);
             }
         }
         
         var club = await _clubRepository.GetClubWithMembersAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
-            return Result.Failure<ClubMemberCompleteResponse>(ClubErrors.NotFound(request.ClubId));
+            return Result.Failure(ClubErrors.NotFound(request.ClubId));
         }
         
         if (!Enum.TryParse<MemberRole>(request.Role, ignoreCase: true, out var memberRole))
         {
-            return Result.Failure<ClubMemberCompleteResponse>(ClubMemberErrors.InvalidType);
+            return Result.Failure(ClubMemberErrors.InvalidType);
         }
         
         var currentMember = club.Members.FirstOrDefault(m => m.UserId == request.UserId);
@@ -65,7 +65,7 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
         var memberResult = club.UpdateMember(request.UserId, memberRole, request.IsMember, request.MembershipNumber);
         if (memberResult.IsFailure)
         {
-            return Result.Failure<ClubMemberCompleteResponse>(memberResult.Error);
+            return Result.Failure(memberResult.Error);
         }
 
         bool IsManagementRole(MemberRole? role) => role == MemberRole.Admin || role == MemberRole.Owner || role == MemberRole.Coach;
@@ -91,7 +91,6 @@ internal sealed class UpdateClubMemberHandler : IRequestHandler<UpdateClubMember
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         
-        var clubMemberMapped = _mapper.Map<ClubMemberCompleteResponse>(memberResult.Value);
-        return Result.Success(clubMemberMapped);
+        return Result.Success();
     }
 }
