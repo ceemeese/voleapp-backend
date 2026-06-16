@@ -11,7 +11,7 @@ using SharedKernel;
 
 namespace Application.ClubMember.Commands.Register;
 
-internal sealed class RegisterClubMemberHandler : IRequestHandler<RegisterClubMember, Result<ClubMemberCompleteResponse>>
+internal sealed class RegisterClubMemberHandler : IRequestHandler<RegisterClubMember, Result<ClubMemberResponse>>
 {
     private readonly IClubRepository _clubRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -28,11 +28,11 @@ internal sealed class RegisterClubMemberHandler : IRequestHandler<RegisterClubMe
         _mapper = mapper;
     }
 
-    public async Task<Result<ClubMemberCompleteResponse>> Handle(RegisterClubMember request, CancellationToken cancellationToken)
+    public async Task<Result<ClubMemberResponse>> Handle(RegisterClubMember request, CancellationToken cancellationToken)
     {
         if (!_userContext.IsAnyAdmin())
         {
-            return Result.Failure<ClubMemberCompleteResponse>(UserErrors.Forbidden);
+            return Result.Failure<ClubMemberResponse>(UserErrors.Forbidden);
         }
 
         if (!_userContext.IsOnlySuperadmin())
@@ -41,30 +41,30 @@ internal sealed class RegisterClubMemberHandler : IRequestHandler<RegisterClubMe
 
             if (!hasPermission)
             {
-                return Result.Failure<ClubMemberCompleteResponse>(ClubErrors.Forbidden);
+                return Result.Failure<ClubMemberResponse>(ClubErrors.Forbidden);
             }
         }
         
         var club = await _clubRepository.GetClubWithMembersAsync(request.ClubId, cancellationToken);
         if (club is null)
         {
-            return Result.Failure<ClubMemberCompleteResponse>(ClubMemberErrors.NotFound(request.ClubId));
+            return Result.Failure<ClubMemberResponse>(ClubMemberErrors.NotFound(request.ClubId));
         }
         
         if (!Enum.TryParse<MemberRole>(request.Role, ignoreCase: true, out var memberRole))
         {
-            return Result.Failure<ClubMemberCompleteResponse>(ClubMemberErrors.InvalidType);
+            return Result.Failure<ClubMemberResponse>(ClubMemberErrors.InvalidType);
         }
 
         var clubMemberResult = club.AddMember(request.UserId, memberRole);
         if (clubMemberResult.IsFailure)
         {
-            return Result.Failure<ClubMemberCompleteResponse>(clubMemberResult.Error);
+            return Result.Failure<ClubMemberResponse>(clubMemberResult.Error);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         
-        var clubMemberMapped = _mapper.Map<ClubMemberCompleteResponse>(clubMemberResult.Value);
+        var clubMemberMapped = _mapper.Map<ClubMemberResponse>(clubMemberResult.Value);
         return Result.Success(clubMemberMapped);
     }
 }
