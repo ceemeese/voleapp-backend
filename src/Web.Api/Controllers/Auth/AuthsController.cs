@@ -1,7 +1,9 @@
 using Application.Users.Commands.ChangePassword;
+using Application.Users.Commands.ConfirmEmail;
 using Application.Users.Commands.Forgot;
 using Application.Users.Commands.Login;
 using Application.Users.Commands.RefreshToken;
+using Application.Users.Commands.ResendConfirmation;
 using Application.Users.Commands.Reset;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -85,6 +87,33 @@ public class AuthsController : ControllerBase
       request.OldPassword,
       request.NewPassword
     );
+    var authResult = await _mediator.Send(command);
+
+    return authResult.IsSuccess 
+      ? NoContent()
+      : CustomResults.Problem(authResult);
+  }
+  
+  [AllowAnonymous]
+  [HttpGet("confirm-email")]
+  public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailRequest request)
+  {
+    var command = new ConfirmEmail(
+      request.Token,
+      request.Email
+    );
+    var authResult = await _mediator.Send(command);
+
+    return authResult.IsSuccess 
+      ? NoContent()
+      : CustomResults.Problem(authResult);
+  }
+  
+  [AllowAnonymous]
+  [HttpPost("resend-confirmation")]
+  public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationRequest request)
+  {
+    var command = new ResendConfirmation(request.Email);
     var authResult = await _mediator.Send(command);
 
     return authResult.IsSuccess 

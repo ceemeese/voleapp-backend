@@ -39,10 +39,15 @@ internal sealed class IdentityService(
     {
         var user = await _userManager.FindByEmailAsync(loginInput)
             ?? await _userManager.FindByNameAsync(loginInput);
-
+        
         if (user is null || !await _userManager.CheckPasswordAsync(user, password))
         {
             return Result.Failure<UserIdentity>(IdentityErrors.InvalidCredentials);
+        }
+
+        if (!user.EmailConfirmed)
+        {
+            return Result.Failure<UserIdentity>(IdentityErrors.EmailNotConfirmed);
         }
         
         var resultRoles = await _userManager.GetRolesAsync(user);
@@ -223,14 +228,6 @@ internal sealed class IdentityService(
         }
 
         var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
-        if (!result.Succeeded)
-        {
-            if (result.Errors.Any(e => e.Code == "InvalidToken"))
-            {
-                return Result.Failure(IdentityErrors.InvalidToken);
-            }
-            return Result.Failure(IdentityErrors.GenericError);
-        }
         
         return result.ToApplicationResult(IdentityErrors.UpdateFailed);
     }
@@ -246,5 +243,49 @@ internal sealed class IdentityService(
         var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
         
         return result.ToApplicationResult(IdentityErrors.UpdateFailed);
+    }
+
+    public async Task<EmailConfirmationTokenIdentity?> GenerateEmailConfirmationTokenAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        return new EmailConfirmationTokenIdentity(user.Email!, token);
+    }
+
+    public async Task<Result> ConfirmEmailAsync(string email, string token)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            return Result.Failure(IdentityErrors.NotFoundByEmail);
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        
+        return result.ToApplicationResult(IdentityErrors.ConfirmEmailFailed);
+    }
+   
+    public async Task<EmailConfirmationTokenIdentity?> ResendConfirmationEmailAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            return null;
+        }
+
+        var resultConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+        if (resultConfirmed)
+        {
+            return null;
+        }
+
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        return new EmailConfirmationTokenIdentity(user.Email!, token);
     }
 }
