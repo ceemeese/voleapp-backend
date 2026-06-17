@@ -2,6 +2,7 @@ using System.Web;
 using Application.Abstractions.Interfaces;
 using Application.Abstractions.Options;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SharedKernel;
 
@@ -12,12 +13,14 @@ internal sealed class ResendConfirmationHandler : IRequestHandler<ResendConfirma
     private readonly IIdentityService _identityService;
     private readonly IEmailService _emailService;
     private readonly UrlOptions _webOptions;
+    private readonly ILogger<ResendConfirmationHandler> _logger;
     
-    public  ResendConfirmationHandler(IIdentityService identityService, IEmailService emailService,  IOptions<UrlOptions> webOptions)
+    public  ResendConfirmationHandler(IIdentityService identityService, IEmailService emailService,  IOptions<UrlOptions> webOptions,  ILogger<ResendConfirmationHandler> logger)
     {
         _identityService = identityService;
         _emailService = emailService;
         _webOptions = webOptions.Value;
+        _logger = logger;
     }
 
     public async Task<Result> Handle(ResendConfirmation request, CancellationToken cancellationToken)
@@ -25,12 +28,14 @@ internal sealed class ResendConfirmationHandler : IRequestHandler<ResendConfirma
         var identityData = await _identityService.ResendConfirmationEmailAsync(request.Email);
         if (identityData is null || identityData.Token is null)
         {
+            _logger.LogWarning("ResendConfirmation: no se encontró usuario o ya está confirmado para {Email}", request.Email); 
             return Result.Success();
         }
         
         var baseUrl = _webOptions.FrontendUrl;
         var encodedToken = HttpUtility.UrlEncode(identityData.Token);
-        var confirmationUrl = $"{baseUrl}/confirm-email?token={encodedToken}&email={identityData.Email}";
+        var encodedEmail = HttpUtility.UrlEncode(identityData.Email);
+        var confirmationUrl = $"{baseUrl}/confirm-email?token={encodedToken}&email={encodedEmail}";
         
         await _emailService.SendConfirmationEmailAsync(request.Email, confirmationUrl);
         return Result.Success();

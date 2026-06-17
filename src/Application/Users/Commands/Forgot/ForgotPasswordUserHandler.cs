@@ -31,7 +31,8 @@ internal sealed class ForgotPasswordUserHandler : IRequestHandler<ForgotPassword
 
         var baseUrl = _webOptions.FrontendUrl;
         var encodedToken = HttpUtility.UrlEncode(identityData.Token);
-        var resetUrl = $"{baseUrl}/reset-password?token={encodedToken}&email={identityData.Email}";
+        var encodedEmail = HttpUtility.UrlEncode(identityData.Email);
+        var resetUrl = $"{baseUrl}/reset-password?token={encodedToken}&email={encodedEmail}";
         
         //envio de mail
       

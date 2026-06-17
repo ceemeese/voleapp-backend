@@ -4,6 +4,7 @@ using Application.ClubMember.Commands.Register;
 using Application.ClubMember.Commands.ToggleFavourite;
 using Application.ClubMember.Commands.Update;
 using Application.ClubMember.Queries.GetAllMembers;
+using Application.ClubMember.Queries.GetClubsByUser;
 using Application.ClubMember.Queries.GetMemberDetail;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,19 @@ public class ClubMemberController : ControllerBase
         var command = new GetAllClubMembers(clubId, search);
         
         var memberResult = await _mediator.Send(command, cancellationToken);
+        
+        return memberResult.IsSuccess 
+            ? Ok(memberResult.Value) 
+            : CustomResults.Problem(memberResult);
+    }
+    
+    [Authorize]
+    [HttpGet("api/users/{userId:guid}/clubs")]
+    public async Task<IActionResult> GetClubsByUserId([FromRoute] Guid userId, CancellationToken cancellationToken)
+    {
+        var querie = new GetClubsByUser(userId);
+        
+        var memberResult = await _mediator.Send(querie, cancellationToken);
         
         return memberResult.IsSuccess 
             ? Ok(memberResult.Value) 

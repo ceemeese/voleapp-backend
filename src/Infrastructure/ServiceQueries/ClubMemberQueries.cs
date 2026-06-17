@@ -97,4 +97,24 @@ internal sealed class ClubMemberQueries : IClubMemberQueries
                            managementRoles.Contains(m.Role) &&
                            m.IsActive, cancellationToken);
     }
+
+    public async Task<List<UserClubResponse>> GetClubsByUserId(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.ClubMembers
+            .AsNoTracking()
+            .Where(m => m.UserId == userId && m.IsActive)
+            .Join(_context.Clubs, 
+                m => m.ClubId, 
+                c=> c.Id, 
+                (member, club) => new UserClubResponse(
+                    club.Id,
+                    club.Name,
+                    new RoleResponse((int)member.Role, member.Role.ToString()),
+                    member.IsFavourite,
+                    member.IsMember,
+                    member.MembershipNumber,
+                    member.RegisteredOn
+                ))
+            .ToListAsync(cancellationToken);
+    }
 }
