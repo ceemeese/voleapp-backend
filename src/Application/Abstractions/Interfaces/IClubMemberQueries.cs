@@ -8,5 +8,5 @@ public interface IClubMemberQueries
     Task<ClubMemberCompleteResponse?> GetMembersDetail(Guid clubId, Guid userId, CancellationToken cancellationToken);
     Task<bool> IsAdminInClub(Guid clubId, Guid userId, CancellationToken cancellationToken);
     Task<bool> IsManagerInOtherClubs(Guid userId, Guid currentClubId, CancellationToken cancellationToken);
-
+    Task<List<UserClubResponse>> GetClubsByUserId(Guid userId, CancellationToken cancellationToken);
 }
