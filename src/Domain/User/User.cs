@@ -1,4 +1,5 @@
 using Domain.Common;
+using Domain.User.Events;
 
 namespace Domain.User;
 
@@ -32,8 +33,10 @@ public sealed class User : AggregateRoot<Guid>
     public void Activate() => IsActive = true;
 
     public static User Create(Guid identityId, string name, string lastName, string username, string email, string phoneNumber)
-    {
-        return new User(identityId, name, lastName, username, email, phoneNumber);
+    {   
+        var user = new User(identityId, name, lastName, username, email, phoneNumber);
+        user.RaiseDomainEvent(new UserRegisteredDomainEvent(user));
+        return user;
     }
 
     public void UpdateProfile(string username, string phoneNumber, string email)

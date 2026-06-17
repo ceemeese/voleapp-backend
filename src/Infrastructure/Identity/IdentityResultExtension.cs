@@ -38,10 +38,10 @@ internal static class IdentityResultExtension
 
         return error!.Code switch
         {
-            "DuplicateUserName" =>
-                Result.Failure(IdentityErrors.UserNameNotUnique),
-            "DuplicateEmail" =>
-                Result.Failure(IdentityErrors.EmailNotUnique),
+            "DuplicateUserName" => Result.Failure(IdentityErrors.UserNameNotUnique),
+            "DuplicateEmail" => Result.Failure(IdentityErrors.EmailNotUnique),
+            "PasswordMismatch" => Result.Failure(IdentityErrors.InvalidCredentials),
+            "InvalidToken" => Result.Failure(IdentityErrors.InvalidResetToken),
             _ => Result.Failure(defaultError ?? IdentityErrors.RegistrationFailed)
         };
     }

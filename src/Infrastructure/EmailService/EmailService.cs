@@ -14,6 +14,7 @@ public class EmailService: IEmailService
     private readonly string _fromName;
     private readonly string _templateIdSend;
     private readonly string _templateIdForgot;
+    private readonly string _templateIdConfirm;
     private readonly ILogger<EmailService> _logger;
 
     public EmailService(IConfiguration configuration,  ILogger<EmailService> logger)
@@ -24,6 +25,7 @@ public class EmailService: IEmailService
         _fromName = configuration["SendGrid:FromName"]!;
         _templateIdSend = configuration["SendGrid:TemplateIdSend"]!;
         _templateIdForgot = configuration["SendGrid:TemplateIdForgot"]!;
+        _templateIdConfirm = configuration["SendGrid:TemplateIdConfirm"]!;
         _logger = logger;
     }
     
@@ -140,18 +142,57 @@ public class EmailService: IEmailService
             
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("SendGrid devolvió código de error: {StatusCode}. No se pudo enviar el email de contacto de {toEmail}.", response.StatusCode,
+                _logger.LogError("SendGrid devolvió código de error: {StatusCode}. No se pudo enviar el email de reset de {toEmail}.", response.StatusCode,
                     toEmail);
             }
             else
             {
-                _logger.LogInformation("Email de contacto a {toEmail} enviado correctamente", toEmail);
+                _logger.LogInformation("Email de reset a {toEmail} enviado correctamente", toEmail);
             }
             
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al enviar email de reset a {Email}.", toEmail);
+        }
+    }
+
+
+    public async Task SendConfirmationEmailAsync(string toEmail, string confirmUrl)
+    {
+        try
+        {
+            var client = new SendGridClient(_apiKey);
+            var from = new EmailAddress(_fromEmail, _fromName);
+            var to = new EmailAddress(toEmail);
+
+            var msg = new SendGridMessage();
+            msg.SetFrom(from);
+            msg.AddTo(to);
+            msg.SetTemplateId(_templateIdConfirm);
+
+            var templateData = new
+            {
+                confirmUrl = confirmUrl,
+            };
+            
+            msg.SetTemplateData(templateData);
+            var response = await client.SendEmailAsync(msg);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("SendGrid devolvió código de error: {StatusCode}. No se pudo enviar el email de confirmacion de {toEmail}.", response.StatusCode,
+                    toEmail);
+            }
+            else
+            {
+                _logger.LogInformation("Email de confirmación a {toEmail} enviado correctamente", toEmail);
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al enviar email de confirmación a {Email}.", toEmail);
         }
     }
 }

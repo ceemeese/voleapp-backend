@@ -19,4 +19,7 @@ public interface IIdentityService
     Task<ForgotPasswordIdentity?> ForgotPasswordAsync(string email);
     Task<Result> ResetPasswordAsync(string email, string token, string newPassword);
     Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
+    Task<EmailConfirmationTokenIdentity?> GenerateEmailConfirmationTokenAsync(Guid userId);
+    Task<Result> ConfirmEmailAsync(string email, string token);
+    Task<EmailConfirmationTokenIdentity?> ResendConfirmationEmailAsync(string email);
 }

@@ -51,4 +51,17 @@ public static class IdentityErrors
     public static readonly Error GenericError = Error.Failure(
         "User.GeneralFailure",
         "Ha ocurrido un error inesperado, por favor inténtalo de nuevo");
+    
+    public static readonly Error ConfirmEmailFailed = Error.Problem(
+        "IdentityUser.ConfirmEmailFailed",
+        "El enlace de confirmación no es válido o ha expirado");
+    
+    public static readonly Error EmailNotConfirmed = Error.Validation(
+        "IdentityUser.EmailNotConfirmed",
+        "Correo no confirmado");
+    
+    public static readonly Error UserAlreadyConfirmed = Error.Validation(
+        "IdentityUser.UserAlreadyConfirmed",
+        "Esta cuenta ya está confirmada");
+
 }
