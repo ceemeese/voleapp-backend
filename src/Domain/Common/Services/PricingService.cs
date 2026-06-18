@@ -42,7 +42,7 @@ public sealed class PricingService : IPricingService
             highestDiscount = Math.Max(highestDiscount, config.WindDiscountPercent);
         }
         
-        if (weather.RainProbability >= 10)
+        if (weather.IsRaining)
         {
             highestDiscount = Math.Max(highestDiscount, config.RainDiscountPercent);
         }

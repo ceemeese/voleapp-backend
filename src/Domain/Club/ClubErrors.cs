@@ -14,7 +14,7 @@ public static class ClubErrors
     
     public static readonly Error ScheduleExistOverlap = Error.Conflict(
         "Club.ScheduleAlreadyExist",
-        "Ya existe un horario para ese día de la semana");
+        "El horario se solapa con otro existente ese día");
     
     public static Error ScheduleNotFound(int scheduleId) => Error.NotFound(
         "Club.ScheduleNotFound",

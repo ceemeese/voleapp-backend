@@ -15,7 +15,7 @@ public static class CourtEventErrors
         "CourtEvent.NotFound",
         $"No se ha encontrado el evento con ID '{courtEventId}'");
     
-    public static readonly Error CrossDayNotAllowed = Error.NotFound(
-        "CourtEvent.NotFound",
-        "Sólo se permiten reservas de mismo día");
+    public static readonly Error CrossDayNotAllowed = Error.Validation(
+        "CourtEvent.CrossDayNotAllowed",
+        "El evento debe empezar y terminar el mismo día");
 }

@@ -59,6 +59,6 @@ public sealed class Schedule : Entity<int>
     
     internal void MaskAsOpen()
     {
-        IsClosed = true;
+        IsClosed = false;
     }
 }
