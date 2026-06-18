@@ -62,7 +62,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Clubs");
+                    b.ToTable("Clubs", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Club.Entities.ClubMember", b =>
@@ -111,7 +111,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("ClubId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("ClubMembers");
+                    b.ToTable("ClubMembers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Club.Entities.PricingConfig", b =>
@@ -155,7 +155,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("ClubId")
                         .IsUnique();
 
-                    b.ToTable("PricingConfigs");
+                    b.ToTable("PricingConfigs", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Club.Entities.Schedule", b =>
@@ -187,7 +187,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("Schedules", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Court.Court", b =>
@@ -226,7 +226,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClubId");
 
-                    b.ToTable("Courts");
+                    b.ToTable("Courts", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Court.Entities.CourtEvent", b =>
@@ -265,7 +265,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CourtId");
 
-                    b.ToTable("CourtEvents");
+                    b.ToTable("CourtEvents", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Reservation.Reservation", b =>
@@ -322,7 +322,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CourtId", "Date");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.User.User", b =>
@@ -370,7 +370,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
@@ -388,7 +388,7 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Club.Club", b =>
                 {
-                    b.OwnsOne("Domain.Common.ValueObjects.Address", "Address", b1 =>
+                    b.OwnsOne("Domain.Club.Club.Address#Domain.Common.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("ClubId")
                                 .HasColumnType("char(36)");
@@ -415,7 +415,7 @@ namespace Infrastructure.Persistence.Migrations
 
                             b1.HasKey("ClubId");
 
-                            b1.ToTable("Clubs");
+                            b1.ToTable("Clubs", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ClubId");
@@ -496,7 +496,7 @@ namespace Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("Domain.Common.ValueObjects.PriceBreakdown", "Price", b1 =>
+                    b.OwnsOne("Domain.Reservation.Reservation.Price#Domain.Common.ValueObjects.PriceBreakdown", "Price", b1 =>
                         {
                             b1.Property<int>("ReservationId")
                                 .HasColumnType("int");
@@ -522,7 +522,7 @@ namespace Infrastructure.Persistence.Migrations
 
                             b1.HasKey("ReservationId");
 
-                            b1.ToTable("Reservations");
+                            b1.ToTable("Reservations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ReservationId");

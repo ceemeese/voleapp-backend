@@ -1,5 +1,6 @@
 using Application.Abstractions.DTO.Reservation;
 using Application.Abstractions.Interfaces;
+using Application.Abstractions.Options;
 using AutoMapper;
 using Domain.Club;
 using Domain.Common.ValueObjects;
@@ -8,6 +9,7 @@ using Domain.Reservation;
 using Domain.Reservation.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SharedKernel;
 
 namespace Application.Reservations.Commands.Register;
@@ -22,9 +24,11 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
     private readonly IReservationService _reservationService;
     private readonly ICourtRepository _courtRepository;
     private readonly IWeatherService _weatherService;
+    private readonly IStripeService _stripeService;
+    private readonly IOptions<UrlOptions> _urlOptions;
     private readonly ILogger<RegisterReservationHandler> _logger;
 
-    public RegisterReservationHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork, IMapper mapper,  IUserContext userContext,  IClubRepository clubRepository,  IReservationService reservationService, ICourtRepository courtRepository, IWeatherService weatherService,  ILogger<RegisterReservationHandler> logger)
+    public RegisterReservationHandler(IReservationRepository reservationRepository, IUnitOfWork unitOfWork, IMapper mapper, IUserContext userContext, IClubRepository clubRepository, IReservationService reservationService, ICourtRepository courtRepository, IWeatherService weatherService, IStripeService stripeService, IOptions<UrlOptions> urlOptions, ILogger<RegisterReservationHandler> logger)
     {
         _reservationRepository = reservationRepository;
         _unitOfWork = unitOfWork;
@@ -34,6 +38,8 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
         _reservationService = reservationService;
         _courtRepository = courtRepository;
         _weatherService = weatherService;
+        _stripeService = stripeService;
+        _urlOptions = urlOptions;
         _logger = logger;
     }
     
@@ -103,9 +109,19 @@ internal sealed class RegisterReservationHandler : IRequestHandler<RegisterReser
             return Result.Failure<ReservationResponse>(ensureMemberResult.Error);
         }
         
-       await _unitOfWork.SaveChangesAsync(cancellationToken); 
-       
-       var reservationMapped = _mapper.Map<ReservationResponse>(reservationResult.Value);
+       await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+       var frontendUrl = _urlOptions.Value.FrontendUrl;
+       var successUrl = $"{frontendUrl}/user/payment-success?reservationId={reservationResult.Value.Id}&session_id={{CHECKOUT_SESSION_ID}}";
+       var cancelUrl = $"{frontendUrl}/user/payment-success?reservationId={reservationResult.Value.Id}&cancelled=true";
+
+       var session = await _stripeService.CreateCheckoutSessionAsync(
+           reservationResult.Value.Price.TotalPrice,
+           reservationResult.Value.Id,
+           successUrl,
+           cancelUrl);
+
+       var reservationMapped = _mapper.Map<ReservationResponse>(reservationResult.Value) with { CheckoutUrl = session.Url };
        return Result.Success(reservationMapped);
     }
     

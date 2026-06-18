@@ -43,7 +43,7 @@ internal sealed class UserRegisteredDomainEventHandler : INotificationHandler<Us
         var baseUrl = _webOptions.FrontendUrl;
         var encodedToken = HttpUtility.UrlEncode(identityData.Token);
         var encodedEmail = HttpUtility.UrlEncode(identityData.Email);
-        var confirmationUrl = $"{baseUrl}/confirm-email?token={encodedToken}&email={encodedEmail}";
+        var confirmationUrl = $"{baseUrl}/auth/confirm-email?token={encodedToken}&email={encodedEmail}";
         
         await _emailService.SendConfirmationEmailAsync(user.Email,  confirmationUrl);
     }
