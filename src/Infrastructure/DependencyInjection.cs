@@ -33,6 +33,7 @@ public static class DependencyInjection
             .AddIdentityInternal()
             .AddWeatherApi()
             .AddEmailInternal()
+            .AddStripeInternal(configuration)
             .AddQueries()
             .AddOptions(configuration);
 
@@ -180,6 +181,13 @@ public static class DependencyInjection
     private static IServiceCollection AddEmailInternal(this IServiceCollection services)
     {
         services.AddScoped<IEmailService, EmailService.EmailService>();
+        return services;
+    }
+
+    private static IServiceCollection AddStripeInternal(this IServiceCollection services, IConfiguration configuration)
+    {
+        Stripe.StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+        services.AddScoped<IStripeService, StripeService.StripeService>();
         return services;
     }
 

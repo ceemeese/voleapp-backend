@@ -1,12 +1,11 @@
 using Application.Abstractions.Interfaces;
-using Domain.Club;
 using Domain.Reservation.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Reservations;
 
-internal sealed class ReservationCreatedDomainEventHandler : INotificationHandler<ReservationCreatedDomainEvent>
+internal sealed class ReservationCreatedDomainEventHandler : INotificationHandler<ReservationConfirmedDomainEvent>
 {
     private readonly ILogger<ReservationCreatedDomainEventHandler> _logger;
     private readonly IEmailService _emailService;
@@ -20,7 +19,7 @@ internal sealed class ReservationCreatedDomainEventHandler : INotificationHandle
     }
     
     
-    public async Task Handle(ReservationCreatedDomainEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(ReservationConfirmedDomainEvent notification, CancellationToken cancellationToken)
     {
         var reservationDto = await _reservationQueries.GetReservationCompleteByIdAsync(notification.Reservation.Id, cancellationToken);
         if (reservationDto is null)

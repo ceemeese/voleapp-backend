@@ -11,9 +11,12 @@ public sealed record ReservationResponse(
     StatusResponse Status,
     PriceResponse Price,
     string? Notes,
-    DateTime CreatedAt, 
+    DateTime CreatedAt,
     DateTime UpdatedAt
-);
+)
+{
+    public string? CheckoutUrl { get; init; }
+}
 
 
 public sealed record PriceResponse

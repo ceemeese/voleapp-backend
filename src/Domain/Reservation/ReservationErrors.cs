@@ -67,5 +67,12 @@ public static class ReservationErrors
     public static readonly Error TimeSlotOccupied = Error.Validation(
         "Reservation.TimeSlotOccupied",
         "Ya existe una reserva en este horario");
-    
+
+    public static readonly Error PaymentIntentNotFound = Error.Problem(
+        "Reservation.PaymentIntentNotFound",
+        "No se encontró el intento de pago asociado a esta reserva");
+
+    public static readonly Error PaymentNotSucceeded = Error.Problem(
+        "Reservation.PaymentNotSucceeded",
+        "El pago no se ha completado correctamente");
 }

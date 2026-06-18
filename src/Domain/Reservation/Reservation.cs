@@ -4,6 +4,7 @@ using Domain.Reservation.Enum;
 using Domain.Reservation.Events;
 using SharedKernel;
 
+
 namespace Domain.Reservation;
 
 public class Reservation : AggregateRoot<int>
@@ -19,7 +20,7 @@ public class Reservation : AggregateRoot<int>
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public PriceBreakdown Price { get; private set; }
-    
+
     private Reservation(Guid userId, Guid clubId, Guid courtId, DateOnly date, TimeOnly startTime, TimeOnly endTime, PriceBreakdown price, string? notes = null)
     {
         UserId = userId;
@@ -58,7 +59,6 @@ public class Reservation : AggregateRoot<int>
             price,
             notes);
 
-        reservation.RaiseDomainEvent(new ReservationCreatedDomainEvent(reservation));
         return Result.Success(reservation);
     }
 
@@ -81,8 +81,13 @@ public class Reservation : AggregateRoot<int>
         
         Status = newStatus;
         UpdatedAt = DateTime.UtcNow;
+
+        if (newStatus == Status.Confirmed)
+            RaiseDomainEvent(new ReservationConfirmedDomainEvent(this));
+
         return Result.Success();
     }
+
 
     public Result Cancel()
     {

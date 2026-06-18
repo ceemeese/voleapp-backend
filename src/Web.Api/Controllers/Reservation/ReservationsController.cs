@@ -1,4 +1,5 @@
 using Application.Reservations.Commands.Cancel;
+using Application.Reservations.Commands.ConfirmPayment;
 using Application.Reservations.Commands.Register;
 using Application.Reservations.Commands.UpdateStatus;
 using Application.Reservations.Queries.GetAll;
@@ -54,6 +55,15 @@ public class ReservationsController : ControllerBase
             : CustomResults.Problem(reservationResult);
     }
     
+    [Authorize]
+    [HttpPost("reservations/{id:int}/confirm-payment")]
+    public async Task<IActionResult> ConfirmPayment([FromRoute] int id, [FromBody] ConfirmPaymentRequest request, CancellationToken cancellationToken)
+    {
+        var command = new ConfirmPayment(id, request.SessionId);
+        var result = await _mediator.Send(command, cancellationToken);
+        return result.IsSuccess ? NoContent() : CustomResults.Problem(result);
+    }
+
     [Authorize]
     [HttpPatch("reservations/{id:int}/cancel")]
     public async Task<IActionResult> Cancel([FromRoute]int id, CancellationToken cancellationToken)

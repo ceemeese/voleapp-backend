@@ -58,7 +58,7 @@ internal sealed class ReservationRepository : IReservationRepository
         CancellationToken cancellationToken)
     {
         return await _context.Reservations
-            .Where(r => courtsId.Contains(r.CourtId) && r.Date == date)
+            .Where(r => courtsId.Contains(r.CourtId) && r.Date == date && r.Status == Status.Confirmed)
             .ToListAsync(cancellationToken);
     }
 
