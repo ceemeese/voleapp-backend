@@ -30,7 +30,7 @@ internal sealed class DeleteCourtEventHandler : IRequestHandler<DeleteCourtEvent
             return Result.Failure(UserErrors.Forbidden);
         }
 
-        var court = await _courtRepository.GetCourtWithEventsByDateRangeAsync(request.CourtId, request.Date, cancellationToken);
+        var court = await _courtRepository.GetCourtWithEventByIdAsync(request.CourtId, request.EventId, cancellationToken);
         if (court is null)
         {
             return Result.Failure(CourtErrors.NotFound(request.CourtId));

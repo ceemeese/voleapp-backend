@@ -97,9 +97,9 @@ public sealed class CourtEventController : ControllerBase
     
     [AuthorizeAdmins]
     [HttpDelete("api/courts/{courtId:guid}/events/{eventId:int}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid courtId, [FromRoute] int eventId, [FromBody] DateTime date, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete([FromRoute] Guid courtId, [FromRoute] int eventId, CancellationToken cancellationToken)
     {
-        var command = new DeleteCourtEvent(courtId, eventId, date);
+        var command = new DeleteCourtEvent(courtId, eventId);
         var eventResult = await _mediator.Send(command, cancellationToken);
         
         return eventResult.IsSuccess 

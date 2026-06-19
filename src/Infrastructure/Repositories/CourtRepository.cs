@@ -43,6 +43,14 @@ internal sealed class CourtRepository : ICourtRepository
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
     
+    public async Task<Court?> GetCourtWithEventByIdAsync(Guid courtId, int eventId, CancellationToken cancellationToken)
+    {
+        return await _context.Courts
+            .Where(c => c.Id == courtId)
+            .Include(c => c.CourtEvents.Where(e => e.Id == eventId))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<List<Court>> GetCourtsByClubIdAsync(Guid clubId, CancellationToken cancellationToken)
     {       
         return await _context.Courts

@@ -6,6 +6,7 @@ public interface ICourtRepository
     Task<Court?> GetCourtByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<Court?> GetCourtWithEventsByDateRangeAsync(Guid courtId, DateTime startDate, CancellationToken cancellationToken, DateTime? endDate = null);
+    Task<Court?> GetCourtWithEventByIdAsync(Guid courtId, int eventId, CancellationToken cancellationToken);
     Task<List<Court>> GetCourtsByClubIdAsync(Guid clubId, CancellationToken cancellationToken);
     Task<bool> ExistsByNameInClubAsync(Guid clubId, string name, CancellationToken cancellationToken);
     Task<bool> ExistsByNameInClubExcludeIdAsync(Guid clubId, string name, Guid id, CancellationToken cancellationToken);
