@@ -1,0 +1,29 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '--platform', 'linux/amd64',
+      '-t', 'gcr.io/project-9eef3491-7f78-4e97-826/voleapp-api',
+      '-f', 'src/Web.Api/Dockerfile',
+      '.'
+    ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'gcr.io/project-9eef3491-7f78-4e97-826/voleapp-api'
+    ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: [
+      'gcloud', 'run', 'deploy', 'voleapp-api',
+      '--image', 'gcr.io/project-9eef3491-7f78-4e97-826/voleapp-api',
+      '--region', 'europe-southwest1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '8080',
+      '--min-instances', '1'
+    ]
+
+images:
+  - 'gcr.io/project-9eef3491-7f78-4e97-826/voleapp-api'
