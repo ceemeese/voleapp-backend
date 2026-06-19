@@ -45,6 +45,11 @@ internal sealed class IdentityService(
             return Result.Failure<UserIdentity>(IdentityErrors.InvalidCredentials);
         }
 
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            return Result.Failure<UserIdentity>(IdentityErrors.AccountDeactivated);
+        }
+
         if (!user.EmailConfirmed)
         {
             return Result.Failure<UserIdentity>(IdentityErrors.EmailNotConfirmed);
