@@ -27,3 +27,6 @@ steps:
 
 images:
   - 'gcr.io/project-9eef3491-7f78-4e97-826/voleapp-api'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
