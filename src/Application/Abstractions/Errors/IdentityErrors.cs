@@ -64,4 +64,8 @@ public static class IdentityErrors
         "IdentityUser.UserAlreadyConfirmed",
         "Esta cuenta ya está confirmada");
 
+    public static readonly Error AccountDeactivated = Error.Validation(
+        "IdentityUser.AccountDeactivated",
+        "Tu cuenta está desactivada, contacta con el administrador");
+
 }
