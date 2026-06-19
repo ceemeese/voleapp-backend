@@ -34,7 +34,7 @@ internal sealed class DashboardQueries : IDashboardQueries
 
         var todayReservations = await _dbContext.Reservations
             .AsNoTracking()
-            .Where(r => r.ClubId == clubId && r.Date == todayDateOnly && r.Status != Status.Cancelled)
+            .Where(r => r.ClubId == clubId && r.Date == todayDateOnly && (r.Status == Status.Confirmed || r.Status == Status.Completed))
             .Select(r => new ReservationReadModel(r.Price.TotalPrice, r.StartTime, r.EndTime ))
             .ToListAsync(cancellationToken);
 
@@ -94,17 +94,17 @@ internal sealed class DashboardQueries : IDashboardQueries
 
         var domainDayOfWeek = DateTime.Today.DayOfWeek.ToDomainDay();
         
-        var schedule = await _dbContext.Clubs
+        var schedules = await _dbContext.Clubs
             .AsNoTracking()
             .Where(c => c.Id == clubId)
             .SelectMany(c => c.Schedules)
             .Where(s => s.DayOfWeek == domainDayOfWeek && !s.IsClosed)
             .Select(s => new { s.OpeningTime, s.ClosingTime })
-            .FirstOrDefaultAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
 
-        if (schedule is null) return 0;
+        if (schedules.Count == 0) return 0;
 
-        var hoursOpenToday = (schedule.ClosingTime - schedule.OpeningTime).TotalHours;
+        var hoursOpenToday = schedules.Sum(s => (s.ClosingTime - s.OpeningTime).TotalHours);
         
         var totalAvailableCourtHours = totalCourts * hoursOpenToday;
         
